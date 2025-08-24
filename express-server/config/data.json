@@ -1,0 +1,54 @@
+{
+  "products": [
+    {
+      "id": 101,
+      "name": "노트북",
+      "description": "맥북",
+      "price": 1500000
+    },
+    {
+      "id": 102,
+      "name": "마우스",
+      "description": "매직 마우스",
+      "price": 50000
+    },
+    {
+      "id": 103,
+      "name": "키보드",
+      "description": "매직 키보드",
+      "price": 120000
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "uid": "asdasd",
+      "name": "김영희",
+      "email": "asdasd@naver.com"
+    },
+    {
+      "id": 2,
+      "uid": "asd123",
+      "name": "박철수",
+      "email": "asd123@naver.com"
+    },
+    {
+      "id": 3,
+      "uid": "asd456",
+      "name": "김재수",
+      "email": "asd456@naver.com"
+    },
+    {
+      "id": 4,
+      "uid": "asd789",
+      "name": "김한솔",
+      "email": "asd789@naver.com"
+    },
+    {
+      "id": 5,
+      "uid": "asvzxv",
+      "name": "김한솔",
+      "email": "asd789@naver.com"
+    }
+  ]
+}
