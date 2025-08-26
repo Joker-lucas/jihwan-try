@@ -2,11 +2,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const dataFilePath = path.join(__dirname, 'data.json');
-// let products = [
-//     { id: 101, name: '노트북', description: '맥북', price: 1500000 },
-//     { id: 102, name: '마우스', description: '매직 마우스', price: 50000 },
-//     { id: 103, name: '키보드', description: '매직 키보드', price: 120000 }
-// ];
+
 const readData = async () => {
     try {
         const data = await fs.readFile(dataFilePath, 'utf8');
@@ -14,143 +10,150 @@ const readData = async () => {
     } catch (error) {
         console.log("데이터 파일을 찾을 수 없습니다.");
         return {
-            products: [],
-            customers: []
+            products: { productsmaxID: 100 },
+            customers: { customersmaxID: 0 }
         };
     }
 };
 
 const writeData = async (data) => {
-    const jsonString = JSON.stringify(data, null, 2);
+    const jsonString = JSON.stringify(data);
     await fs.writeFile(dataFilePath, jsonString, 'utf8');
 };
 
-let data = {
-    products: [],
-    customers: []
+// Product
+const getProducts = async () => {
+    const data = await readData();
+    return Object.keys(data.products)
+        .filter(key => key !== 'productsmaxID')
+        .map(key => ({ id: parseInt(key), ...data.products[key] }));
 };
+const findPID = async (id) => {
+    const data = await readData();
+    const product = data.products[id];
 
-const initialize = async () => {
-    data = await readData();
-};
-
-const getProducts = () => {
-    return data.products;
-};
-
-const findPID = (id) => {
-    return data.products.find(product => product.id === parseInt(id));
-};
-
-const addProduct = async (newProduct) => {
-    let maxId = 0;
-    if (data.products.length > 0) {
-        for (const product of data.products) {
-            if (product.id > maxId) {
-                maxId = product.id;
-            }
-        }
+    if (product) {
+        return { id: parseInt(id), ...product };
     } else {
-        maxId = 100;
+        return null;
     }
-
-    const newId = maxId + 1;
-    const productWithId = Object.assign({ id: newId }, newProduct);
-
-    data.products.push(productWithId);
-    await writeData(data);
-    return productWithId;
 };
+const addProduct = async (newProduct) => {
+    const data = await readData();
+    const newId = (data.products.productsmaxID || 0) + 1;
 
+    data.products.productsmaxID = newId;
+    data.products[newId] = newProduct;
+
+    await writeData(data);
+    return { id: newId, ...newProduct };
+};
 const updateProduct = async (id, updateData) => {
-    const index = data.products.findIndex(product => product.id === parseInt(id));
-    if (index === -1) {
-        return null;
-    }
-    updateData.id = parseInt(id); 
-    data.products[index] = updateData;
-    await writeData(data);
-    return data.products[index];
-};
+    const data = await readData();
+    const productId = id.toString();
 
+    if (!data.products[productId]) { 
+        return null; 
+    }
+
+    data.products[productId] = updateData;
+
+    await writeData(data);
+    return { id: parseInt(productId), ...updateData };
+};
 const updateProductPartial = async (id, partialUpdateData) => {
-    const index = data.products.findIndex(product => product.id === parseInt(id));
-    if (index === -1) {
-        return null;
+    const data = await readData();
+    const productId = id.toString();
+
+    if (!data.products[productId]) { 
+        return null; 
     }
+    const { id: reqBodyId,  ...updateFields } = partialUpdateData;
+    data.products[productId] = { ...data.products[productId], ...updateFields };
 
-    const updatedProduct = Object.assign(data.products[index], partialUpdateData);
     await writeData(data);
-    return updatedProduct;
+    return { id: parseInt(productId), ...data.products[productId] };
 };
-
 const deleteProduct = async (id) => {
-    const initialLength = data.products.length;
-    data.products = data.products.filter(product => product.id !== parseInt(id));
-    if (data.products.length < initialLength) {
+    const data = await readData();
+    const productId = id.toString();
+
+    if (data.products[productId]) {
+        delete data.products[productId];
         await writeData(data);
         return true;
     }
     return false;
 };
 
-const getCustomers = () => {
-    return data.customers;
+// Customer
+const getCustomers = async () => {
+    const data = await readData();
+    return Object.keys(data.customers)
+        .filter(key => key !== 'customersmaxID')
+        .map(key => ({ id: parseInt(key), ...data.customers[key] }));
 };
-
-const findCID = (id) => {
-    return data.customers.find(customer => customer.id === parseInt(id));
-};
-
-const addCustomer = async (newCustomer) => {
-    const isExist = data.customers.find(customer => customer.uid === newCustomer.uid);
-    if (isExist) {
-        return null;
-    }
-
-    let maxId = 0;
-    if (data.customers.length > 0) {
-        for (const customer of data.customers) {
-            if (customer.id > maxId) {
-                maxId = customer.id;
-            }
-        }
+const findCID = async (id) => {
+    const data = await readData();
+    const customer = data.customers[id];
+    if (customer) {
+        return { id: parseInt(id), ...customer };
     } else {
-        maxId = 0;
+        return null;
+    }
+};
+const addCustomer = async (newCustomer) => {
+    const data = await readData();
+    const allCustomers = Object.values(data.customers);
+    if (allCustomers.some(c => typeof c === 'object' && c.uid === newCustomer.uid)) {
+        return null;
     }
 
-    const newId = maxId + 1;
-    const customerWithId = Object.assign({ id: newId }, newCustomer);
-    data.customers.push(customerWithId);
+    const newId = (data.customers.customersmaxID || 0) + 1;
+    data.customers.customersmaxID = newId;
+    data.customers[newId] = newCustomer;
     await writeData(data);
-    return customerWithId;
+    return { id: newId, ...newCustomer };
 };
-
 const updateCustomer = async (id, updateData) => {
-    const index = data.customers.findIndex(customer => customer.id === parseInt(id));
-    if (index === -1) {
-        return null;
-    }
-    updateData.id = parseInt(id);
-    data.customers[index] = updateData;
-    await writeData(data);
-    return data.customers[index];
-};
+    const data = await readData();
+    const customerId = id.toString();
 
+    if (!data.customers[customerId]) { 
+        return null; 
+    }
+
+    const existingUid = data.customers[customerId].uid;
+    const customerToSave = {
+        uid: existingUid,
+        name: updateData.name,
+        email: updateData.email
+    };
+    data.customers[customerId] = customerToSave;
+
+    await writeData(data);
+    return { id: parseInt(customerId), ...customerToSave };
+};
 const updateCustomerPartial = async (id, partialUpdateData) => {
-    const index = data.customers.findIndex(customer => customer.id === parseInt(id));
-    if (index === -1) {
-        return null;
-    }
-    const updatedCustomer = Object.assign(data.customers[index], partialUpdateData);
-    await writeData(data);
-    return updatedCustomer;
-};
+    const data = await readData();
+    const customerId = id.toString();
 
+    if (!data.customers[customerId]) { 
+        return null;
+     }
+
+    const { id: reqBodyId, uid, ...updateFields } = partialUpdateData;
+    data.customers[customerId] = { ...data.customers[customerId], ...updateFields };
+
+    await writeData(data);
+    return { id: parseInt(customerId), ...data.customers[customerId] };
+};
 const deleteCustomer = async (id) => {
-    const initialLength = data.customers.length;
-    data.customers = data.customers.filter(customer => customer.id !== parseInt(id));
-    if (data.customers.length < initialLength) {
+    const data = await readData();
+    const customerId = id.toString();
+
+    if (data.customers[customerId]) {
+        delete data.customers[customerId];
         await writeData(data);
         return true;
     }
@@ -158,13 +161,15 @@ const deleteCustomer = async (id) => {
 };
 
 module.exports = {
-    initialize,
+    //product
     getProducts,
     findPID,
     addProduct,
     updateProduct,
     updateProductPartial,
     deleteProduct,
+
+    //custmoer
     getCustomers,
     findCID,
     addCustomer,
