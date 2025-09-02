@@ -4,26 +4,19 @@
   "description": "jihwan-try",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mikro-orm/core": "^6.5.1",
-    "@mikro-orm/postgresql": "^6.5.1",
-    "@mikro-orm/reflection": "^6.5.1",
-    "@mikro-orm/sqlite": "^6.5.1",
     "express": "^5.1.0",
-    "fastify": "^5.5.0",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "pg-hstore": "^2.3.4",
-    "reflect-metadata": "^0.2.2",
-    "sequelize": "^6.37.7",
-    "typeorm": "^0.3.26"
+    "sequelize": "^6.37.7"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0"
+    "sequelize-cli": "^6.6.3"
   }
 }

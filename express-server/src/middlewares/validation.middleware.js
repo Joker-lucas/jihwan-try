@@ -1,7 +1,8 @@
-//validation.js
+const productCreateFields = ['name'];
+const allowedProductFields = ['name', 'description', 'price', 'stock'];
 
-const productFields = ['name', 'description', 'price'];
-const customerFields = ['uid', 'name', 'email'];
+const customerCreateFields = ['name', 'email', 'password'];
+const allowedCustomerFields = ['name', 'email', 'password'];
 const customerUpdateFields = ['name', 'email'];
 
 const createValidator = (requiredFields) => {
@@ -24,8 +25,6 @@ const createValidator = (requiredFields) => {
 
 const filterRequestBody = (allowedFields) => {
     return (req, res, next) => {
-
-
         if (typeof req.body !== 'object' || req.body === null || Array.isArray(req.body)) {
             return res.status(400).json({ errorMsg: '객체 형식이 아닙니다.' });
         }
@@ -41,16 +40,15 @@ const filterRequestBody = (allowedFields) => {
     };
 };
 
-const validateProduct = createValidator(productFields);
-const validateCustomer = createValidator(customerFields);
-const validateCustomerUpdate = createValidator(customerUpdateFields);
+const validateProductCreation = createValidator(productCreateFields);
+const validateCustomerCreation = createValidator(customerCreateFields);
 
 
 module.exports = {
-    productFields,
-    customerFields,
-    validateProduct,
-    validateCustomer,
-    validateCustomerUpdate,
+    allowedProductFields,
+    allowedCustomerFields,
+    customerUpdateFields,
+    validateProductCreation,
+    validateCustomerCreation,
     filterRequestBody
 };
