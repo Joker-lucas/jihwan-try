@@ -1,6 +1,6 @@
 const express = require('express');
 const { customerRoute, productRoute } = require('./route');
-const { connectToDatabase } = require('../libs/db'); 
+const { connectToDatabase } = require('./libs/db'); 
 
 const app = express();
 const port = 3000;
