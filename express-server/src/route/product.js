@@ -12,7 +12,7 @@ const {
     allowedProductFields,
     validateProductCreation,
     filterRequestBody
-} = require('../middlewares');
+} = require('../../libs/middlewares');
 
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);

@@ -1,5 +1,5 @@
 const { customerService } = require('../services');
-const { Sequelize } = require('../../db/models');
+const { Sequelize } = require('../../libs/db/models');
 
 const getAllCustomers = async (req, res) => {
     try {

@@ -1,5 +1,5 @@
-const customerController = require('./customer.controller');
-const productController = require('./product.controller');
+const customerController = require('./customer');
+const productController = require('./product');
 
 module.exports = {
     ...customerController,

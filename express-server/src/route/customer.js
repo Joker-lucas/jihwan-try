@@ -13,7 +13,7 @@ const {
     customerUpdateFields,
     validateCustomerCreation,
     filterRequestBody
-} = require('../middlewares');
+} = require('../../libs/middlewares');
 
 router.get("/", getAllCustomers);
 router.get("/:id", getCustomerById);
