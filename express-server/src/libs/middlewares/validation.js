@@ -1,10 +1,13 @@
-'use strict';
-
 const userFields = {
-  requiredCreate: ['nickname', 'email', 'gender'],
-  allowedCreate: ['nickname', 'email', 'gender', 'birthday'],
-  allowedUpdate: ['nickname', 'email', 'birthday'],
+  allowed: ['nickname', 'email', 'birthday'],
 };
+
+
+const signupFields = {
+  required: ['nickname', 'gender', 'username', 'password'],
+  allowed: ['nickname', 'email', 'gender', 'birthday', 'username', 'password'],
+};
+
 
 const validateRequiredFields = (requiredFields) => {
   return (req, res, next) => {
@@ -42,12 +45,13 @@ const filterRequestBody = (allowedFields) => {
 };
 
 
-const validateUserCreation = validateRequiredFields(userFields.requiredCreate);
-const filterUserCreateBody = filterRequestBody(userFields.allowedCreate);
-const filterUserUpdateBody = filterRequestBody(userFields.allowedUpdate);
+const validateSignup = validateRequiredFields(signupFields.required);
+const filterSignupBody = filterRequestBody(signupFields.allowed);
+
+const filterUserUpdateBody = filterRequestBody(userFields.allowed);
 
 module.exports = {
-  validateUserCreation,
-  filterUserCreateBody,
+  validateSignup,
+  filterSignupBody,
   filterUserUpdateBody,
 };

@@ -1,21 +1,78 @@
-const { User } = require('../libs/db/models');
+const bcrypt = require('bcrypt');
+const { User, BasicCredential } = require('../libs/db/models');
 
 
 const getAllUsers = async () => {
-    const allUsers = await User.findAll();
+    const allUsers = await User.findAll({
+
+        include: [{
+            model: BasicCredential,
+            attributes: ['username']
+        }]
+    });
     return allUsers;
 };
 
 const getUserById = async (userId) => {
-    const foundUser = await User.findByPk(userId);
+    const foundUser = await User.findByPk(userId, {
+        include: [{
+            model: BasicCredential,
+            attributes: { exclude: ['password'] }
+        }]
+    });
     return foundUser;
 };
 
 
+
 const createUser = async (userData) => {
-    const newUser = await User.create(userData);
-    return newUser;
+    try {
+        const { nickname, gender, email, birthday, username, password } = userData;
+        const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (!nickname || nickname.length < 2 || nickname.length > 15) {
+            const error = new Error('닉네임은 2자 이상, 15자 이하로 입력해주세요.');
+            error.status = 400;
+            throw error;
+        }
+        if (specialCharacters.test(nickname)) {
+            const error = new Error('닉네임에 특수문자를 사용할 수 없습니다.');
+            error.status = 400;
+            throw error;
+        }
+        if (!username || username.length < 4) {
+            const error = new Error('사용자 이름은 4자 이상이어야 합니다.');
+            error.status = 400;
+            throw error;
+        }
+        if (!password || password.length < 6) {
+            const error = new Error('비밀번호는 6자 이상이어야 합니다.');
+            error.status = 400;
+            throw error;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await User.create({ nickname, email, gender, birthday });
+        await BasicCredential.create({
+            username,
+            password: hashedPassword,
+            userId: newUser.id,
+        });
+
+        const {password: _, ...withoutPassword} = newUser.toJSON();
+        return withoutPassword;
+
+
+    }
+
+    catch(error){
+        throw error;
+    }
+
+    
+
 };
+
+
 
 const updateUserById = async (userId, updateData) => {
     const updateResult = await User.update(updateData, {
