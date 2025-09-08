@@ -14,16 +14,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-
+     userId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     nickname: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true, 
+      unique: true,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: true,
-      unique: true, 
+      unique: true,
     },
     gender: {
       type: DataTypes.ENUM('male', 'female'),
@@ -38,10 +43,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true,
     },
+    status: {
+      type: DataTypes.ENUM('active', 'inactive', 'blocked'),
+      allowNull: false,
+      defaultValue: 'active',
+    },
     
   }, {
     sequelize,
     modelName: 'User',
+    timestamps: true,
+    paranoid: true,
   });
   return User;
 };

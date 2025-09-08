@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('BasicCredentials', {
-      id: {
+      basicCredentialId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -20,10 +20,9 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: 'Users',
-          key: 'id',
+          key: 'userId',
         },
         onUpdate: 'RESTRICT', // CASCADE로 하면 기본키 변경 가능성 차단이 어려움.
-        onDelete: 'CASCADE' // 회원 탈퇴시 id password도 함께 삭제하게 유지
       },
       password: {
         allowNull: false,

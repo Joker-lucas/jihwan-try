@@ -2,8 +2,11 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    await queryInterface.sequelize.query(`
+      CREATE TYPE "public"."enum_Users_status" AS ENUM('active', 'inactive', 'blocked');
+    `);
     await queryInterface.createTable('Users', {
-      id: {
+      userId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -27,11 +30,16 @@ module.exports = {
       birthday: {
         allowNull: true,
         type: Sequelize.DATEONLY,
-        
       },
       lastLoginAt: {
         allowNull: true,
         type: Sequelize.DATE
+      },
+    
+      status: {
+        allowNull: false,
+        type: Sequelize.ENUM('active', 'inactive', 'blocked'),
+        defaultValue: 'active'
       },
       createdAt: {
         allowNull: false,
@@ -42,10 +50,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('now')
+      },
+      
+      deletedAt: {
+        allowNull: true, 
+        type: Sequelize.DATE
       }
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Users');
+    await queryInterface.sequelize.query(`
+    DROP TYPE "public"."enum_Users_status";
+  `);
   }
 };

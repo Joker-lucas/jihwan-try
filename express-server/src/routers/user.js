@@ -9,13 +9,12 @@ const {
 
 
 router.get('/', userController.getAllUsers);
-router.get('/:id', userController.getUserById);
+router.get('/:userId', userController.getUserById);
 
 router.post('/', validateSignup, filterSignupBody, userController.createUser);
 
-router.put('/:id', filterUserUpdateBody, userController.updateUser);
-router.patch('/:id', filterUserUpdateBody, userController.updateUser);
+router.patch('/:userId', filterUserUpdateBody, userController.updateUser);
 
-router.delete('/:id', userController.deleteUser);
+router.delete('/:userId', userController.deleteUser);
 
 module.exports = router;

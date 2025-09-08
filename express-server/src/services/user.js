@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { User, BasicCredential } = require('../libs/db/models');
+const { User, BasicCredential, sequelize } = require('../libs/db/models');
 
 
 const getAllUsers = async () => {
@@ -26,6 +26,9 @@ const getUserById = async (userId) => {
 
 
 const createUser = async (userData) => {
+
+    const t = await sequelize.transaction();
+
     try {
         const { nickname, gender, email, birthday, username, password } = userData;
         const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
@@ -51,50 +54,59 @@ const createUser = async (userData) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ nickname, email, gender, birthday });
+        const newUser = await User.create({ nickname, email, gender, birthday }, { transaction: t });
         await BasicCredential.create({
             username,
             password: hashedPassword,
-            userId: newUser.id,
-        });
+            userId: newUser.userId,
+        }, { transaction: t });
+        await t.commit();
 
-        const {password: _, ...withoutPassword} = newUser.toJSON();
+        const { password: _, ...withoutPassword } = newUser.toJSON();
+
         return withoutPassword;
 
 
     }
 
-    catch(error){
+    catch (error) {
+        await t.rollback();
         throw error;
     }
-
-    
-
 };
 
 
 
 const updateUserById = async (userId, updateData) => {
-    const updateResult = await User.update(updateData, {
-        where: { id: userId }
-    });
+    const user = await User.findByPk(userId);
 
-    const updatedRowCount = updateResult[0];
-
-    if (updatedRowCount === 0) {
+    if (!user) {
         return null;
     }
+    const updatedUser = await user.update(updateData);
 
-    const updatedUser = await getUserById(userId);
     return updatedUser;
 };
 
 const deleteUserById = async (userId) => {
-    const deletedRowCount = await User.destroy({
-        where: { id: userId }
-    });
 
-    return deletedRowCount;
+    const t = await sequelize.transaction();
+
+    try {
+        await BasicCredential.destroy({where: { userId: userId }, transaction: t});
+
+        const deletedRowCount = await User.destroy({
+            where: { userId: userId },
+            transaction: t
+        });
+
+        await t.commit();
+        return deletedRowCount;
+
+    } catch (error) {
+        await t.rollback();
+        throw error;
+    }
 };
 
 module.exports = {

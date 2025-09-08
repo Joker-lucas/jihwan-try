@@ -11,7 +11,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await userService.getUserById(req.params.id);
+    const user = await userService.getUserById(req.params.userId);
     if (!user) return res.status(404).json({ errorMsg: '사용자를 찾을 수 없습니다.' });
     res.status(200).json(user);
   } catch (error) {
@@ -30,7 +30,7 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const updatedUser = await userService.updateUserById(req.params.id, req.body);
+    const updatedUser = await userService.updateUserById(req.params.userId, req.body);
     if (!updatedUser) return res.status(404).json({ errorMsg: '사용자를 찾을 수 없습니다.' });
     res.status(200).json(updatedUser);
   } catch (error) {
@@ -40,7 +40,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const isDeleted = await userService.deleteUserById(req.params.id);
+    const isDeleted = await userService.deleteUserById(req.params.userId);
     if (!isDeleted) return res.status(404).json({ errorMsg: '사용자를 찾을 수 없습니다.' });
     res.status(200).json({ message: '성공적으로 삭제되었습니다.' });
   } catch (error) {

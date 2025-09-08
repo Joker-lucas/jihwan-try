@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
     };
   }
   BasicCredential.init({
+    basicCredentialId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -31,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'BasicCredential',
+    timestamps: true,
   });
   return BasicCredential;
 };
