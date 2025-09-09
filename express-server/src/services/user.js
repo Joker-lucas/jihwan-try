@@ -3,26 +3,14 @@ const { User, BasicCredential, sequelize } = require('../libs/db/models');
 
 
 const getAllUsers = async () => {
-    const allUsers = await User.findAll({
-
-        include: [{
-            model: BasicCredential,
-            attributes: ['username']
-        }]
-    });
+    const allUsers = await User.findAll();
     return allUsers;
 };
 
 const getUserById = async (userId) => {
-    const foundUser = await User.findByPk(userId, {
-        include: [{
-            model: BasicCredential,
-            attributes: { exclude: ['password'] }
-        }]
-    });
+    const foundUser = await User.findByPk(userId);
     return foundUser;
 };
-
 
 
 const createUser = async (userData) => {
@@ -30,7 +18,7 @@ const createUser = async (userData) => {
     const t = await sequelize.transaction();
 
     try {
-        const { nickname, gender, email, birthday, username, password } = userData;
+        const { nickname, gender, email, birthday, password } = userData;
         const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         if (!nickname || nickname.length < 2 || nickname.length > 15) {
             const error = new Error('닉네임은 2자 이상, 15자 이하로 입력해주세요.');
@@ -42,11 +30,6 @@ const createUser = async (userData) => {
             error.status = 400;
             throw error;
         }
-        if (!username || username.length < 4) {
-            const error = new Error('사용자 이름은 4자 이상이어야 합니다.');
-            error.status = 400;
-            throw error;
-        }
         if (!password || password.length < 6) {
             const error = new Error('비밀번호는 6자 이상이어야 합니다.');
             error.status = 400;
@@ -54,23 +37,16 @@ const createUser = async (userData) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = await User.create({ nickname, email, gender, birthday }, { transaction: t });
         await BasicCredential.create({
-            username,
             password: hashedPassword,
             userId: newUser.userId,
         }, { transaction: t });
 
         await t.commit();
 
-        const foundUser = await User.findByPk(newUser.userId, {
-            include: [{
-                model: BasicCredential,
-                attributes: ['username'] 
-            }]
-        });
-
-        return foundUser;
+        return newUser;
     }
 
     catch (error) {

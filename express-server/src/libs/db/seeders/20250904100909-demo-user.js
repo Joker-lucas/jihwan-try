@@ -27,6 +27,7 @@ module.exports = {
 
       const user2 = await User.create({
         nickname: '필수데이터만 입력',
+        email: 'zxcxzczxc@naver.com',
         gender: 'male',
         status: 'active',
       }, { transaction });

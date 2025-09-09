@@ -4,8 +4,8 @@ const userFields = {
 
 
 const signupFields = {
-  required: ['nickname', 'gender', 'username', 'password'],
-  allowed: ['nickname', 'email', 'gender', 'birthday', 'username', 'password'],
+  required: ['nickname', 'gender', 'email', 'password'],
+  allowed: ['nickname', 'email', 'gender', 'birthday', 'password'],
 };
 
 
