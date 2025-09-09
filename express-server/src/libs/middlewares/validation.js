@@ -1,11 +1,11 @@
 const userFields = {
-  allowed: ['nickname', 'email', 'birthday'],
+  allowed: ['nickname', 'contactEmail', 'birthday'],
 };
 
 
 const signupFields = {
-  required: ['nickname', 'gender', 'email', 'password'],
-  allowed: ['nickname', 'email', 'gender', 'birthday', 'password'],
+  required: ['nickname', 'gender', 'loginEmail', 'password'],
+  allowed: ['nickname', 'loginEmail', 'contactEmail', 'gender', 'birthday', 'password'],
 };
 
 

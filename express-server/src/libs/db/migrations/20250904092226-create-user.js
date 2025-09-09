@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
-        allowNull: flase,
+        allowNull: true,
         unique: true,
         type: Sequelize.STRING
       },

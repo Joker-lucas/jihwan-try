@@ -18,7 +18,7 @@ const createUser = async (userData) => {
     const t = await sequelize.transaction();
 
     try {
-        const { nickname, gender, email, birthday, password } = userData;
+        const { nickname, gender, contactEmail, loginEmail, birthday, password } = userData;
         const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         if (!nickname || nickname.length < 2 || nickname.length > 15) {
             const error = new Error('닉네임은 2자 이상, 15자 이하로 입력해주세요.');
@@ -38,15 +38,37 @@ const createUser = async (userData) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({ nickname, email, gender, birthday }, { transaction: t });
+        const newUser = await User.create({ nickname, email: contactEmail, gender, birthday }, { transaction: t });
         await BasicCredential.create({
+            email: loginEmail,
             password: hashedPassword,
             userId: newUser.userId,
         }, { transaction: t });
 
         await t.commit();
 
-        return newUser;
+
+        const foundUser = await User.findByPk(newUser.userId, {
+            include: [{
+                model: BasicCredential,
+                attributes: ['email']
+            }]
+        });
+
+
+        const userObject = foundUser.toJSON();
+
+        const result = {
+            ...userObject,
+            contactEmail: userObject.email,
+            loginEmail: userObject.BasicCredential.email
+        };
+
+        delete result.email;
+        delete result.BasicCredential;
+
+
+        return result;
     }
 
     catch (error) {

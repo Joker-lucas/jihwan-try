@@ -20,19 +20,19 @@ module.exports = {
         status: 'active',
       }, { transaction });
       await BasicCredential.create({
-        username: 'perfect',
+        email: 'perfect@example.com',
         password: hashPassword1,
         userId: user1.userId,
       }, { transaction });
 
       const user2 = await User.create({
         nickname: '필수데이터만 입력',
-        email: 'zxcxzczxc@naver.com',
         gender: 'male',
         status: 'active',
       }, { transaction });
 
       await BasicCredential.create({
+        email: 'scarce@example.com',
         password: hashPassword2,
         userId: user2.userId,
       }, { transaction });
