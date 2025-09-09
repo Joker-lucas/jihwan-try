@@ -32,7 +32,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.DATE
       },
-    
+      
       status: {
         allowNull: false,
         type: Sequelize.ENUM('active', 'inactive', 'blocked'),

@@ -11,7 +11,7 @@ module.exports = {
       },
 
       loginEmail: {
-      type: DataTypes.STRING,
+      type: Sequelize.STRING,
       allowNull: false,
       unique: true,
     },
