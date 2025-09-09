@@ -2,9 +2,6 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.sequelize.query(`
-      CREATE TYPE "public"."enum_Users_status" AS ENUM('active', 'inactive', 'blocked');
-    `);
     await queryInterface.createTable('Users', {
       userId: {
         allowNull: false,
