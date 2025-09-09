@@ -14,7 +14,7 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING
       },
-      email: {
+      contactEmail: {
         allowNull: true,
         unique: true,
         type: Sequelize.STRING

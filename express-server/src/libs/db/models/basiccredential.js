@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    email: {
+    loginEmail: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,

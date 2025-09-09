@@ -38,9 +38,9 @@ const createUser = async (userData) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({ nickname, email: contactEmail, gender, birthday }, { transaction: t });
+        const newUser = await User.create({ nickname, contactEmail, gender, birthday }, { transaction: t });
         await BasicCredential.create({
-            email: loginEmail,
+            loginEmail,
             password: hashedPassword,
             userId: newUser.userId,
         }, { transaction: t });
@@ -51,23 +51,11 @@ const createUser = async (userData) => {
         const foundUser = await User.findByPk(newUser.userId, {
             include: [{
                 model: BasicCredential,
-                attributes: ['email']
+                attributes: ['loginEmail'] 
             }]
         });
 
-
-        const userObject = foundUser.toJSON();
-
-        const result = {
-            ...userObject,
-            contactEmail: userObject.email,
-            loginEmail: userObject.BasicCredential.email
-        };
-
-        delete result.email;
-        delete result.BasicCredential;
-
-
+        const result = foundUser.toJSON();
         return result;
     }
 

@@ -14,13 +14,13 @@ module.exports = {
 
       const user1 = await User.create({
         nickname: '모든 데이터 입력자',
-        email: 'perfect@example.com',
+        contactEmail: 'perfect@example.com',
         gender: 'female',
         birthday: '2000-07-19',
         status: 'active',
       }, { transaction });
       await BasicCredential.create({
-        email: 'perfect@example.com',
+        loginEmail: 'perfect@example.com',
         password: hashPassword1,
         userId: user1.userId,
       }, { transaction });
@@ -32,7 +32,7 @@ module.exports = {
       }, { transaction });
 
       await BasicCredential.create({
-        email: 'scarce@example.com',
+        loginEmail: 'scarce@example.com',
         password: hashPassword2,
         userId: user2.userId,
       }, { transaction });
