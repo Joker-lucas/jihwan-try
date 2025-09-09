@@ -55,17 +55,23 @@ const createUser = async (userData) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await User.create({ nickname, email, gender, birthday }, { transaction: t });
-        await BasicCredential.create({
+        const newCredential = await BasicCredential.create({
             username,
             password: hashedPassword,
             userId: newUser.userId,
         }, { transaction: t });
+
         await t.commit();
 
-        const { password: _, ...withoutPassword } = newUser.toJSON();
 
-        return withoutPassword;
+        const result = {
+            ...newUser.toJSON(),
+            ...newCredential.toJSON()
+        };
 
+        delete result.password;
+
+        return result;
 
     }
 
@@ -93,7 +99,7 @@ const deleteUserById = async (userId) => {
     const t = await sequelize.transaction();
 
     try {
-        await BasicCredential.destroy({where: { userId: userId }, transaction: t});
+        await BasicCredential.destroy({ where: { userId: userId }, transaction: t });
 
         const deletedRowCount = await User.destroy({
             where: { userId: userId },

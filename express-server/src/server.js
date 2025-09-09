@@ -7,6 +7,9 @@ const port = 3000;
 app.use(express.json());
 app.use('/api', mainRouter);
 
+app.use('*', (req, res) => {
+    res.status(404).json({ errorMsg: '페이지를 찾을 수 없습니다.' });
+});
 
 
 const startServer = async () => {
