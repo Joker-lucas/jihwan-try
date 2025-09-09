@@ -33,7 +33,6 @@ module.exports = {
       }, { transaction });
 
       await BasicCredential.create({
-        username: 'scarce',
         password: hashPassword2,
         userId: user2.userId,
       }, { transaction });
