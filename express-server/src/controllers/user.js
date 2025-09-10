@@ -19,15 +19,6 @@ const getUserById = async (req, res) => {
   }
 };
 
-const createUser = async (req, res) => {
-  try {
-    const newUser = await userService.createUser(req.body);
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ errorMsg: '서버 오류' });
-  }
-};
-
 const updateUser = async (req, res) => {
   try {
     const updatedUser = await userService.updateUserById(req.params.userId, req.body);
@@ -51,7 +42,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
   getAllUsers,
   getUserById,
-  createUser,
   updateUser,
   deleteUser,
 };

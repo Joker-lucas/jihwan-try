@@ -44,10 +44,37 @@ const filterRequestBody = (allowedFields) => {
     };
 };
 
+const validateSignup = (req, res, next) => {
+  const { nickname, gender, email, password } = req.body;
+  const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
-const validateSignup = validateRequiredFields(signupFields.required);
+  const requiredFields = signupFields.required;
+  const missingFields = requiredFields.filter(field => !req.body[field]);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      errorMsg: `필수 필드 누락: ${missingFields.join(', ')}`
+    });
+  }
+  if (nickname.length < 2 || nickname.length > 15) {
+    return res.status(400).json({
+      errorMsg: '닉네임은 2자 이상, 15자 이하로 입력해주세요.'
+    });
+  }
+  if (specialCharacters.test(nickname)) {
+    return res.status(400).json({
+      errorMsg: '닉네임에 특수문자를 사용할 수 없습니다.'
+    });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({
+      errorMsg: '비밀번호는 6자 이상이어야 합니다.'
+    });
+  }
+  next();
+};
+
 const filterSignupBody = filterRequestBody(signupFields.allowed);
-
 const filterUserUpdateBody = filterRequestBody(userFields.allowed);
 
 module.exports = {
