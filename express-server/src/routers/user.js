@@ -2,19 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { userController } = require('../controllers'); 
 const {
-  validateSignup,
-  filterSignupBody,
   filterUserUpdateBody,
+  verifyToken,
 } = require('../libs/middlewares');
 
+router.get('/', verifyToken, userController.getAllUsers);
+router.get('/:userId', verifyToken, userController.getUserById);
 
-router.get('/', userController.getAllUsers);
-router.get('/:userId', userController.getUserById);
+router.patch('/:userId', verifyToken, filterUserUpdateBody, userController.updateUser);
 
-router.post('/', validateSignup, filterSignupBody, userController.createUser);
-
-router.patch('/:userId', filterUserUpdateBody, userController.updateUser);
-
-router.delete('/:userId', userController.deleteUser);
+router.delete('/:userId', verifyToken, userController.deleteUser);
 
 module.exports = router;
