@@ -45,17 +45,9 @@ const filterRequestBody = (allowedFields) => {
 };
 
 const validateSignup = (req, res, next) => {
-  const { nickname, gender, email, password } = req.body;
+  const { nickname, password } = req.body;
   const specialCharacters = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
-  const requiredFields = signupFields.required;
-  const missingFields = requiredFields.filter(field => !req.body[field]);
-
-  if (missingFields.length > 0) {
-    return res.status(400).json({
-      errorMsg: `필수 필드 누락: ${missingFields.join(', ')}`
-    });
-  }
   if (nickname.length < 2 || nickname.length > 15) {
     return res.status(400).json({
       errorMsg: '닉네임은 2자 이상, 15자 이하로 입력해주세요.'
@@ -73,11 +65,12 @@ const validateSignup = (req, res, next) => {
   }
   next();
 };
-
+const validateSignupRequired = validateRequiredFields(signupFields.required);
 const filterSignupBody = filterRequestBody(signupFields.allowed);
 const filterUserUpdateBody = filterRequestBody(userFields.allowed);
 
 module.exports = {
+  validateSignupRequired,
   validateSignup,
   filterSignupBody,
   filterUserUpdateBody,
