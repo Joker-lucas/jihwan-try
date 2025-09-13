@@ -1,6 +1,6 @@
 const validation = require('./validation');
-const verify = require('./verify');
+require('./passport-cookie');
+require('./passport-jwt');
 module.exports = {
   ...validation,
-  ...verify,
 };

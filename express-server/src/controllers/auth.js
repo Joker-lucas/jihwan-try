@@ -1,4 +1,6 @@
+const jwt = require('jsonwebtoken');
 const { authService } = require('../services'); 
+const jwtSecret = 'jihwanproject';
 
 
 const signUp = async (req, res) => {
@@ -12,37 +14,43 @@ const signUp = async (req, res) => {
 
 const signIn = async (req, res) => {
   try {
-    const {email, password } = req.body;
-    const {user, token} = await authService.signIn(email, password);
-
-    res.cookie('user-id', user.userId, {
-        httponly: false,
-        secure: false,
-    });
-
-    res.status(200).json({
+    if (!req.user) {
+      return res.status(401).json({ errorMsg: '인증 실패' });
+    }
+    
+    if (req.originalUrl.includes('/jwt')) {
+      const token = jwt.sign({ userId: req.user.userId }, jwtSecret, { expiresIn: '1m' } );
+      return res.status(200).json({
         token: token,
         user: {
-            userId: user.userId,
-            nickname: user.nickname,
-            email: user.contactEmail
+            userId: req.user.userId,
+            nickname: req.user.nickname,
+            email: req.user.contactEmail
         }
+      });
+    }
+    return res.status(200).json({
+      message: '로그인 성공',
+      user: {
+        userId: req.user.userId,
+        nickname: req.user.nickname,
+        email: req.user.contactEmail
+      }
     });
 
-  }
-    catch(error){
-        // if(error.message) 처리로 바꿔주기
-        res.status(500).json({ errorMsg: '서버 오류' });
-    }
-
-};
-const signOut = (req, res) => {
-  try {
-    res.clearCookie('auth-cookie');
-    res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
-  } catch (error) {
+  } catch(error){
     res.status(500).json({ errorMsg: '서버 오류' });
   }
+
+};
+const signOut = (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.clearCookie('connect.sid');
+    res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
+  });
 };
 
 module.exports = {
