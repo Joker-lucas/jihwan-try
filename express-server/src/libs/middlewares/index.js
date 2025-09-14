@@ -1,6 +1,6 @@
 const validation = require('./validation');
-require('./passport-cookie');
-require('./passport-jwt');
+const isAuthenticated = require('./isAuthenticated');
 module.exports = {
   ...validation,
+  ...isAuthenticated
 };

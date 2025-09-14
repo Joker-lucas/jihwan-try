@@ -1,18 +1,16 @@
-const passport = require('passport');
 const LocalStrategy = require('passport-local');
-const {authService} = require('../../services');
-const {userService} = require('../../services');
 
 
+module.exports = (passport, authService) => {
 passport.use('local-cookie', new LocalStrategy(
     {usernameField: 'email'},
     async (email, password, done)=>{
         try{
             const user = await authService.signIn(email, password);
-
             if(!user){
                 return done(null, false, {message: '잘못된 사용자'});
             }
+            
             return done(null, user);
         }
         catch (error){
@@ -21,20 +19,19 @@ passport.use('local-cookie', new LocalStrategy(
     }
 ));
 
+
 passport.serializeUser((user, done) =>{
-    done(null,user.userId);
+    console.log("세션에 유저 정보를 저장함.")
+    done(null,user);
 }) ;
 
-passport.deserializeUser(async (userId, done) =>{
-    console.log(`세션 userId: ${userId}`);
+passport.deserializeUser(async (user, done) =>{
+    console.log(user);
     try{
-        const user = await userService.getUserById(userId);
         done(null, user);
     }
     catch (error){
         done(error);
     }
 });
-
-
-module.exports = passport;
+}

@@ -1,13 +1,11 @@
-const passport = require('passport');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const { userService } = require('../../services'); 
-
 const jwtSecret = 'jihwanproject';
 
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = jwtSecret;
 
+module.exports = (passport, userService) => {
 passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
         const user = await userService.getUserById(jwt_payload.userId);
@@ -21,5 +19,5 @@ passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
         return done(error);
     }
 }));
+}
 
-module.exports = passport;

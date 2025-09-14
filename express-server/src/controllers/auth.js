@@ -48,10 +48,16 @@ const signOut = (req, res, next) => {
     if (err) {
       return next(err);
     }
-    res.clearCookie('connect.sid');
-    res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
+    
+    req.session.destroy((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
+    });
   });
 };
+
 
 module.exports = {
   signUp,
