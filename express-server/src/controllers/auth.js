@@ -50,12 +50,13 @@ const signOut = (req, res, next) => {
     }
   
     res.clearCookie('sssssssssid');
+    console.log(req.session)
 
     req.session.destroy((err) => {
       if (err) {
         return next(err);
       }
-      
+      console.log(req.session)
       res.status(200).json({ message: '성공적으로 로그아웃되었습니다.' });
     });
   });

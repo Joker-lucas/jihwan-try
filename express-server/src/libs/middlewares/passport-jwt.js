@@ -3,7 +3,7 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { User } = require('../../libs/db/models');
 const jwtSecret = 'jihwanproject';
 
-const localGetUserById = async (jwt_payload) => {
+const _localGetUserById = async (jwt_payload) => {
     try {
         const user = await User.findByPk(jwt_payload.userId);
         return user;
@@ -13,21 +13,25 @@ const localGetUserById = async (jwt_payload) => {
 };
 
 
-const opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = jwtSecret;
+module.exports = {
+  init: (passport) => {
+    const opts = {
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: jwtSecret,
+    };
 
-passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
-    try {
-        const user = await localGetUserById(jwt_payload);
-        
-        if (user) {
-            return done(null, user);
-        } else {
-            return done(null, false);
+    passport.use('jwt', new JwtStrategy(opts, async (jwt_payload, done) => {
+        try {
+            const user = await _localGetUserById(jwt_payload);
+            if (user) {
+                return done(null, user);
+            } else {
+                return done(null, false);
+            }
+        } catch (error) {
+            return done(error);
         }
-    } catch (error) {
-        return done(error);
-    }
-}));
+    }));
+  }
+};
 
