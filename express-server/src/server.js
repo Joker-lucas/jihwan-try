@@ -22,7 +22,7 @@ const startServer = async () => {
         ]);
 
         const redisStore = new RedisStore({ client: redisClient });
-        
+
         app.use(session({
             name: 'sssssssssid',
             store: redisStore,

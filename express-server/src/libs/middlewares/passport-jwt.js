@@ -1,4 +1,4 @@
-const passport = require('passport');
+
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { User } = require('../../libs/db/models');
 const jwtSecret = 'jihwanproject';
