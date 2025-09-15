@@ -1,15 +1,14 @@
 const express = require('express'); 
 const passport = require('passport');
+const session = require('express-session');
+const RedisStore = require('connect-redis').default;
 
 const { connectToDatabase } = require('./libs/db');
 const {redisClient, connectToRedis} = require('./libs/redis');
 const mainRouter = require('./routers');
 
-const sessionSet = require('./libs/config/session');
-const passportSetCookie = require('./libs/middlewares/passport-cookie');
-const passportSetJwt = require('./libs/middlewares/passport-jwt');
-
-const { authService, userService } = require('./services');
+require('./libs/middlewares/passport-cookie');
+require('./libs/middlewares/passport-jwt');
  
 const app = express();
 const port = 3000;
@@ -22,9 +21,19 @@ const startServer = async () => {
             connectToRedis()
         ]);
 
-        app.use(sessionSet(redisClient));
-        passportSetCookie(passport, authService);
-        passportSetJwt(passport, userService);
+        const redisStore = new RedisStore({ client: redisClient });
+        app.use(session({
+            name: 'sssssssssid',
+            store: redisStore,
+            secret: 'jihwanseesion', 
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                httpOnly: true,
+                maxAge: 60 * 60 * 1000
+
+            }
+        }));
 
         app.use(passport.initialize());
         app.use(passport.session());

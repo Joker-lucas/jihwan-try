@@ -4,14 +4,14 @@ const router = express.Router();
 const { userController } = require('../controllers'); 
 const {
   filterUserUpdateBody,
-  isNotLogin,
+  isLogin
 } = require('../libs/middlewares');
 
-router.get('/', isNotLogin, userController.getAllUsers);
-router.get('/:userId', isNotLogin, userController.getUserById);
+router.get('/', isLogin, userController.getAllUsers);
+router.get('/:userId', isLogin, userController.getUserById);
 
-router.patch('/:userId', isNotLogin,filterUserUpdateBody, userController.updateUser);
+router.patch('/:userId', isLogin,filterUserUpdateBody, userController.updateUser);
 
-router.delete('/:userId', isNotLogin, userController.deleteUser);
+router.delete('/:userId', isLogin, userController.deleteUser);
 
 module.exports = router;
