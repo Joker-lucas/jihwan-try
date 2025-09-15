@@ -1,6 +1,6 @@
 const validation = require('./validation');
-const verify = require('./verify');
+const isAuthenticated = require('./isAuthenticated');
 module.exports = {
   ...validation,
-  ...verify,
+  ...isAuthenticated
 };

@@ -1,15 +1,18 @@
 const bcrypt = require('bcrypt');
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
-const jwt = require('jsonwebtoken');
-
 const salt = 10;
-const jwtSecret = 'jihwanproject';
+
 
 
 const signUp = async (userData) => {
     const t = await sequelize.transaction();
     try {
-        const { nickname, gender, email, birthday, password } = userData;
+        //const { nickname, gender, email, birthday, password } = userData;
+        const nickname = userData.nickname;
+        const gender = userData.gender;
+        const email = userData.email;
+        const birthday = userData.birthday;
+        const password = userData.password;
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = await User.create({ nickname, contactEmail: email, gender, birthday }, { transaction: t });
@@ -44,20 +47,18 @@ const signIn = async (email, password) => {
         });
 
         if (!credential) {
-            throw new Error('사용자를 찾을 수 없습니다.');
+            return null;
         }
 
         const passwordCorrect = await bcrypt.compare(password, credential.password);
 
         if (!passwordCorrect) {
-            throw new Error('비밀번호가 일치하지 않습니다.');
+            return null;
         }
 
         const user = credential.User;
-        const payload = { userId: user.userId };
-        const token = jwt.sign(payload, jwtSecret);
         
-        return { user, token };
+        return user;
     } catch (error) {
         throw error;
     }

@@ -65,6 +65,9 @@ const validateSignup = (req, res, next) => {
   }
   next();
 };
+
+
+
 const validateSignupRequired = validateRequiredFields(signupFields.required);
 const filterSignupBody = filterRequestBody(signupFields.allowed);
 const filterUserUpdateBody = filterRequestBody(userFields.allowed);
