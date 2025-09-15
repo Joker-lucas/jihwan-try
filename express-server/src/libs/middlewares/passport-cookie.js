@@ -18,40 +18,38 @@ const _localSignIn = async (email, password) => {
         throw error;
     }
 };
-
-
-module.exports = {
-    init: (passport) => {
-        passport.use('local-cookie', new LocalStrategy(
-            { usernameField: 'email' },
-            async (email, password, done) => {
-                try {
-                    const user = await _localSignIn(email, password);
-                    if (!user) {
-                        return done(null, false, { message: '잘못된 사용자' });
-                    }
-                    return done(null, user);
-                } catch (error) {
-                    return done(error);
-                }
-            }
-        ));
-
-        passport.serializeUser((user, done) => {
-            console.log("세션에 유저 정보를 저장함.")
-            done(null, user);
-        });
-
-        passport.deserializeUser((user, done) => {
-            console.log(user);
+const init = (passport) => {
+    passport.use('local-cookie', new LocalStrategy(
+        { usernameField: 'email' },
+        async (email, password, done) => {
             try {
-                done(null, user);
+                const user = await _localSignIn(email, password);
+                if (!user) {
+                    return done(null, false, { message: '잘못된 사용자' });
+                }
+                return done(null, user);
+            } catch (error) {
+                return done(error);
             }
-            catch (error) {
-                done(error);
-            }
+        }
+    ));
 
-        });
-    }
+    passport.serializeUser((user, done) => {
+        console.log("세션에 유저 정보를 저장함.");
+        done(null, user);
+    });
+
+    passport.deserializeUser((user, done) => {
+        console.log(user);
+        try {
+            done(null, user);
+        }
+        catch (error) {
+            done(error);
+        }
+    });
 };
 
+module.exports = {
+    init,
+}
