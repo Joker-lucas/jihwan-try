@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const { getLogger } = require('../libs/logger');
+const logger = getLogger('AuthService');
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
 const salt = 10;
 
@@ -8,6 +10,7 @@ const signUp = async (userData) => {
     const t = await sequelize.transaction();
     try {
         //const { nickname, gender, email, birthday, password } = userData;
+        
         const nickname = userData.nickname;
         const gender = userData.gender;
         const email = userData.email;
@@ -30,7 +33,6 @@ const signUp = async (userData) => {
                 attributes: ['loginEmail']
             }]
         });
-
         const result = foundUser.toJSON();
         return result;
     } catch (error) {
@@ -57,7 +59,6 @@ const signIn = async (email, password) => {
         }
 
         const user = credential.User;
-        
         return user;
     } catch (error) {
         throw error;
