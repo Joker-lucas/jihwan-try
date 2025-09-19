@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const { authService } = require('../services'); 
 const { getLogger } = require('../libs/logger');
-const { asyncLocalStorage } = require('../libs/middlewares/context');
+const { getContext } = require('../libs/middlewares/context');
 
 const jwtSecret = 'jihwanproject';
 const loggerPath = path.relative(process.cwd(), __filename);
@@ -24,6 +24,7 @@ const signUp = async (req, res) => {
     res.status(200).json(newUser);
   } catch (error) {
     logger.error(error, '회원가입 중 에러 발생');
+    res.status(500).json({ errorMsg: '서버 오류' });
   }
 };
 
@@ -34,14 +35,11 @@ const signIn = async (req, res) => {
       logger.warn('Passport 인증 실패');
       return res.status(401).json({ errorMsg: '인증 실패' });
     }
-
-    const store = asyncLocalStorage.getStore();
-    logger.info({ traceId: store?.get('traceId') }, '[START] 로그인 처리 시작, 5초 대기');
+    logger.info({ traceId: getContext('traceId') }, '[START] 로그인 처리 시작, 5초 대기');
 
     await sleep(5000); 
 
-    const storeAfterSleep = asyncLocalStorage.getStore();
-    logger.info({ traceId: storeAfterSleep?.get('traceId') }, '[END] 5초 대기 완료, 응답 전송');
+    logger.info({ traceId: getContext('traceId') }, '[END] 5초 대기 완료, 응답 전송');
     
     if (req.originalUrl.includes('/jwt')) {
       const token = jwt.sign({ userId: req.user.userId }, jwtSecret, { expiresIn: '1m' } );
