@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
+
 const { getLogger } = require('../libs/logger');
-const logger = getLogger('AuthService');
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
+
+const logger = getLogger('AuthService');
 const salt = 10;
 
 
@@ -22,7 +24,7 @@ const signUp = async (userData) => {
         await BasicCredential.create({
             loginEmail: email,
             password: hashedPassword,
-            userId: newUser.userId,
+            userId: newUser.userId, 
         }, { transaction: t });
 
         await t.commit();

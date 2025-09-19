@@ -1,5 +1,6 @@
-const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
+
+const LocalStrategy = require('passport-local');
 const { User, BasicCredential } = require('../../libs/db/models');
 
 const _localSignIn = async (email, password) => {

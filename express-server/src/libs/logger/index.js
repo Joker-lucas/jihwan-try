@@ -1,35 +1,37 @@
 const pino = require('pino');
-const { asyncLocalStorage } = require('../middlewares/context');
+
+const { getContext } = require('../middlewares/context');
 
 
 const logger = pino({
   level: 'info',
   mixin() {
-    const store = asyncLocalStorage.getStore();
-    if (!store) {
-      return {};
-    }
-    return {
-      traceId: store.get('traceId'),
-      user: store.get('user')
-    };
+    const traceId = getContext('traceId');
+    const user = getContext('user');
+
+    return { traceId, user };
   },
   transport: {
     target: 'pino-pretty',
     options: {
       colorize: true,
       translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
-      ignore: 'pid,hostname,req,res',
-      messageFormat: '{msg}{end}',
+      ignore: 'pid,hostname',
     }
+
   }
+
 });
 
 const getLogger = (path) => {
   return {
     info: (obj, msg) => {
       if (typeof obj === 'string') {
-        logger.info(`[${path}] ${obj}`);
+        let message = `[${path}] ${obj}`;
+        if (msg) {
+          message += ` ${msg}`;
+        }
+        logger.info(message);
       } else {
         logger.info(obj, `[${path}] ${msg}`);
       }
@@ -37,23 +39,35 @@ const getLogger = (path) => {
     error: (obj, msg) => {
       if (obj instanceof Error) {
         logger.error(obj, `[${path}] ${msg || obj.message}`);
-      } 
+      }
       else if (typeof obj === 'string') {
-        logger.error(`[${path}] ${obj}`);
+        let message = `[${path}] ${obj}`;
+        if (msg) {
+          message += ` ${msg}`;
+        }
+        logger.error(message);
       } else {
-        logger.error(obj, `[${path}] ${msg}`);  
+        logger.error(obj, `[${path}] ${msg}`);
       }
     },
     warn: (obj, msg) => {
-       if (typeof obj === 'string') {
-        logger.warn(`[${path}] ${obj}`);
+      if (typeof obj === 'string') {
+        let message = `[${path}] ${obj}`;
+        if (msg) {
+          message += ` ${msg}`;
+        }
+        logger.warn(message);
       } else {
         logger.warn(obj, `[${path}] ${msg}`);
       }
     },
     debug: (obj, msg) => {
-       if (typeof obj === 'string') {
-        logger.debug(`[${path}] ${obj}`);
+      if (typeof obj === 'string') {
+        let message = `[${path}] ${obj}`;
+        if (msg) {
+          message += ` ${msg}`;
+        }
+        logger.debug(message);
       } else {
         logger.debug(obj, `[${path}] ${msg}`);
       }
