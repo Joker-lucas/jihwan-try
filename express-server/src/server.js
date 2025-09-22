@@ -1,18 +1,26 @@
 const express = require('express');
 const passport = require('passport');
+// const pinoHttp = require('pino-http');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 
 const { connectToDatabase } = require('./libs/db');
 const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
-
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
 const passportJwtSet = require('./libs/middlewares/passport-jwt');
+const { setupContext } = require('./libs/middlewares/initialize-context');
+const { Interceptor } = require('./libs/middlewares/interceptor');
+const { addUserContext} = require('./libs/middlewares/add-user-context');
+const { logger } = require('./libs/logger');
+
 
 const app = express();
 const port = 3000;
 app.use(express.json());
+
+app.use(setupContext);
+app.use(Interceptor);
 
 const startServer = async () => {
     try {
@@ -42,15 +50,18 @@ const startServer = async () => {
         app.use(passport.initialize());
         app.use(passport.session());
 
+
+        app.use(addUserContext);
+
         app.use('/api', mainRouter);
 
         app.listen(port, () => {
-            console.log(`서버 실행 중. 포트번호: ${port}!`);
+            logger.info(`서버 실행 중. 포트번호: ${port}!`);
         });
 
 
     } catch (error) {
-        console.error('서버 시작에 실패했습니다:', error);
+        logger.error(error, '서버 시작에 실패했습니다:',);
     }
 };
 
