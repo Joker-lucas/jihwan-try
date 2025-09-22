@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const { authService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { getContext } = require('../libs/context');
 
 const jwtSecret = 'jihwanproject';
 const logger = getLogger('controllers/auth.js');
@@ -27,7 +26,7 @@ const signIn = async (req, res) => {
       return res.status(401).json({ errorMsg: '인증 실패' });
     }
 
-    logger.info({ traceId: getContext('traceId') }, '[END]완료, 응답 전송');
+    logger.info('[END]완료, 응답 전송');
     
     if (req.originalUrl.includes('/jwt')) {
       const token = jwt.sign({ userId: req.user.userId }, jwtSecret, { expiresIn: '1m' } );
