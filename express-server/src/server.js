@@ -9,8 +9,9 @@ const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
 const passportJwtSet = require('./libs/middlewares/passport-jwt');
-const setupContext = require('./libs/middlewares/initialize-context');
+const { setupContext } = require('./libs/middlewares/initialize-context');
 const { Interceptor } = require('./libs/middlewares/interceptor');
+const { addUserContext} = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 
 
@@ -18,7 +19,8 @@ const app = express();
 const port = 3000;
 app.use(express.json());
 
-
+app.use(setupContext);
+app.use(Interceptor);
 
 const startServer = async () => {
     try {
@@ -48,8 +50,8 @@ const startServer = async () => {
         app.use(passport.initialize());
         app.use(passport.session());
 
-        app.use(setupContext.init());
-        app.use(Interceptor);
+
+        app.use(addUserContext);
 
         app.use('/api', mainRouter);
 

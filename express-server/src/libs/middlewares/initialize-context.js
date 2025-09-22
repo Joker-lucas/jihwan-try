@@ -22,31 +22,20 @@ const setupContext = async (req, res, next) => {
     try {
       const traceId = randomUUID();
       setContext('traceId', traceId);
-      if (req.user) {
-        setContext('user', {
-          userId: req.user.userId,
-          nickname: req.user.nickname,
-          email: req.user.contactEmail
-        });
-      }
       await promiseNext(next);
-      requestContext.clear();
-    } catch (error) {
-      requestContext.clear();
-      logger.error({err: error}, `오류 발생`);
 
-      next(error);
+      requestContext.clear();
+
+    } catch (error) {
+      logger.error({err: error}, `오류 발생`);
+      requestContext.clear();
+      
+      throw error;
 
     }
   });
 };
 
-const init = () => {
-  return async (req, res, next) => {
-    await setupContext(req, res, next);
-  };
-};
-
 module.exports = {
-  init,
+  setupContext,
 };
