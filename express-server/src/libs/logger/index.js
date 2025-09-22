@@ -1,6 +1,6 @@
 const pino = require('pino');
 
-const { getContext } = require('../middlewares/context');
+const { getContext } = require('../context');
 
 
 const logger = pino({
@@ -11,15 +11,7 @@ const logger = pino({
 
     return { traceId, user };
   },
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
-      ignore: 'pid,hostname',
-    }
 
-  }
 
 });
 

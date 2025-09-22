@@ -1,19 +1,23 @@
 const path = require('path');
 
-const { getContext } = require('./context');
+const { getContext } = require('../context');
 const { getLogger } = require('../../libs/logger');
 
-const loggerPath = path.relative(process.cwd(), __filename);
-const logger = getLogger(loggerPath);
-
-const waitFinish = (res) => {
-  return new Promise((resolve) => {
-    res.on('finish', resolve);
-  });
-};
-
+const logger = getLogger('middlewares/interceptors');
 
 const Interceptor = async (req, res, next) => {
+  const promiseNext = (next) => {
+    return new Promise((resolve, reject) => {
+      next((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
   const startTime = Date.now();
   const traceId = getContext('traceId');
   const method = req.method;
@@ -21,27 +25,32 @@ const Interceptor = async (req, res, next) => {
 
   logger.info({ traceId }, `요청 시작: ${method} ${url}`);
 
-  next();
+  try {
+    await promiseNext(next);
 
-  await waitFinish(res);
+    const timeTaken = Date.now() - startTime;
+    const statusCode = res.statusCode;
+    const statusMessage = res.statusMessage;
 
-  const timeTaken = Date.now() - startTime;
-  const statusCode = res.statusCode;
-  const statusMessage = res.statusMessage;
+    const resObject = {
+      statusCode,
+      statusMessage,
+      responseTime: timeTaken
+    };
 
-  const resObject = {
-    statusCode,
-    statusMessage,
-    responseTime: timeTaken
+    logger.info(
+      { traceId, res: resObject },
+      `요청 완료: ${method} ${url}`
+    );
+  } catch (error) {
+    const traceId = getContext('traceId');
+    logger.error({ err: error, traceId }, `요청 처리 중 오류 발생: ${method} ${url}`);
+
+    next(error);
   }
-
-  logger.info(
-    { traceId, res: resObject },
-    `요청 완료: ${method} ${url}`
-  );
 };
 
 
 module.exports = {
-  Interceptor
+  Interceptor,
 };

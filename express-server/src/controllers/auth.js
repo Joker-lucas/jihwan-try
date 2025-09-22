@@ -1,20 +1,11 @@
-const path = require('path');
-
 const jwt = require('jsonwebtoken');
 
-const { authService } = require('../services'); 
+const { authService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { getContext } = require('../libs/middlewares/context');
+const { getContext } = require('../libs/context');
 
 const jwtSecret = 'jihwanproject';
-const loggerPath = path.relative(process.cwd(), __filename);
-const logger = getLogger(loggerPath);
-
-const sleep = (ms) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
+const logger = getLogger('controllers/auth.js');
 
 const signUp = async (req, res) => {
   logger.info({ body: req.body }, '회원가입 요청 시작');
@@ -35,11 +26,8 @@ const signIn = async (req, res) => {
       logger.warn('Passport 인증 실패');
       return res.status(401).json({ errorMsg: '인증 실패' });
     }
-    logger.info({ traceId: getContext('traceId') }, '[START] 로그인 처리 시작, 5초 대기');
 
-    await sleep(5000); 
-
-    logger.info({ traceId: getContext('traceId') }, '[END] 5초 대기 완료, 응답 전송');
+    logger.info({ traceId: getContext('traceId') }, '[END]완료, 응답 전송');
     
     if (req.originalUrl.includes('/jwt')) {
       const token = jwt.sign({ userId: req.user.userId }, jwtSecret, { expiresIn: '1m' } );
@@ -88,6 +76,7 @@ const signOut = (req, res, next) => {
     });
   });
 };
+
 
 module.exports = {
   signUp,

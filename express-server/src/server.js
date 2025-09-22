@@ -9,18 +9,16 @@ const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
 const passportJwtSet = require('./libs/middlewares/passport-jwt');
-const { logger } = require('./libs/logger');
-const { context} = require('./libs/middlewares/context');
-const { addUserToContext } = require('./libs/middlewares/auth-user-info');
+const setupContext = require('./libs/middlewares/initialize-context');
 const { Interceptor } = require('./libs/middlewares/interceptor');
+const { logger } = require('./libs/logger');
 
 
 const app = express();
 const port = 3000;
 app.use(express.json());
 
-app.use(context);
-app.use(Interceptor);
+
 
 const startServer = async () => {
     try {
@@ -49,8 +47,9 @@ const startServer = async () => {
 
         app.use(passport.initialize());
         app.use(passport.session());
-        
-        app.use(addUserToContext);
+
+        app.use(setupContext.init());
+        app.use(Interceptor);
 
         app.use('/api', mainRouter);
 
@@ -60,7 +59,7 @@ const startServer = async () => {
 
 
     } catch (error) {
-        logger.error(error, '서버 시작에 실패했습니다:', );
+        logger.error(error, '서버 시작에 실패했습니다:',);
     }
 };
 
