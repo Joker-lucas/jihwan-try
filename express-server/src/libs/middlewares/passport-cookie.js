@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 
 const LocalStrategy = require('passport-local');
 const { User, BasicCredential } = require('../../libs/db/models');
+const { getLogger } = require('../logger'); 
+const logger = getLogger('middlewares/passport-cookie.js'); 
 
 const _localSignIn = async (email, password) => {
     try {
@@ -36,12 +38,12 @@ const init = (passport) => {
     ));
 
     passport.serializeUser((user, done) => {
-        console.log("세션에 유저 정보를 저장함.");
+        logger.info("세션에 유저 정보를 저장함.");
         done(null, user);
     });
 
     passport.deserializeUser((user, done) => {
-        console.log(user);
+        logger.info(user);
         try {
             done(null, user);
         }

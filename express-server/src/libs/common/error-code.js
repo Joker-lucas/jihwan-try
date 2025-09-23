@@ -1,0 +1,14 @@
+const errorCodes = {
+  RESOURCE_NOT_FOUND: 1001,
+  INVALID_INPUT: 1002,
+  UNAUTHORIZED: 1003,
+
+  USER_NOT_FOUND: 2001,
+  DUPLICATE_EMAIL: 2002,
+  INVALID_PASSWORD: 2003,
+  
+};
+
+module.exports = {
+    errorCodes,
+}

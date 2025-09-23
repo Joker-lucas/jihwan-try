@@ -1,5 +1,4 @@
 const { getLogger } = require('../../libs/logger');
-
 const logger = getLogger('middlewares/interceptors');
 
 const promiseNext = (next) => {
@@ -39,10 +38,18 @@ const Interceptor = async (req, res, next) => {
 
     await promiseNext(next);
     logResponse();
-
+    if (req.requestContextStore) {
+      req.requestContextStore.clear();
+    }
   } catch (error) {
 
-    logResponse();
+    logger.error(
+      { err: error, responseTime: `${timeTaken}ms` },
+      `요청 처리 중 오류 발생: ${method} ${url}`
+    );
+    if (req.requestContextStore) {
+      req.requestContextStore.clear();
+    }
     throw error;
 
   }

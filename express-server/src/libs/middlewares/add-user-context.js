@@ -5,7 +5,6 @@ const addUserContext = (req, res, next) => {
     const userData = {
       userId: req.user.userId,
       nickname: req.user.nickname,
-      email: req.user.contactEmail,
     };
     setContext('user', userData);
   }
