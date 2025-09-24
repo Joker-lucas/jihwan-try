@@ -10,7 +10,7 @@ const mainRouter = require('./routers');
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
 const passportJwtSet = require('./libs/middlewares/passport-jwt');
 const { setupContext } = require('./libs/middlewares/initialize-context');
-const { Interceptor } = require('./libs/middlewares/interceptor');
+const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
@@ -21,13 +21,13 @@ const port = 3000;
 app.use(express.json());
 
 app.use(setupContext);
-app.use(Interceptor);
+app.use(requestLogger);
 
 let server;
 
 const setGracefulShutdown = (server) => {
 
-    const gracefulShutDown = (signal) => {
+    const _gracefulShutDown = (signal) => {
 
         logger.info(`[${signal}] 종료 신호를 받았습니다. 서버 종료 시작합니다...`);
 
@@ -57,8 +57,8 @@ const setGracefulShutdown = (server) => {
         });
 
     };
-    process.on('SIGINT', () => gracefulShutDown('SIGINT'));
-    process.on('SIGTERM', () => gracefulShutDown('SIGTERM'));
+    process.on('SIGINT', () => _gracefulShutDown('SIGINT'));
+    process.on('SIGTERM', () => _gracefulShutDown('SIGTERM'));
 };
 
 const startServer = async () => {

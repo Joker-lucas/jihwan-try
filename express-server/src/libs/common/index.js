@@ -1,6 +1,6 @@
 module.exports = {
-  ...require('./utils'),
-  ...require('./response'),
-  ...require('./error-code'),
-  ...require('./error'),
-};  
+  utils: require('./utils'),
+  response: require('./response'),
+  errorDefinition: require('./error-definition'),
+  error: require('./error'),
+};

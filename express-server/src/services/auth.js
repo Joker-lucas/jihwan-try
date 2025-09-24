@@ -2,8 +2,11 @@ const bcrypt = require('bcrypt');
 
 const { getLogger } = require('../libs/logger');
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
+const { error, errorDefinition } = require('../libs/common');
+const { CustomError } = error;
+const { ERROR_CODES } = errorDefinition;
 
-const logger = getLogger('AuthService');
+const logger = getLogger('services/auth.js');
 const salt = 10;
 
 
@@ -39,6 +42,9 @@ const signUp = async (userData) => {
         return result;
     } catch (error) {
         await t.rollback();
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            throw new CustomError(ERROR_CODES.DUPLICATE_EMAIL);
+        }
         throw error;
     }
 };
@@ -51,13 +57,13 @@ const signIn = async (email, password) => {
         });
 
         if (!credential) {
-            return null;
+            throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
         }
 
         const passwordCorrect = await bcrypt.compare(password, credential.password);
 
         if (!passwordCorrect) {
-            return null;
+            throw new CustomError(ERROR_CODES.INVALID_PASSWORD);
         }
 
         const user = credential.User;
