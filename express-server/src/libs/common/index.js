@@ -1,6 +1,11 @@
+const utils = require('./utils');
+const response = require('./response');
+const errorDefinition = require('./error-definition');
+const error = require('./error');
+
 module.exports = {
-  utils: require('./utils'),
-  response: require('./response'),
-  errorDefinition: require('./error-definition'),
-  error: require('./error'),
+  utils,
+  response,
+  error,
+  errorDefinition
 };

@@ -7,8 +7,6 @@ const { getLogger } = require('../logger');
 const logger = getLogger('middlewares/errorHandler');
 
 const errorHandlerMiddleware = (err, req, res, next) => {
-
-  logger.error({ err}, '오류가 발생했습니다.');
   
   let errorInfo;
 
@@ -30,7 +28,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     { err, message: finalMessage,},'오류가 발생했습니다.'
   );
 
-  return errorResponse(res, finalMessage, statusCode, errorCode);
+  errorResponse(res, finalMessage, statusCode, errorCode);
 };
 
 module.exports = {
