@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
+const { error, errorDefinition } = require('../libs/common');
+const { CustomError } = error;
+const { ERROR_CODES } = errorDefinition;
 
 
 const getAllUsers = async () => {
@@ -9,6 +12,9 @@ const getAllUsers = async () => {
 
 const getUserById = async (userId) => {
     const foundUser = await User.findByPk(userId);
+    if (!foundUser) {
+        throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+    }
     return foundUser;
 };
 
@@ -17,7 +23,7 @@ const updateUserById = async (userId, updateData) => {
     const user = await User.findByPk(userId);
 
     if (!user) {
-        return null;
+        throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
     }
     const updatedUser = await user.update(updateData);
 
