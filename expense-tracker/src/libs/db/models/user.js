@@ -3,6 +3,7 @@ const {
   Model,
 } = require('sequelize');
 const { GENDER, USER_STATUS, USER_ROLE } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -12,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User.hasOne(models.BasicCredential, {foreignKey: 'userId'});
+
       User.hasMany(models.Budget, { foreignKey: 'userId' });
       User.hasMany(models.Income, { foreignKey: 'userId' }); 
       User.hasMany(models.Expense, { foreignKey: 'userId' });
@@ -40,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM(GENDER.MALE, GENDER.FEMALE),
       allowNull: false,
       defaultValue: GENDER.MALE,
+
     },
     birthday: {
       allowNull: true,

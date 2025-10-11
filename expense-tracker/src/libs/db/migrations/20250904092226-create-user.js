@@ -1,4 +1,5 @@
 'use strict';
+
 const { GENDER, USER_STATUS, USER_ROLE } = require('../../constants');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -78,5 +79,8 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Users');
+    await queryInterface.sequelize.query(`
+    DROP TYPE "public"."enum_Users_status";
+  `);
   }
 };
