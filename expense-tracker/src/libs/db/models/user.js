@@ -2,7 +2,7 @@
 const {
   Model,
 } = require('sequelize');
-const { GENDER, USER_STATUS, USER_ROLE } = require('../../constants');
+const { userConstants } = require('../../constants');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasOne(models.BasicCredential, {foreignKey: 'userId'});
 
-      User.hasMany(models.Budget, { foreignKey: 'userId' });
+      User.hasMany(models.TargetSpending, { foreignKey: 'userId' });
       User.hasMany(models.Income, { foreignKey: 'userId' }); 
       User.hasMany(models.Expense, { foreignKey: 'userId' });
       User.hasMany(models.UserChallengeChecklist, { foreignKey: 'userId' });
@@ -33,15 +33,22 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
     },
+    profileImageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,       
+    },
     contactEmail: {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
     },
     gender: {
-      type: DataTypes.ENUM(GENDER.MALE, GENDER.FEMALE),
+      type: DataTypes.ENUM(
+        userConstants.GENDER.MALE, 
+        userConstants.GENDER.FEMALE
+      ),
       allowNull: false,
-      defaultValue: GENDER.MALE,
+      defaultValue: userConstants.GENDER.MALE,
 
     },
     birthday: {
@@ -53,19 +60,21 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM(USER_STATUS.ACTIVE, USER_STATUS.INACTIVE, USER_STATUS.BLOCKED),
+      type: DataTypes.ENUM(
+        userConstants.USER_STATUS.ACTIVE, 
+        userConstants.USER_STATUS.BLOCKED, 
+        userConstants.USER_STATUS.INACTIVE
+      ),
       allowNull: false,
-      defaultValue: USER_STATUS.ACTIVE,
+      defaultValue: userConstants.USER_STATUS.ACTIVE,
     },
     role: {
-      type: DataTypes.ENUM(USER_ROLE.USER, USER_ROLE.ADMIN),
+      type: DataTypes.ENUM(
+        userConstants.USER_ROLE.ADMIN,
+         userConstants.USER_ROLE.USER
+        ),
       allowNull: false,
-      defaultValue: USER_ROLE.USER,
-    },
-    permissionLevel: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0, // 일반 유저는 0, 관리자는 1 이상의 값을 가짐
+      defaultValue: userConstants.USER_ROLE.USER,
     },
     level: {
       type: DataTypes.INTEGER,

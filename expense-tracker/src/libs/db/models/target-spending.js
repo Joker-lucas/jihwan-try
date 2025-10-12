@@ -2,21 +2,21 @@
 const {
   Model
 } = require('sequelize');
-const { EXPENSE_CATEGORIES } = require('../../constants');
+const { transactionConstants } = require('../../constants');
 module.exports = (sequelize, DataTypes) => {
-  class Budget extends Model {
+  class TargetSpending extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Budget.belongsTo(models.User, { foreignKey: 'userId' });
-      Budget.belongsTo(models.FinancialYear, { foreignKey: 'financialYearId' });
+      TargetSpending.belongsTo(models.User, { foreignKey: 'userId' });
+      TargetSpending.belongsTo(models.FinancialYear, { foreignKey: 'financialYearId' });
     }
   }
-  Budget.init({
-    budgetId: {
+  TargetSpending.init({
+    targetSpendingId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     category: {
       type: DataTypes.ENUM(
-        EXPENSE_CATEGORIES.LIVING_EXPENSES,
-        EXPENSE_CATEGORIES.FIXED_EXPENSES,
-        EXPENSE_CATEGORIES.LEISURE
+        transactionConstants.EXPENSE_CATEGORIES.LIVING_EXPENSES,
+        transactionConstants.EXPENSE_CATEGORIES.FIXED_EXPENSES,
+        transactionConstants.EXPENSE_CATEGORIES.LEISURE,
       ),
       allowNull: false,
     },
@@ -44,9 +44,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Budget',
+    modelName: 'TargetSpending',
     timestamps: true,
     paranoid: true,
   });
-  return Budget;
+  return TargetSpending;
 };

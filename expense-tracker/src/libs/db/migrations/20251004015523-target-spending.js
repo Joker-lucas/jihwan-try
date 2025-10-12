@@ -3,8 +3,8 @@ const { EXPENSE_CATEGORIES } = require('../../constants');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Budgets', {
-      budgetId: {
+    await queryInterface.createTable('TargetSpendings', {
+      targetSpendingId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -57,6 +57,6 @@ module.exports = {
 
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Budgets');
+    await queryInterface.dropTable('TargetSpendings');
   }
 };

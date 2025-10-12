@@ -2,7 +2,7 @@
 const {
   Model
 } = require('sequelize');
-const { TRANSACTION_STATUS, INCOME_CATEGORIES } = require('../../constants');
+const { transactionConstants } = require('../../constants');
 module.exports = (sequelize, DataTypes) => {
   class Income extends Model {
     /**
@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     category: {
       type: DataTypes.ENUM(
-        INCOME_CATEGORIES.SALARY,
-        INCOME_CATEGORIES.SIDE_INCOME,
-        INCOME_CATEGORIES.ALLOWANCE
+        transactionConstants.INCOME_CATEGORIES.SALARY,
+        transactionConstants.INCOME_CATEGORIES.SIDE_INCOME,
+        transactionConstants.INCOME_CATEGORIES.ALLOWANCE,
       ),
       allowNull: false,
     },
@@ -44,11 +44,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM(
-        TRANSACTION_STATUS.APPROVED,
-        TRANSACTION_STATUS.REJECTED
+        transactionConstants.TRANSACTION_STATUS.APPROVED,
+        transactionConstants.TRANSACTION_STATUS.SCHEDULED,
+        transactionConstants.TRANSACTION_STATUS.REJECTED,
       ),
       allowNull: false,
-      defaultValue: TRANSACTION_STATUS.REJECTED,
+      defaultValue: transactionConstants.TRANSACTION_STATUS.APPROVED,
     },
     date: {
       type: DataTypes.DATEONLY,

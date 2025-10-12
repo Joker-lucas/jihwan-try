@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 
-const { CHECKLIST_STATUS } = require('../../constants');
+const { challengeConstants } = require('../../constants');
 module.exports = (sequelize, DataTypes) => {
   class ChallengeChecklist extends Model {
     /**
@@ -34,11 +34,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM(
-        CHECKLIST_STATUS.PENDING,
-        CHECKLIST_STATUS.COMPLETED
+        challengeConstants.CHECKLIST_STATUS.PENDING,
+        challengeConstants.CHECKLIST_STATUS.COMPLETED,
       ),
       allowNull: false,
-      defaultValue: CHECKLIST_STATUS.PENDING,
+      defaultValue: challengeConstants.CHECKLIST_STATUS.PENDING,
     },
     achievedAt: {
       type: DataTypes.DATE,

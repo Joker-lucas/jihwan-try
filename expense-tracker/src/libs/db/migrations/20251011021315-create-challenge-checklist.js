@@ -26,13 +26,13 @@ module.exports = {
           key: 'challengeId',
         },
       },
-      status: {
+      status: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          CHECKLIST_STATUS.PENDING,
-          CHECKLIST_STATUS.COMPLETED
+          'PENDING',
+          'COMPLETED'
         ),
-        defaultValue: CHECKLIST_STATUS.PENDING
+        defaultValue: 'PENDING'
       },
       achievedAt: {
         allowNull: true,

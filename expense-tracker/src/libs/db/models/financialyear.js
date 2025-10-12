@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       FinancialYear.hasMany(models.Income, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.Expenses, { foreignKey: 'financialYearId' });
-      FinancialYear.hasMany(models.Budget, { foreignKey: 'financialYearId' });
+      FinancialYear.hasMany(models.TargetSpending, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.ChallengePeriod, { foreignKey: 'financialYearId' });
     }
   }
@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'FinancialYear',
     timestamps: true, 
+    indexes: [{
+      unique: true,
+      fields: ['year','month']
+    }]
   });
   return FinancialYear;
 };

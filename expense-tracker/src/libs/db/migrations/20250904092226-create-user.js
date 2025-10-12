@@ -1,6 +1,5 @@
 'use strict';
 
-const { GENDER, USER_STATUS, USER_ROLE } = require('../../constants');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -16,6 +15,10 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING
       },
+      profileImageUrl: {
+        allowNull: true,
+        type: Sequelize.STRING
+    },
       contactEmail: {
         allowNull: true,
         unique: true,
@@ -23,8 +26,8 @@ module.exports = {
       },
       gender: {
         allowNull: false,
-        type: Sequelize.ENUM(GENDER.MALE, GENDER.FEMALE),
-        defaultValue: GENDER.MALE,
+        type: Sequelize.ENUM('male', 'female'),
+        defaultValue: 'male',
       },
       birthday: {
         allowNull: true,
@@ -37,18 +40,13 @@ module.exports = {
       
       status: {
         allowNull: false,
-        type: Sequelize.ENUM(USER_STATUS.ACTIVE, USER_STATUS.INACTIVE, USER_STATUS.BLOCKED),
-        defaultValue: USER_STATUS.ACTIVE,
+        type: Sequelize.ENUM('active', 'inactive', 'blocked'),
+        defaultValue: 'active',
       },
       role: {
         allowNull: false,
-        type: Sequelize.ENUM(USER_ROLE.USER, USER_ROLE.ADMIN),
-        defaultValue: USER_ROLE.USER,
-      },
-      permissionLevel: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        defaultValue: 0
+        type: Sequelize.ENUM('user', 'admin'),
+        defaultValue: 'user',
       },
       level: {
         allowNull: false,

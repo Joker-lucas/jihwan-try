@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const salt = 10;
-const { User, BasicCredential, FinancialYear, Income, Expense, Budget, Challenge, ChallengePeriod, ChallengeChecklist, UserLog } = require('../models');
+const { User, BasicCredential, FinancialYear, Income, Expense, TargetSpending, Challenge, ChallengePeriod, ChallengeChecklist, UserLog } = require('../models');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -89,9 +89,9 @@ module.exports = {
       await Expense.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LEISURE, paymentMethod: constants.PAYMENT_METHODS.CREDIT_CARD, amount: 600000, status: constants.TRANSACTION_STATUS.APPROVED, date: '2025-08-11' }, { transaction });
       await Expense.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LEISURE, paymentMethod: constants.PAYMENT_METHODS.CREDIT_CARD, amount: 2000000, status: constants.TRANSACTION_STATUS.REJECTED, date: '2025-08-18' }, { transaction });
 
-      await Budget.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LIVING_EXPENSES, amount: 600000 }, { transaction });
-      await Budget.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.FIXED_EXPENSES, amount: 1500000 }, { transaction });
-      await Budget.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LEISURE, amount: 300000 }, { transaction });
+      await TargetSpending.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LIVING_EXPENSES, amount: 600000 }, { transaction });
+      await TargetSpending.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.FIXED_EXPENSES, amount: 1500000 }, { transaction });
+      await TargetSpending.create({ userId: user.userId, financialYearId: august2025.financialYearId, category: constants.EXPENSE_CATEGORIES.LEISURE, amount: 300000 }, { transaction });
 
       const challenge1 = await Challenge.create({ title: '시작이 반이다', description: '수입 작성을 3번 이상 해라.', reward: '10EXP' }, { transaction });
       const challenge2 = await Challenge.create({ title: '꼼꼼한 기록가', description: '상세내용을 포함한 지출 내역을 10회 기록해라.', reward: '50EXP' }, { transaction });

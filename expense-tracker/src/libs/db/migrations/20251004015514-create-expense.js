@@ -26,12 +26,12 @@ module.exports = {
           key: 'financialYearId',
         },
       },
-      category: {
+      category: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          EXPENSE_CATEGORIES.LIVING_EXPENSES,
-          EXPENSE_CATEGORIES.FIXED_EXPENSES,
-          EXPENSE_CATEGORIES.LEISURE
+          'LIVING_EXPENSES',
+          'FIXED_EXPENSES',
+          'LEISURE'
         ),
       },
       amount: {
@@ -41,19 +41,20 @@ module.exports = {
       paymentMethod: {
         allowNull: true,
         type: Sequelize.ENUM(
-          PAYMENT_METHODS.BANK_TRANSFER,
-          PAYMENT_METHODS.CASH,
-          PAYMENT_METHODS.CREDIT_CARD,
-          PAYMENT_METHODS.DEBIT_CARD
+          'BANK_TRANSFER',
+          'CASH',
+          'CREDIT_CARD',
+          'DEBIT_CARD'
         ),
       },
-      status: {
+      status: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          TRANSACTION_STATUS.APPROVED,
-          TRANSACTION_STATUS.REJECTED
+          'APPROVED',
+          'SCHEDULED', 
+          'REJECTED'
         ),
-        defaultValue: TRANSACTION_STATUS.REJECTED,
+        defaultValue: 'APPROVED', 
       },
       date: {
         allowNull: false,

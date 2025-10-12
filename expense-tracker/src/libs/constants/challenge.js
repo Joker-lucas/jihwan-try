@@ -1,0 +1,4 @@
+const CHECKLIST_STATUS = Object.freeze({
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+});

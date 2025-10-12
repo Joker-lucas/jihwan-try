@@ -27,25 +27,26 @@ module.exports = {
           key: 'financialYearId',
         },
       },
-      category: {
+      category: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          INCOME_CATEGORIES.SALARY,
-          INCOME_CATEGORIES.SIDE_INCOME,
-          INCOME_CATEGORIES.ALLOWANCE
+          'SALARY',
+          'SIDE_INCOME',
+          'ALLOWANCE'
         ),
       },
       amount: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      status: {
+      status: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          TRANSACTION_STATUS.APPROVED,
-          TRANSACTION_STATUS.REJECTED
+          'APPROVED',
+          'SCHEDULED', 
+          'REJECTED'
         ),
-        defaultValue: TRANSACTION_STATUS.REJECTED,
+        defaultValue: 'APPROVED', 
       },
       date: {
         allowNull: false,

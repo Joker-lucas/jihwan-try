@@ -2,7 +2,7 @@
 const {
   Model
 } = require('sequelize');
-const { TRANSACTION_STATUS, EXPENSE_CATEGORIES, PAYMENT_METHODS } = require('../../constants');
+const { transactionConstants } = require('../../constants');
 module.exports = (sequelize, DataTypes) => {
   class Expense extends Model {
     /**
@@ -32,18 +32,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     category: {
       type: DataTypes.ENUM(
-        EXPENSE_CATEGORIES.LIVING_EXPENSES,
-        EXPENSE_CATEGORIES.FIXED_EXPENSES,
-        EXPENSE_CATEGORIES.LEISURE
+        transactionConstants.EXPENSE_CATEGORIES.LIVING_EXPENSES,
+        transactionConstants.EXPENSE_CATEGORIES.FIXED_EXPENSES,
+        transactionConstants.EXPENSE_CATEGORIES.LEISURE,
       ),
       allowNull: false,
     },
     paymentMethod: {
       type: DataTypes.ENUM(
-        PAYMENT_METHODS.BANK_TRANSFER,
-        PAYMENT_METHODS.CASH,
-        PAYMENT_METHODS.CREDIT_CARD,
-        PAYMENT_METHODS.DEBIT_CARD
+        transactionConstants.PAYMENT_METHODS.BANK_TRANSFER,
+        transactionConstants.PAYMENT_METHODS.CASH,
+        transactionConstants.PAYMENT_METHODS.CREDIT_CARD,
+        transactionConstants.PAYMENT_METHODS.DEBIT_CARD,
       ),
       allowNull: true,
     },
@@ -53,11 +53,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM(
-        TRANSACTION_STATUS.APPROVED,
-        TRANSACTION_STATUS.REJECTED
+        transactionConstants.TRANSACTION_STATUS.APPROVED,
+        transactionConstants.TRANSACTION_STATUS.SCHEDULED,
+        transactionConstants.TRANSACTION_STATUS.REJECTED,
       ),
       allowNull: false,
-      defaultValue: TRANSACTION_STATUS.REJECTED,
+      defaultValue: transactionConstants.TRANSACTION_STATUS.APPROVED,
     },
     date: {
       type: DataTypes.DATEONLY,
