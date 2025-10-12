@@ -1,7 +1,9 @@
 'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
+const { userConstants } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -11,6 +13,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User.hasOne(models.BasicCredential, {foreignKey: 'userId'});
+
+      User.hasMany(models.TargetSpending, { foreignKey: 'userId' });
+      User.hasMany(models.Income, { foreignKey: 'userId' }); 
+      User.hasMany(models.Expense, { foreignKey: 'userId' });
+      User.hasMany(models.UserChallengeChecklist, { foreignKey: 'userId' });
+      User.hasMany(models.UserLog, { foreignKey: 'userId' }); 
     }
   }
   User.init({
@@ -25,15 +33,23 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
     },
+    profileImageUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,       
+    },
     contactEmail: {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
     },
     gender: {
-      type: DataTypes.ENUM('male', 'female'),
+      type: DataTypes.ENUM(
+        userConstants.GENDER.MALE, 
+        userConstants.GENDER.FEMALE
+      ),
       allowNull: false,
-      defaultValue: 'male',
+      defaultValue: userConstants.GENDER.MALE,
+
     },
     birthday: {
       allowNull: true,
@@ -44,11 +60,32 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM('active', 'inactive', 'blocked'),
+      type: DataTypes.ENUM(
+        userConstants.USER_STATUS.ACTIVE, 
+        userConstants.USER_STATUS.BLOCKED, 
+        userConstants.USER_STATUS.INACTIVE
+      ),
       allowNull: false,
-      defaultValue: 'active',
+      defaultValue: userConstants.USER_STATUS.ACTIVE,
     },
-    
+    role: {
+      type: DataTypes.ENUM(
+        userConstants.USER_ROLE.ADMIN,
+         userConstants.USER_ROLE.USER
+        ),
+      allowNull: false,
+      defaultValue: userConstants.USER_ROLE.USER,
+    },
+    level: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1 
+    },
+    exp: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0 
+    }
   }, {
     sequelize,
     modelName: 'User',

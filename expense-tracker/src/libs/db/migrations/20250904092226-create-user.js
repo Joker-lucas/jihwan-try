@@ -1,4 +1,5 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -14,6 +15,10 @@ module.exports = {
         unique: true,
         type: Sequelize.STRING
       },
+      profileImageUrl: {
+        allowNull: true,
+        type: Sequelize.STRING
+    },
       contactEmail: {
         allowNull: true,
         unique: true,
@@ -22,7 +27,7 @@ module.exports = {
       gender: {
         allowNull: false,
         type: Sequelize.ENUM('male', 'female'),
-        defaultValue: 'male'
+        defaultValue: 'male',
       },
       birthday: {
         allowNull: true,
@@ -36,7 +41,22 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.ENUM('active', 'inactive', 'blocked'),
-        defaultValue: 'active'
+        defaultValue: 'active',
+      },
+      role: {
+        allowNull: false,
+        type: Sequelize.ENUM('user', 'admin'),
+        defaultValue: 'user',
+      },
+      level: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 1
+      },
+      exp: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

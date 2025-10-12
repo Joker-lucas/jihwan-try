@@ -1,0 +1,26 @@
+const TRANSACTION_STATUS = Object.freeze({
+  APPROVED: 'APPROVED',
+  SCHEDULED: 'SCHEDULED',
+  REJECTED: 'REJECTED',
+});
+
+
+const INCOME_CATEGORIES = Object.freeze({
+  SALARY: 'SALARY',         // 월급
+  SIDE_INCOME: 'SIDE_INCOME', // 부수입
+  ALLOWANCE: 'ALLOWANCE',   // 용돈
+});
+
+const EXPENSE_CATEGORIES = Object.freeze({
+  LIVING_EXPENSES: 'LIVING_EXPENSES', // 생활비 ss
+  FIXED_EXPENSES: 'FIXED_EXPENSES',   // 고정지출
+  LEISURE: 'LEISURE',                 // 여가생활
+});
+
+
+const PAYMENT_METHODS = Object.freeze({
+  BANK_TRANSFER: 'BANK_TRANSFER', // 계좌이체
+  CASH: 'CASH',                 // 현금
+  CREDIT_CARD: 'CREDIT_CARD',     // 신용카드
+  DEBIT_CARD: 'DEBIT_CARD',       // 체크카드     
+});
