@@ -4,6 +4,12 @@ const passport = require('passport');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const YAML = require('js-yaml');
+const path = require('path');
+
+
 const { db, connectToDatabase } = require('./libs/db'); 
 const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
@@ -91,6 +97,11 @@ const startServer = async () => {
 
 
         app.use(addUserContext);
+
+        const swaggerDocument = YAML.load(
+            fs.readFileSync(path.join(__dirname, '../swagger.yaml'), 'utf8')
+        );
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
         app.use('/api', mainRouter);
 

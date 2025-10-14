@@ -11,11 +11,13 @@ module.exports = {
       },
       year: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        unique: 'year_month_unique'
       },
       month: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        unique: 'year_month_unique'
       },
       createdAt: {
         allowNull: false,

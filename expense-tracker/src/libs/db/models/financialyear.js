@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       FinancialYear.hasMany(models.Income, { foreignKey: 'financialYearId' });
-      FinancialYear.hasMany(models.Expenses, { foreignKey: 'financialYearId' });
+      FinancialYear.hasMany(models.Expense, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.TargetSpending, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.ChallengePeriod, { foreignKey: 'financialYearId' });
     }

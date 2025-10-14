@@ -26,18 +26,21 @@ module.exports = {
           key: 'financialYearId',
         },
       },
-
-      category: {
+      category: { 
         allowNull: false,
         type: Sequelize.ENUM(
-          EXPENSE_CATEGORIES.LIVING_EXPENSES,
-          EXPENSE_CATEGORIES.FIXED_EXPENSES,
-          EXPENSE_CATEGORIES.LEISURE
+          'LIVING_EXPENSES',
+          'FIXED_EXPENSES',
+          'LEISURE'
         ),
       },
       amount: {
         allowNull: false,
         type: Sequelize.INTEGER
+      },
+      description: {
+        allowNull: true,
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
