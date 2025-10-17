@@ -1,0 +1,35 @@
+get:
+  tags: [Expenses]
+  summary: 지출 내역 조회
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/Year'
+    - $ref: '../../components/parameter.yaml#/parameters/Month'
+  responses:
+    '200':
+      description: 조회 성공
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schema.yaml#/schemas/Expense'
+post:
+  tags: [Expenses]
+  summary: 지출 내역 추가
+  security:
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/ExpenseRequest'
+  responses:
+    '201':
+      description: 지출 내역 추가 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/Expense'

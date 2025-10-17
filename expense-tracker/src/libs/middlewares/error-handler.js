@@ -1,7 +1,9 @@
 const { response, error, errorDefinition } = require('../common');
 const { errorResponse } = response;
 const { CustomError } = error;
-const { ERROR_INFO} = errorDefinition;
+const { ERROR_INFO, ERROR_CODES} = errorDefinition;
+
+
 
 const { getLogger } = require('../logger');
 const logger = getLogger('middlewares/errorHandler');

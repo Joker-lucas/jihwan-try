@@ -1,0 +1,14 @@
+get:
+  tags: [Challenges]
+  summary: 내 도전과제 달성 현황 조회
+  security:
+    - cookieAuth: []
+  responses:
+    '200':
+      description: 조회 성공
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schema.yaml#/schemas/UserChallengeStatus'

@@ -1,0 +1,30 @@
+patch:
+  tags: [TargetSpendings]
+  summary: 내 월별 목표 지출 수정
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/TargetSpendingId'
+  requestBody:
+    description: 수정할 목표 지출 정보.
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/TargetSpendingRequest'
+  responses:
+    '200':
+      description: 수정 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/TargetSpending'
+delete:
+  tags: [TargetSpendings]
+  summary: 월별 목표 지출 삭제
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/TargetSpendingId'
+  responses:
+    '204':
+      description: 삭제 성공

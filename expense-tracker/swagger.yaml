@@ -1,16 +1,14 @@
 openapi: 3.0.0
 info:
   title: 가계부 서비스
-  version: "1.0.0"
+  version: 1.0.0
   description: 사용자의 수입/지출을 관리하고 분석하는 서비스의 API 명세서.
-
 servers:
-  - url: http://localhost:3000
+  - url: 'http://localhost:3000'
     description: 개발 서버
-
 tags:
   - name: Auth
-    description: 사용자 인증 (회원가입, 로그인)
+    description: '사용자 인증 (회원가입, 로그인)'
   - name: Users
     description: 사용자 정보 (프로필)
   - name: Incomes
@@ -27,16 +25,13 @@ tags:
     description: 도전과제
   - name: Admin
     description: 관리자 기능
-
-
 paths:
-  # --- Auth ---
   /api/auth/sign-up:
     post:
-      tags: [Auth]
+      tags:
+        - Auth
       summary: 회원가입
       requestBody:
-        description: 회원가입을 위해 입력하는 정보.
         required: true
         content:
           application/json:
@@ -44,25 +39,25 @@ paths:
               $ref: '#/components/schemas/SignUpRequest'
       responses:
         '201':
-          description: 회원가입 성공. 생성된 사용자 정보를 반환.
+          description: 회원가입 성공
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserProfile'
         '409':
           description: 이미 존재하는 이메일 또는 닉네임
-
-  /api/auth/login:
+  /api/auth/sign-in:
     post:
-      tags: [Auth]
+      tags:
+        - Auth
       summary: 로그인
-      description: 성공 시, 세션 ID가 담긴 쿠키 sssssssssid 설정.
+      description: '성공 시, 세션 ID가 담긴 쿠키 sssssssssid 설정.'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: '#/components/schemas/SigninRequest'
       responses:
         '200':
           description: 로그인 성공
@@ -73,16 +68,16 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "로그인 성공"
+                    example: 로그인 성공
                   user:
                     $ref: '#/components/schemas/User'
         '401':
           description: 인증 정보 불일치
-
   /api/auth/sign-out:
     post:
-      tags: [Auth]
-      summary: 로그아웃 
+      tags:
+        - Auth
+      summary: 로그아웃
       description: 서버의 세션을 지우고 클라이언트의 쿠키를 만료시킴.
       security:
         - cookieAuth: []
@@ -96,14 +91,13 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "성공적으로 로그아웃되었습니다."
+                    example: 성공적으로 로그아웃되었습니다.
         '401':
           description: 인증되지 않은 사용자 (로그인 상태가 아님)
-
-  # --- Users ---
   /api/users/me:
     get:
-      tags: [Users]
+      tags:
+        - Users
       summary: 프로필 조회
       security:
         - cookieAuth: []
@@ -113,11 +107,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserProfile'
         '401':
           description: 인증 실패
     patch:
-      tags: [Users]
+      tags:
+        - Users
       summary: 프로필 수정
       security:
         - cookieAuth: []
@@ -125,17 +120,34 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMyProfileRequest'
+              $ref: '#/components/schemas/UserProfile'
       responses:
         '200':
           description: 프로필 수정 성공
         '401':
           description: 인증 실패
-
-  # --- Incomes ---
   /api/incomes:
+    get:
+      tags:
+        - Incomes
+      summary: 내 수입 내역 조회
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Income'
     post:
-      tags: [Incomes]
+      tags:
+        - Incomes
       summary: 수입 내역 추가
       security:
         - cookieAuth: []
@@ -152,27 +164,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Income'
-    get:
-      tags: [Incomes]
-      summary: 내 수입 내역 조회
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Year'
-        - $ref: '#/components/parameters/Month'
-      responses:
-        '200':
-          description: 조회 성공
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Income'
-
-  /api/incomes/{incomeId}:
+  '/api/incomes/{incomeId}':
     patch:
-      tags: [Incomes]
+      tags:
+        - Incomes
       summary: 수입 내역 수정
       security:
         - cookieAuth: []
@@ -191,7 +186,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Income'
     delete:
-      tags: [Incomes]
+      tags:
+        - Incomes
       summary: 수입 내역 삭제
       security:
         - cookieAuth: []
@@ -200,11 +196,28 @@ paths:
       responses:
         '204':
           description: 삭제 성공
-
-  # --- Expenses ---
   /api/expenses:
+    get:
+      tags:
+        - Expenses
+      summary: 지출 내역 조회
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
     post:
-      tags: [Expenses]
+      tags:
+        - Expenses
       summary: 지출 내역 추가
       security:
         - cookieAuth: []
@@ -221,27 +234,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Expense'
-    get:
-      tags: [Expenses]
-      summary: 지출 내역 조회
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Year'
-        - $ref: '#/components/parameters/Month'
-      responses:
-        '200':
-          description: 조회 성공
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Expense'
-
-  /api/expenses/{expenseId}:
+  '/api/expenses/{expenseId}':
     patch:
-      tags: [Expenses]
+      tags:
+        - Expenses
       summary: 지출 내역 수정
       security:
         - cookieAuth: []
@@ -260,7 +256,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Expense'
     delete:
-      tags: [Expenses]
+      tags:
+        - Expenses
       summary: 지출 내역 삭제
       security:
         - cookieAuth: []
@@ -269,11 +266,28 @@ paths:
       responses:
         '204':
           description: 삭제 성공
-
-  # --- Target Spendings ---
   /api/target-spendings:
+    get:
+      tags:
+        - TargetSpendings
+      summary: 월별 목표 지출 조회
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TargetSpending'
     post:
-      tags: [TargetSpendings]
+      tags:
+        - TargetSpendings
       summary: 월별 목표 지출 설정
       security:
         - cookieAuth: []
@@ -290,27 +304,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TargetSpending'
-    get:
-      tags: [TargetSpendings]
-      summary: 월별 목표 지출 조회
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Year'
-        - $ref: '#/components/parameters/Month'
-      responses:
-        '200':
-          description: 조회 성공
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TargetSpending'
-
-  /api/target-spendings/{targetSpendingId}:
+  '/api/target-spendings/{targetSpendingId}':
     patch:
-      tags: [TargetSpendings]
+      tags:
+        - TargetSpendings
       summary: 내 월별 목표 지출 수정
       security:
         - cookieAuth: []
@@ -330,7 +327,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TargetSpending'
     delete:
-      tags: [TargetSpendings]
+      tags:
+        - TargetSpendings
       summary: 월별 목표 지출 삭제
       security:
         - cookieAuth: []
@@ -339,11 +337,10 @@ paths:
       responses:
         '204':
           description: 삭제 성공
-
-  # --- Reports ---
   /api/reports/monthly:
     get:
-      tags: [Reports]
+      tags:
+        - Reports
       summary: 월별 분석 보고서 조회
       security:
         - cookieAuth: []
@@ -353,15 +350,14 @@ paths:
       responses:
         '200':
           description: 조회 성공
-          content: 
+          content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MonthlyReportResponse'
-
-  # --- Challenges ---
   /api/challenges:
     get:
-      tags: [Challenges]
+      tags:
+        - Challenges
       summary: 전체 도전과제 목록 조회
       security:
         - cookieAuth: []
@@ -374,10 +370,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Challenge'
-
   /api/users/me/challenges:
     get:
-      tags: [Challenges]
+      tags:
+        - Challenges
       summary: 내 도전과제 달성 현황 조회
       security:
         - cookieAuth: []
@@ -390,13 +386,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserChallengeStatus'
-
-  # --- Summary ---
   /api/summary/monthly:
     get:
-      tags: [Summary]
+      tags:
+        - Summary
       summary: 월별 수입/지출 요약 조회
-      description: 메뉴의 '이달의 가계'에 필요한 총수입, 총지출 합계를 조회.
+      description: '메뉴의 ''이달의 가계''에 필요한 총수입, 총지출 합계를 조회.'
       security:
         - cookieAuth: []
       parameters:
@@ -409,23 +404,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MonthlySummaryResponse'
-
-  # --- Admin ---
   /api/admin/users:
     get:
-      tags: [Admin]
+      tags:
+        - Admin
       summary: 전체 사용자 목록 조회
       security:
         - cookieAuth: []
       parameters:
         - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Role'
       responses:
         '200':
           description: 사용자 목록 조회 성공
-
-  /api/admin/users/{userId}:
+  '/api/admin/users/{userId}':
     patch:
-      tags: [Admin]
+      tags:
+        - Admin
       summary: 특정 사용자 정보 수정(관리자 용)
       security:
         - cookieAuth: []
@@ -439,10 +434,21 @@ paths:
       responses:
         '200':
           description: 수정 성공
-
   /api/admin/challenges:
+    get:
+      tags:
+        - Admin
+      summary: 전체 도전과제 목록 조회 (관리자 전용)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Search'
+      responses:
+        '200':
+          description: 도전과제 목록 조회 성공
     post:
-      tags: [Admin]
+      tags:
+        - Admin
       summary: 새로운 도전과제 생성
       security:
         - cookieAuth: []
@@ -455,20 +461,10 @@ paths:
       responses:
         '201':
           description: 생성 성공
-    get:
-      tags: [Admin]
-      summary: 전체 사용자 목록 조회 (관리자 전용)
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Search'
-      responses:
-        '200':
-          description: 사용자 목록 조회 성공
-
-  /api/admin/challenges/{challengeId}:
+  '/api/admin/challenges/{challengeId}':
     patch:
-      tags: [Admin]
+      tags:
+        - Admin
       summary: 특정 도전과제 수정
       security:
         - cookieAuth: []
@@ -483,7 +479,8 @@ paths:
         '200':
           description: 수정 성공
     delete:
-      tags: [Admin]
+      tags:
+        - Admin
       summary: 특정 도전과제 삭제
       security:
         - cookieAuth: []
@@ -492,17 +489,470 @@ paths:
       responses:
         '204':
           description: 삭제 성공
-
-
-# 컴포넌트
-
 components:
-  securitySchemes:
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: ssssssssid
-
+  schemas:
+    SignUpRequest:
+      type: object
+      required:
+        - email
+        - password
+        - nickname
+        - gender
+        - birthday
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123!
+        nickname:
+          type: string
+          example: 가계부사용자1
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+          example: male
+        birthday:
+          type: string
+          format: date
+          example: '2000-07-19'
+    SigninRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    UpdateMyProfileRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+          example: 새로운닉네임
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        birthday:
+          type: string
+          format: date
+        newPassword:
+          type: string
+          format: password
+          description: 새로운 비밀번호. 변경을 원할 때만 보냄.
+          example: newPassword123!
+        newPasswordConfirm:
+          type: string
+          format: password
+          description: 새로운 비밀번호 확인. newPassword와 함께 보내야 함.
+          example: newPassword123!
+    UpdateUserByAdminRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        birthday:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - blocked
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+        newPassword:
+          type: string
+          format: password
+          description: 새로운 비밀번호. 변경을 원할 때만 보냄.
+          example: newPassword123!
+        newPasswordConfirm:
+          type: string
+          format: password
+          description: 새로운 비밀번호 확인. newPassword와 함께 보내야 함.
+          example: newPassword123!
+    IncomeRequest:
+      type: object
+      required:
+        - date
+        - amount
+        - category
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2025-08-10'
+        amount:
+          type: integer
+          example: 3000000
+        category:
+          type: string
+          enum:
+            - SALARY
+            - SIDE_INCOME
+            - ALLOWANCE
+          example: SALARY
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SCHEDULED
+            - REJECTED
+          example: APPROVED
+        description:
+          type: string
+          example: 8월 급여
+    ExpenseRequest:
+      type: object
+      required:
+        - date
+        - amount
+        - category
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2025-08-11'
+        amount:
+          type: integer
+          example: 600000
+        category:
+          type: string
+          enum:
+            - LIVING_EXPENSES
+            - FIXED_EXPENSES
+            - LEISURE
+          example: LEISURE
+        paymentMethod:
+          type: string
+          enum:
+            - BANK_TRANSFER
+            - CASH
+            - CREDIT_CARD
+            - DEBIT_CARD
+          example: CREDIT_CARD
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SCHEDULED
+            - REJECTED
+          example: APPROVED
+        description:
+          type: string
+          example: 티켓 예매
+    TargetSpendingRequest:
+      type: object
+      required:
+        - year
+        - month
+        - category
+        - amount
+      properties:
+        year:
+          type: integer
+          example: 2025
+        month:
+          type: integer
+          example: 8
+        category:
+          type: string
+          enum:
+            - LIVING_EXPENSES
+            - FIXED_EXPENSES
+            - LEISURE
+          example: LIVING_EXPENSES
+        amount:
+          type: integer
+          example: 500000
+        description:
+          type: string
+          example: 이번 달 생활비 50만원 이하
+    CreateChallengeRequest:
+      type: object
+      required:
+        - title
+        - rewardXp
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        rewardXp:
+          type: integer
+    UpdateChallengeRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        rewardXp:
+          type: integer
+    Challenge:
+      type: object
+      properties:
+        challengeId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        rewardXp:
+          type: integer
+    UserChallengeStatus:
+      type: object
+      properties:
+        challengeId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        rewardXp:
+          type: integer
+        status:
+          type: string
+          enum:
+            - PENDING
+            - COMPLETED
+        achievedAt:
+          type: string
+          format: date
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+        nickname:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        profileImageUrl:
+          type: string
+          format: uri
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        birthday:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - active
+            - inactive
+            - blocked
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+        level:
+          type: integer
+        exp:
+          type: integer
+    UserProfile:
+      type: object
+      properties:
+        nickname:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        profileImageUrl:
+          type:
+            - string
+            - 'null'
+          nullable: true
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        birthday:
+          type: string
+          format: date
+        level:
+          type: integer
+        exp:
+          type: integer
+    Income:
+      type: object
+      properties:
+        incomeId:
+          type: integer
+        userId:
+          type: integer
+        financialYearId:
+          type: integer
+        date:
+          type: string
+          format: date
+        amount:
+          type: integer
+        category:
+          type: string
+          enum:
+            - SALARY
+            - SIDE_INCOME
+            - ALLOWANCE
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SCHEDULED
+            - REJECTED
+        description:
+          type: string
+    Expense:
+      type: object
+      properties:
+        expenseId:
+          type: integer
+        userId:
+          type: integer
+        financialYearId:
+          type: integer
+        date:
+          type: string
+          format: date
+        amount:
+          type: integer
+        category:
+          type: string
+          enum:
+            - LIVING_EXPENSES
+            - FIXED_EXPENSES
+            - LEISURE
+        paymentMethod:
+          type: string
+          enum:
+            - BANK_TRANSFER
+            - CASH
+            - CREDIT_CARD
+            - DEBIT_CARD
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SCHEDULED
+            - REJECTED
+        description:
+          type: string
+    TargetSpending:
+      type: object
+      properties:
+        targetSpendingId:
+          type: integer
+        userId:
+          type: integer
+        financialYearId:
+          type: integer
+        category:
+          type: string
+          enum:
+            - LIVING_EXPENSES
+            - FIXED_EXPENSES
+            - LEISURE
+        amount:
+          type: integer
+        description:
+          type: string
+    MonthlySummaryResponse:
+      type: object
+      properties:
+        totalIncome:
+          type: integer
+          example: 3066000
+        totalExpense:
+          type: integer
+          example: 2102400
+        totalresult:
+          type: integer
+          description: 해당 월의 순수입 (총수입 - 총지출)
+          example: 963600
+    CategorySummary:
+      type: object
+      properties:
+        category:
+          type: string
+        totalAmount:
+          type: integer
+    PaymentMethodSummary:
+      type: object
+      properties:
+        paymentMethod:
+          type: string
+        totalAmount:
+          type: integer
+    MonthlyReportResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            totalIncome:
+              type: integer
+            totalExpense:
+              type: integer
+            incomeChangePercentage:
+              type: number
+              format: float
+              description: 전월 대비 수입 증감률
+            expenseChangePercentage:
+              type: number
+              format: float
+              description: 전월 대비 지출 증감률
+        expenseReport:
+          type: object
+          properties:
+            byCategory:
+              type: array
+              items:
+                $ref: '#/components/schemas/CategorySummary'
+            byPaymentMethod:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentMethodSummary'
+            topExpenses:
+              type: array
+              items:
+                $ref: '#/components/schemas/Expense'
+        incomeReport:
+          type: object
+          properties:
+            byCategory:
+              type: array
+              items:
+                $ref: '#/components/schemas/CategorySummary'
+            topIncomes:
+              type: array
+              items:
+                $ref: '#/components/schemas/Income'
   parameters:
     Year:
       name: year
@@ -524,6 +974,14 @@ components:
       required: false
       schema:
         type: string
+    AdminUserSearch:
+      name: search
+      in: query
+      required: false
+      description: 검색할 사용자의 이메일 또는 닉네임
+      schema:
+        type: string
+        example: test@example.com
     IncomeId:
       name: incomeId
       in: path
@@ -554,399 +1012,18 @@ components:
       required: true
       schema:
         type: integer
-
-  schemas:
-    SignUpRequest:
-      type: object
-      required:
-        - email
-        - password
-        - nickname
-        - gender
-        - birthday
-      properties:
-        email:
-          type: string
-          format: email
-          example: 'user@example.com'
-        password:
-          type: string
-          format: password
-          example: 'password123!'
-        nickname:
-          type: string
-          example: '가계부사용자1'
-        gender:
-          type: string
-          enum: ['male', 'female']
-          example: 'male'
-        birthday:
-          type: string
-          format: date
-          example: '2000-07-19'
-
-    LoginRequest:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-
-    UpdateMyProfileRequest:
-      type: object
-      properties:
-        nickname:
-          type: string
-          example: '새로운닉네임'
-        gender:
-          type: string
-          enum: ['male', 'female']
-        birthday:
-          type: string
-          format: date
-        newPassword:
-          type: string
-          format: password
-          description: "새로운 비밀번호. 변경을 원할 때만 보냄."
-          example: 'newPassword123!'
-        newPasswordConfirm:
-          type: string
-          format: password
-          description: "새로운 비밀번호 확인. newPassword와 함께 보내야 함."
-          example: 'newPassword123!'
-
-    UpdateUserByAdminRequest:
-      type: object
-      properties:
-        nickname:
-          type: string
-        gender:
-          type: string
-          enum: ['male', 'female']
-        birthday:
-          type: string
-          format: date
-        status:
-          type: string
-          enum: ['active', 'inactive', 'blocked']
-        role:
-          type: string
-          enum: ['user', 'admin']
-        newPassword:
-          type: string
-          format: password
-          description: "새로운 비밀번호. 변경을 원할 때만 보냄."
-          example: 'newPassword123!'
-        newPasswordConfirm:
-          type: string
-          format: password
-          description: "새로운 비밀번호 확인. newPassword와 함께 보내야 함."
-          example: 'newPassword123!'
-
-    IncomeRequest:
-      type: object
-      required:
-        - date
-        - amount
-        - category
-      properties:
-        date:
-          type: string
-          format: date
-          example: '2025-08-10'
-        amount:
-          type: integer
-          example: 3000000
-        category:
-          type: string
-          enum: ['SALARY', 'SIDE_INCOME', 'ALLOWANCE']
-          example: 'SALARY'
-        status:
-          type: string
-          enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
-          example: 'APPROVED'
-        description:
-          type: string
-          example: '8월 급여'
-
-    ExpenseRequest:
-      type: object
-      required:
-        - date
-        - amount
-        - category
-      properties:
-        date:
-          type: string
-          format: date
-          example: '2025-08-11'
-        amount:
-          type: integer
-          example: 600000
-        category:
-          type: string
-          enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
-          example: 'LEISURE'
-        paymentMethod:
-          type: string
-          enum: ['BANK_TRANSFER', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']
-          example: 'CREDIT_CARD'
-        status:
-          type: string
-          enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
-          example: 'APPROVED'
-        description:
-          type: string
-          example: '티켓 예매'
-
-    TargetSpendingRequest:
-      type: object
-      required:
-        - year
-        - month
-        - category
-        - amount
-      properties:
-        year:
-          type: integer
-          example: 2025
-        month:
-          type: integer
-          example: 8
-        category:
-          type: string
-          enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
-          example: 'LIVING_EXPENSES'
-        amount:
-          type: integer
-          example: 500000
-        description:
-          type: string
-          example: '이번 달 생활비 50만원 이하'
-          
-    CreateChallengeRequest:
-      type: object
-      required:
-        - title
-        - rewardXp
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        rewardXp:
-          type: integer
-          
-    UpdateChallengeRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        rewardXp:
-          type: integer
-
-    Challenge:
-      type: object
-      properties:
-        challengeId:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        rewardXp:
-          type: integer
-
-    UserChallengeStatus:
-      type: object
-      properties:
-        challengeId:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        rewardXp:
-          type: integer
-        status:
-          type: string
-          enum: ['PENDING', 'COMPLETED']
-        achievedAt:
-          type: string
-          format: date
-
-    User:
-      type: object
-      properties:
-        userId:
-          type: integer
-        nickname:
-          type: string
-        contactEmail:
-          type: string
-          format: email
-        profileImageUrl:
-          type: string
-          format: uri
-        gender:
-          type: string
-          enum: ['male', 'female']
-        birthday:
-          type: string
-          format: date
-        status:
-          type: string
-          enum: ['active', 'inactive', 'blocked']
-        role:
-          type: string
-          enum: ['user', 'admin']
-        level:
-          type: integer
-        exp:
-          type: integer
-
-    Income:
-      type: object
-      properties:
-        incomeId:
-          type: integer
-        userId:
-          type: integer
-        financialYearId:
-          type: integer
-        date:
-          type: string
-          format: date
-        amount:
-          type: integer
-        category:
-          type: string
-          enum: ['SALARY', 'SIDE_INCOME', 'ALLOWANCE']
-        status:
-          type: string
-          enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
-        description:
-          type: string
-
-    Expense:
-      type: object
-      properties:
-        expenseId:
-          type: integer
-        userId:
-          type: integer
-        financialYearId:
-          type: integer
-        date:
-          type: string
-          format: date
-        amount:
-          type: integer
-        category:
-          type: string
-          enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
-        paymentMethod:
-          type: string
-          enum: ['BANK_TRANSFER', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']
-        status:
-          type: string
-          enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
-        description:
-          type: string
-
-    TargetSpending:
-      type: object
-      properties:
-        targetSpendingId:
-          type: integer
-        userId:
-          type: integer
-        financialYearId:
-          type: integer
-        category:
-          type: string
-          enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
-        amount:
-          type: integer
-        description:
-          type: string
-          
-    MonthlySummaryResponse:
-      type: object
-      properties:
-        totalIncome:
-          type: integer
-          example: 3066000
-        totalExpense:
-          type: integer
-          example: 2102400
-        totalresult:
-          type: integer
-          description: "해당 월의 순수입 (총수입 - 총지출)"
-          example: 963600
-
-
-    CategorySummary:
-      type: object
-      properties:
-        category:
-          type: string
-        totalAmount:
-          type: integer
-
-
-    PaymentMethodSummary:
-      type: object
-      properties:
-        paymentMethod:
-          type: string
-        totalAmount:
-          type: integer
-
-    MonthlyReportResponse:
-      type: object
-      properties:
-
-        summary:
-          type: object
-          properties:
-            totalIncome: { type: integer }
-            totalExpense: { type: integer }
-            incomeChangePercentage: { type: number, format: float, description: "전월 대비 수입 증감률" }
-            expenseChangePercentage: { type: number, format: float, description: "전월 대비 지출 증감률" }
-
-        expenseReport:
-          type: object
-          properties:
-            byCategory:
-              type: array
-              items:
-                $ref: '#/components/schemas/CategorySummary'
-            byPaymentMethod:
-              type: array
-              items:
-                $ref: '#/components/schemas/PaymentMethodSummary'
-            topExpenses:
-              type: array
-              items:
-                $ref: '#/components/schemas/Expense'
-
-        incomeReport:
-          type: object
-          properties:
-            byCategory:
-              type: array
-              items:
-                $ref: '#/components/schemas/CategorySummary'
-            topIncomes:
-              type: array
-              items:
-                $ref: '#/components/schemas/Income'
+    Role:
+      name: role
+      in: query
+      required: false
+      description: 필터링할 사용자의 역할
+      schema:
+        type: string
+        enum:
+          - user
+          - admin
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: ssssssssid

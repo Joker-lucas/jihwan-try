@@ -1,0 +1,15 @@
+get:
+  tags: [Reports]
+  summary: 월별 분석 보고서 조회
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/Year'
+    - $ref: '../../components/parameter.yaml#/parameters/Month'
+  responses:
+    '200':
+      description: 조회 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/MonthlyReportResponse'

@@ -1,6 +1,21 @@
 const userController = require('./user');
 const authController = require('./auth');
+const incomeController = require('./income');
+const expenseController = require('./expense');
+const summaryController = require('./summary');
+const targetSpendingController = require('./target-spending');
+const reportController = require('./report');
+const challengeController = require('./challenge');
+const adminController = require('./admin');
+
 module.exports = {
   userController,
   authController,
+  incomeController,
+  expenseController,
+  summaryController,
+  targetSpendingController,
+  reportController,
+  challengeController,
+  adminController,
 };

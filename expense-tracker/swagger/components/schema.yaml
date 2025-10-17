@@ -1,0 +1,411 @@
+schemas:
+  SignUpRequest:
+    type: object
+    required:
+      - email
+      - password
+      - nickname
+      - gender
+      - birthday
+    properties:
+      email:
+        type: string
+        format: email
+        example: 'user@example.com'
+      password:
+        type: string
+        format: password
+        example: 'password123!'
+      nickname:
+        type: string
+        example: '가계부사용자1'
+      gender:
+        type: string
+        enum: ['male', 'female']
+        example: 'male'
+      birthday:
+        type: string
+        format: date
+        example: '2000-07-19'
+
+  SigninRequest:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        format: password
+
+  UpdateMyProfileRequest:
+    type: object
+    properties:
+      nickname:
+        type: string
+        example: '새로운닉네임'
+      gender:
+        type: string
+        enum: ['male', 'female']
+      birthday:
+        type: string
+        format: date
+      newPassword:
+        type: string
+        format: password
+        description: "새로운 비밀번호. 변경을 원할 때만 보냄."
+        example: 'newPassword123!'
+      newPasswordConfirm:
+        type: string
+        format: password
+        description: "새로운 비밀번호 확인. newPassword와 함께 보내야 함."
+        example: 'newPassword123!'
+
+  UpdateUserByAdminRequest:
+    type: object
+    properties:
+      nickname:
+        type: string
+      gender:
+        type: string
+        enum: ['male', 'female']
+      birthday:
+        type: string
+        format: date
+      status:
+        type: string
+        enum: ['active', 'inactive', 'blocked']
+      role:
+        type: string
+        enum: ['user', 'admin']
+      newPassword:
+        type: string
+        format: password
+        description: "새로운 비밀번호. 변경을 원할 때만 보냄."
+        example: 'newPassword123!'
+      newPasswordConfirm:
+        type: string
+        format: password
+        description: "새로운 비밀번호 확인. newPassword와 함께 보내야 함."
+        example: 'newPassword123!'
+
+  IncomeRequest:
+    type: object
+    required:
+      - date
+      - amount
+      - category
+    properties:
+      date:
+        type: string
+        format: date
+        example: '2025-08-10'
+      amount:
+        type: integer
+        example: 3000000
+      category:
+        type: string
+        enum: ['SALARY', 'SIDE_INCOME', 'ALLOWANCE']
+        example: 'SALARY'
+      status:
+        type: string
+        enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
+        example: 'APPROVED'
+      description:
+        type: string
+        example: '8월 급여'
+
+  ExpenseRequest:
+    type: object
+    required:
+      - date
+      - amount
+      - category
+    properties:
+      date:
+        type: string
+        format: date
+        example: '2025-08-11'
+      amount:
+        type: integer
+        example: 600000
+      category:
+        type: string
+        enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
+        example: 'LEISURE'
+      paymentMethod:
+        type: string
+        enum: ['BANK_TRANSFER', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']
+        example: 'CREDIT_CARD'
+      status:
+        type: string
+        enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
+        example: 'APPROVED'
+      description:
+        type: string
+        example: '티켓 예매'
+
+  TargetSpendingRequest:
+    type: object
+    required:
+      - year
+      - month
+      - category
+      - amount
+    properties:
+      year:
+        type: integer
+        example: 2025
+      month:
+        type: integer
+        example: 8
+      category:
+        type: string
+        enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
+        example: 'LIVING_EXPENSES'
+      amount:
+        type: integer
+        example: 500000
+      description:
+        type: string
+        example: '이번 달 생활비 50만원 이하'
+        
+  CreateChallengeRequest:
+    type: object
+    required:
+      - title
+      - rewardXp
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      rewardXp:
+        type: integer
+        
+  UpdateChallengeRequest:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      rewardXp:
+        type: integer
+
+  Challenge:
+    type: object
+    properties:
+      challengeId:
+        type: integer
+      title:
+        type: string
+      description:
+        type: string
+      rewardXp:
+        type: integer
+
+  UserChallengeStatus:
+    type: object
+    properties:
+      challengeId:
+        type: integer
+      title:
+        type: string
+      description:
+        type: string
+      rewardXp:
+        type: integer
+      status:
+        type: string
+        enum: ['PENDING', 'COMPLETED']
+      achievedAt:
+        type: string
+        format: date
+
+  User:
+    type: object
+    properties:
+      userId:
+        type: integer
+      nickname:
+        type: string
+      contactEmail:
+        type: string
+        format: email
+      profileImageUrl:
+        type: string
+        format: uri
+      gender:
+        type: string
+        enum: ['male', 'female']
+      birthday:
+        type: string
+        format: date
+      status:
+        type: string
+        enum: ['active', 'inactive', 'blocked']
+      role:
+        type: string
+        enum: ['user', 'admin']
+      level:
+        type: integer
+      exp:
+        type: integer
+  UserProfile:
+    type: object
+    properties:
+      nickname:
+        type: string
+      contactEmail:
+        type: string
+        format: email
+      profileImageUrl:
+        type: [string, 'null']
+        nullable: true
+      gender:
+        type: string
+        enum: [male, female]
+      birthday:
+        type: string
+        format: date
+      level:
+        type: integer
+      exp:
+        type: integer
+
+  Income:
+    type: object
+    properties:
+      incomeId:
+        type: integer
+      userId:
+        type: integer
+      financialYearId:
+        type: integer
+      date:
+        type: string
+        format: date
+      amount:
+        type: integer
+      category:
+        type: string
+        enum: ['SALARY', 'SIDE_INCOME', 'ALLOWANCE']
+      status:
+        type: string
+        enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
+      description:
+        type: string
+
+  Expense:
+    type: object
+    properties:
+      expenseId:
+        type: integer
+      userId:
+        type: integer
+      financialYearId:
+        type: integer
+      date:
+        type: string
+        format: date
+      amount:
+        type: integer
+      category:
+        type: string
+        enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
+      paymentMethod:
+        type: string
+        enum: ['BANK_TRANSFER', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']
+      status:
+        type: string
+        enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
+      description:
+        type: string
+
+  TargetSpending:
+    type: object
+    properties:
+      targetSpendingId:
+        type: integer
+      userId:
+        type: integer
+      financialYearId:
+        type: integer
+      category:
+        type: string
+        enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
+      amount:
+        type: integer
+      description:
+        type: string
+        
+  MonthlySummaryResponse:
+    type: object
+    properties:
+      totalIncome:
+        type: integer
+        example: 3066000
+      totalExpense:
+        type: integer
+        example: 2102400
+      totalresult:
+        type: integer
+        description: "해당 월의 순수입 (총수입 - 총지출)"
+        example: 963600
+
+  CategorySummary:
+    type: object
+    properties:
+      category:
+        type: string
+      totalAmount:
+        type: integer
+
+  PaymentMethodSummary:
+    type: object
+    properties:
+      paymentMethod:
+        type: string
+      totalAmount:
+        type: integer
+
+  MonthlyReportResponse:
+    type: object
+    properties:
+      summary:
+        type: object
+        properties:
+          totalIncome: { type: integer }
+          totalExpense: { type: integer }
+          incomeChangePercentage: { type: number, format: float, description: "전월 대비 수입 증감률" }
+          expenseChangePercentage: { type: number, format: float, description: "전월 대비 지출 증감률" }
+      expenseReport:
+        type: object
+        properties:
+          byCategory:
+            type: array
+            items:
+              $ref: '#/schemas/CategorySummary'  
+          byPaymentMethod:
+            type: array
+            items:
+              $ref: '#/schemas/PaymentMethodSummary' 
+          topExpenses:
+            type: array
+            items:
+              $ref: '#/schemas/Expense'
+      incomeReport:
+        type: object
+        properties:
+          byCategory:
+            type: array
+            items:
+              $ref: '#/schemas/CategorySummary' 
+          topIncomes:
+            type: array
+            items:
+              $ref: '#/schemas/Income'
