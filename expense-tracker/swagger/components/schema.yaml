@@ -255,6 +255,7 @@ schemas:
         type: integer
       exp:
         type: integer
+        
   UserProfile:
     type: object
     properties:
@@ -268,7 +269,7 @@ schemas:
         nullable: true
       gender:
         type: string
-        enum: [male, female]
+        enum: ['male', 'female']
       birthday:
         type: string
         format: date
@@ -372,6 +373,18 @@ schemas:
         type: string
       totalAmount:
         type: integer
+        
+  WeeklySummary:
+    type: object
+    properties:
+      weekNumber:
+        type: integer
+        description: 해당 월의 주차 (1주차, 2주차 등)
+        example: 1
+      amount:
+        type: integer
+        description: 해당 주차의 총 금액
+        example: 750000
 
   MonthlyReportResponse:
     type: object
@@ -409,3 +422,15 @@ schemas:
             type: array
             items:
               $ref: '#/schemas/Income'
+
+      weeklyIncomeTrend:
+        type: array
+        description: 주차별 수입 금액 트렌드 (선 그래프용)
+        items:
+          $ref: '#/schemas/WeeklySummary' 
+
+      weeklyExpenseTrend:
+        type: array
+        description: 주차별 지출 금액 트렌드 (선 그래프용)
+        items:
+          $ref: '#/schemas/WeeklySummary'
