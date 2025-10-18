@@ -1,57 +1,67 @@
 const { userService } = require('../services'); 
 const { response, error, errorDefinition } = require('../libs/common');
+const { getLogger } = require('../libs/logger');
 const { successResponse } = response;
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await userService.getAllUsers();
-    successResponse(res, users);
-  } catch (error) {
-    throw error;
-  }
-};
+const logger = getLogger('controllers/userController.js');
 
-const getUserById = async (req, res) => {
+const getMyProfile = async (req, res, next) => {
   try {
-    const user = await userService.getUserById(req.params.userId);
+    const userId = req.user.userId;
+    logger.info('내 프로필 조회 요청');
+
+    const user = await userService.getUserById(userId);
+    
     if (!user) {
       throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
     }
-    successResponse(res, user);
+    
+    const userPayload = {
+      nickname: user.nickname,
+      contactEmail: user.contactEmail,
+      profileImageUrl: user.profileImageUrl,
+      gender: user.gender,
+      birthday: user.birthday,
+      level: user.level,
+      exp: user.exp
+    };
+
+
+    successResponse(res, userPayload);
   } catch (error) {
+    logger.error(error, '내 프로필 조회 중 에러 발생');
     throw error;
   }
 };
 
-const updateUser = async (req, res) => {
+const updateMyProfile = async (req, res, next) => {
   try {
-    const updatedUser = await userService.updateUserById(req.params.userId, req.body);
+    const userId = req.user.userId;
+    logger.info({ userId, body: req.body }, '내 프로필 수정 요청');
+
+    const updatedUser = await userService.updateUserById(userId, req.body);
+
     if (!updatedUser) {
-      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);      
     }
-    successResponse(res, updatedUser);
-  } catch (error) {
-    throw error;
-  }
-};
 
-const deleteUser = async (req, res) => {
-  try {
-    const isDeleted = await userService.deleteUserById(req.params.userId);
-    if (!isDeleted) {
-      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
-    }
-    successResponse(res, { message: '성공적으로 삭제되었습니다.' });
+    const updateUserPayload = {
+      nickname: updatedUser.nickname,
+      contactEmail: updatedUser.contactEmail,
+      profileImageUrl: updatedUser.profileImageUrl,
+      gender: updatedUser.gender,
+      birthday: updatedUser.birthday,
+    };
+    successResponse(res, updateUserPayload);
   } catch (error) {
+    logger.error(error, '내 프로필 수정 중 에러 발생');
     throw error;
   }
 };
 
 module.exports = {
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
+  getMyProfile,
+  updateMyProfile,
 };

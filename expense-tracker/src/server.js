@@ -4,6 +4,12 @@ const passport = require('passport');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const YAML = require('js-yaml');
+const path = require('path');
+
+
 const { db, connectToDatabase } = require('./libs/db'); 
 const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
@@ -14,6 +20,7 @@ const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
+const { initializeFinancialYears } = require('./libs/jobs/scheduler');
 
 
 const app = express();
@@ -68,6 +75,8 @@ const startServer = async () => {
             connectToRedis()
         ]);
 
+        await initializeFinancialYears();
+        
         const redisStore = new RedisStore({ client: redisClient });
 
         app.use(session({
@@ -91,6 +100,7 @@ const startServer = async () => {
 
 
         app.use(addUserContext);
+
 
         app.use('/api', mainRouter);
 

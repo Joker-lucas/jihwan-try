@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.TargetSpending, { foreignKey: 'userId' });
       User.hasMany(models.Income, { foreignKey: 'userId' }); 
       User.hasMany(models.Expense, { foreignKey: 'userId' });
-      User.hasMany(models.UserChallengeChecklist, { foreignKey: 'userId' });
+      User.hasMany(models.ChallengeChecklist, { foreignKey: 'userId' });
       User.hasMany(models.UserLog, { foreignKey: 'userId' }); 
     }
   }

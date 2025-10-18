@@ -41,8 +41,15 @@ module.exports = (sequelize, DataTypes) => {
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     }
-  }, {
+    
+  },
+  
+   {
     sequelize,
     modelName: 'TargetSpending',
     timestamps: true,
