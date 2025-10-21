@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: 가계부 서비스
+  version: "1.0.0"
+  description: 사용자의 수입/지출을 관리하고 분석하는 서비스의 API 명세서.
+
+servers:
+  - url: http://localhost:3000
+    description: 개발 서버
+
+tags:
+  - name: Auth
+    description: 사용자 인증 (회원가입, 로그인)
+  - name: Users
+    description: 사용자 정보 (프로필)
+  - name: Incomes
+    description: 수입 관리
+  - name: Expenses
+    description: 지출 관리
+  - name: Summary
+    description: 요약 정보 API
+  - name: TargetSpendings
+    description: 목표 지출 관리
+  - name: Reports
+    description: 월별 보고서
+  - name: Challenges
+    description: 도전과제
+  - name: Admin
+    description: 관리자 기능
+
+paths:
+  # --- Auth ---
+  /api/auth/sign-up:
+    $ref: './paths/auths/sign-up.yaml'
+  /api/auth/sign-in:
+    $ref: './paths/auths/sign-in.yaml'
+  /api/auth/sign-out:
+    $ref: './paths/auths/sign-out.yaml'
+
+  # --- Users ---
+  /api/users/me:
+    $ref: './paths/users/me.yaml'
+    
+  # --- Incomes ---
+  /api/incomes:
+    $ref: './paths/incomes/income.yaml'
+  /api/incomes/{incomeId}:
+    $ref: './paths/incomes/income-by-id.yaml'
+
+  # --- Expenses ---
+  /api/expenses:
+    $ref: './paths/expenses/expense.yaml'
+  /api/expenses/{expenseId}:
+    $ref: './paths/expenses/expense-by-id.yaml'
+    
+  # --- Target Spendings ---
+  /api/target-spendings:
+    $ref: './paths/target-spendings/target-spending.yaml'
+  /api/target-spendings/{targetSpendingId}:
+    $ref: './paths/target-spendings/target-spending-by-id.yaml'
+    
+  # --- Reports ---
+  /api/reports/monthly:
+    $ref: './paths/reports/monthly.yaml'
+
+  # --- Challenges ---
+  /api/challenges:
+    $ref: './paths/challenges/challenge.yaml'
+  /api/users/{userId}/challenges:
+    $ref: './paths/challenges/status.yaml'
+    
+  # --- Summary ---
+  /api/summary/monthly:
+    $ref: './paths/summarys/monthly.yaml'
+    
+  # --- Admin ---
+  /api/admin/users:
+    $ref: './paths/admins/user.yaml'
+  /api/admin/users/{userId}:
+    $ref: './paths/admins/user-by-id.yaml'
+  /api/admin/challenges:
+    $ref: './paths/admins/challenge.yaml'
+  /api/admin/challenges/{challengeId}:
+    $ref: './paths/admins/challenge-by-id.yaml'
+
+components:
+  schemas:
+    $ref: './components/schema.yaml#/schemas'
+  parameters:
+    $ref: './components/parameter.yaml#/parameters'
+  securitySchemes:
+    $ref: './components/security-scheme.yaml#/securitySchemes'

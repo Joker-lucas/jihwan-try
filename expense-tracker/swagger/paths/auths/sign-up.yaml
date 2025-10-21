@@ -1,0 +1,18 @@
+post:
+  tags: [Auth]
+  summary: 회원가입
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/SignUpRequest'
+  responses:
+    '201':
+      description: 회원가입 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/UserProfile'
+    '409':
+      description: 이미 존재하는 이메일 또는 닉네임

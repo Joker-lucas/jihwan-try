@@ -15,7 +15,7 @@ const signUp = async (userData) => {
     const t = await sequelize.transaction();
     try {
         //const { nickname, gender, email, birthday, password } = userData;
-        
+
         const nickname = userData.nickname;
         const gender = userData.gender;
         const email = userData.email;
@@ -27,7 +27,7 @@ const signUp = async (userData) => {
         await BasicCredential.create({
             loginEmail: email,
             password: hashedPassword,
-            userId: newUser.userId, 
+            userId: newUser.userId,
         }, { transaction: t });
 
         await t.commit();
@@ -67,6 +67,11 @@ const signIn = async (email, password) => {
         }
 
         const user = credential.User;
+        try {
+            await user.update({ lastLoginAt: new Date() });
+        } catch (error) {
+            throw error;
+        }
         return user;
     } catch (error) {
         throw error;

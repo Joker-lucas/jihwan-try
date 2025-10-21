@@ -12,7 +12,7 @@ const INCOME_CATEGORIES = Object.freeze({
 });
 
 const EXPENSE_CATEGORIES = Object.freeze({
-  LIVING_EXPENSES: 'LIVING_EXPENSES', // 생활비 ss
+  LIVING_EXPENSES: 'LIVING_EXPENSES', // 생활비
   FIXED_EXPENSES: 'FIXED_EXPENSES',   // 고정지출
   LEISURE: 'LEISURE',                 // 여가생활
 });
@@ -24,3 +24,11 @@ const PAYMENT_METHODS = Object.freeze({
   CREDIT_CARD: 'CREDIT_CARD',     // 신용카드
   DEBIT_CARD: 'DEBIT_CARD',       // 체크카드     
 });
+
+
+module.exports = {
+    TRANSACTION_STATUS,
+    INCOME_CATEGORIES,
+    EXPENSE_CATEGORIES,
+    PAYMENT_METHODS,
+}
