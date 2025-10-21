@@ -1,0 +1,25 @@
+patch:
+  tags: [Admin]
+  summary: 특정 도전과제 수정
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/ChallengeId'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/UpdateChallengeRequest'
+  responses:
+    '200':
+      description: 수정 성공
+delete:
+  tags: [Admin]
+  summary: 특정 도전과제 삭제
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/ChallengeId'
+  responses:
+    '204':
+      description: 삭제 성공

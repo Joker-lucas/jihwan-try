@@ -4,8 +4,9 @@
   "description": "jihwan-try",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "npm run api-docs && node src/server.js",
+    "dev": "npm run api-docs && nodemon src/server.js",
+    "api-docs": "swagger-cli bundle ./swagger/index.yaml --outfile swagger.yaml --type yaml",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -28,6 +29,7 @@
     "pino-http": "^10.5.0",
     "pino-pretty": "^13.1.1",
     "sequelize": "^6.37.7",
+    "swagger-cli": "^4.0.4",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {

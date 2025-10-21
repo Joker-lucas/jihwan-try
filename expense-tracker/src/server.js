@@ -120,6 +120,11 @@ const startServer = async () => {
         app.use(addUserContext);
 
 
+        const swaggerDocument = YAML.load(
+            fs.readFileSync(path.join(__dirname, '../swagger.yaml'), 'utf8')
+        );
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
         app.use('/api', mainRouter);
 
         app.use(errorHandlerMiddleware);

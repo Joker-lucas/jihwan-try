@@ -1,0 +1,75 @@
+parameters:
+  Year:
+    name: year
+    in: query
+    required: true
+    schema:
+      type: integer
+    example: 2025
+
+  Month:
+    name: month
+    in: query
+    required: true
+    schema:
+      type: integer
+    example: 8
+
+  Search:
+    name: search
+    in: query
+    required: false
+    schema:
+      type: string
+
+  AdminUserSearch:
+    name: search
+    in: query
+    required: false
+    description: "검색할 사용자의 이메일 또는 닉네임"
+    schema:
+      type: string
+      example: "test@example.com"
+
+  IncomeId:
+    name: incomeId
+    in: path
+    required: true
+    schema:
+      type: integer
+
+  ExpenseId:
+    name: expenseId
+    in: path
+    required: true
+    schema:
+      type: integer
+
+  UserId:
+    name: userId
+    in: path
+    required: true
+    schema:
+      type: integer
+
+  TargetSpendingId:
+    name: targetSpendingId
+    in: path
+    required: true
+    schema:
+      type: integer
+
+  ChallengeId:
+    name: challengeId
+    in: path
+    required: true
+    schema:
+      type: integer
+  Role:
+    name: role
+    in: query
+    required: false
+    description: "필터링할 사용자의 역할"
+    schema:
+      type: string
+      enum: [user, admin]

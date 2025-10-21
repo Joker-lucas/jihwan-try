@@ -1,8 +1,8 @@
 const { getLogger } = require('../libs/logger');
 const { response } = require('../libs/common');
 const { successResponse } = response;
+const logger = getLogger('controllers/report.js'); 
 
-const logger = getLogger('controllers/report.js');
 
 const getMonthlyReport = (req, res, next) => {
     logger.info('월별 분석 보고서 조회 요청 시작');
@@ -51,6 +51,19 @@ const getMonthlyReport = (req, res, next) => {
                     }
                 ],
             },
+            
+            weeklyIncomeTrend: [
+                { weekNumber: 1, amount: 800000 },
+                { weekNumber: 2, amount: 1000000 },
+                { weekNumber: 3, amount: 700000 },
+                { weekNumber: 4, amount: 1000000 },
+            ],
+            weeklyExpenseTrend: [
+                { weekNumber: 1, amount: 300000 },
+                { weekNumber: 2, amount: 400000 },
+                { weekNumber: 3, amount: 350000 },
+                { weekNumber: 4, amount: 200000 },
+            ],
         };
 
         logger.info('월별 분석 보고서 조회 성공');

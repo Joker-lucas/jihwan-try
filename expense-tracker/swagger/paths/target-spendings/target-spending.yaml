@@ -1,0 +1,35 @@
+get:
+  tags: [TargetSpendings]
+  summary: 월별 목표 지출 조회
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/Year'
+    - $ref: '../../components/parameter.yaml#/parameters/Month'
+  responses:
+    '200':
+      description: 조회 성공
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../components/schema.yaml#/schemas/TargetSpending'
+post:
+  tags: [TargetSpendings]
+  summary: 월별 목표 지출 설정
+  security:
+    - cookieAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/TargetSpendingRequest'
+  responses:
+    '201':
+      description: 목표 설정 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/TargetSpending'
