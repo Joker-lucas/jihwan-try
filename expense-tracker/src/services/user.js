@@ -4,6 +4,10 @@ const { error, errorDefinition } = require('../libs/common');
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
+const getAllUsers = async () => {
+    const allUsers = await User.findAll();
+    return allUsers;
+};
 
 const getAllUsers = async () => {
     const allUsers = await User.findAll();
@@ -31,9 +35,7 @@ const updateUserById = async (userId, updateData) => {
 };
 
 const deleteUserById = async (userId) => {
-
     const t = await sequelize.transaction();
-
     try {
         await BasicCredential.destroy({ where: { userId: userId }, transaction: t });
 
@@ -41,9 +43,9 @@ const deleteUserById = async (userId) => {
             where: { userId: userId },
             transaction: t
         });
-
+        
         await t.commit();
-        return deletedRowCount;
+        return deletedRowCount; 
 
     } catch (error) {
         await t.rollback();
