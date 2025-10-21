@@ -1,107 +1,78 @@
+const { incomeService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { response } = require('../libs/common'); 
+const { response, authUtils } = require('../libs/common'); 
 const { successResponse } = response;
+const { isAdmin } = authUtils;
 
 const logger = getLogger('controllers/income.js');
 
-const getAllIncomes = (req, res, next) => {
+const getAllIncomes = async (req, res, next) => {
     try {
-        logger.info('수입 내역 조회 요청 시작');
-        const testIncomes = [
-            {
-                incomeId: 1,
-                userId: 14,
-                financialYearId: 1,
-                date: '2025-10-10',
-                amount: 3000000,
-                category: 'SALARY',
-                status: 'APPROVED',
-                description: '10월 급여',
-            },
-            {
-                incomeId: 2,
-                userId: 14,
-                financialYearId: 1,
-                date: '2025-10-15',
-                amount: 150000,
-                category: 'SIDE_INCOME',
-                status: 'APPROVED',
-                description: '중고 거래 판매 대금',
-            },
-        ];
+        const requester = req.user;
+        const year = req.query.year;
+        const month = req.query.month;
 
-        logger.info('모든 수입 내역 조회 성공');
-        successResponse(res, testIncomes);
+        let targetUserId;
+
+        if (isAdmin(requester)) {
+
+            if (req.query.userId) {
+                targetUserId = parseInt(req.query.userId); 
+            } else {
+                targetUserId = null; 
+            }
+        } else {
+            targetUserId = requester.userId;
+        }
+
+
+        const incomes = await incomeService.getAllIncomes(targetUserId, year, month);
+
+        successResponse(res, incomes);
     } catch (error) {
-        logger.error(error, '수입 내역 조회 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const createIncome = (req, res, next) => {
-    logger.info('수입 내역 생성 요청 시작');
+const createIncome = async (req, res, next) => {
     try {
-        const date = req.body.date;
-        const amount = req.body.amount;
-        const category = req.body.category;
-        const status = req.body.status;
-        const description = req.body.description;
+        const userId = req.user.userId;
+        const incomeData = req.body;
 
-        const createdIncome = {
-            incomeId: 99, 
-            userId: 14,
-            financialYearId: 1,
-            date: date,
-            amount: amount,
-            category: category,
-            status: status,
-            description: description,
-        };
+        const newIncome = await incomeService.createIncome(userId, incomeData);
 
-        logger.info({ newIncomeId: createdIncome.incomeId }, '새로운 수입 내역 생성 성공');
-        successResponse(res, createdIncome, 201);
+        successResponse(res, newIncome, 201);
+
     } catch (error) {
-        logger.error(error, '수입 내역 생성 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const updateIncome = (req, res, next) => {
-    logger.info('수입 내역 수정 요청 시작');
+const updateIncome = async(req, res, next) => {
     try {
-        const date = req.body.date;
-        const amount = req.body.amount;
-        const category = req.body.category;
-        const status = req.body.status;
-        const description = req.body.description;
+        const userId = req.user.userId;
+        const incomeId = req.params.incomeId; 
+        const updateData = req.body;
 
-        const updatedIncome = {
-            incomeId: parseInt(incomeId),
-            userId: 14,
-            financialYearId: 1,
-            date: date || '2025-10-10',
-            amount: amount || 3100000,
-            category: category || 'SALARY',
-            status: status || 'APPROVED',
-            description: description || '10월 급여 (수정됨)',
-        };
-
-        logger.info({ updatedIncomeId: updatedIncome.incomeId }, '수입 내역 수정 성공');
+        const updatedIncome = await incomeService.updateIncome(userId, incomeId, updateData);
         successResponse(res, updatedIncome);
+
     } catch (error) {
-        logger.error(error, '수입 내역 수정 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const deleteIncome = (req, res, next) => {
-    logger.info('수입 내역 삭제 요청 시작');
+const deleteIncome = async(req, res, next) => {
     try {
-        logger.info({ deletedIncomeId: incomeId }, '수입 내역 삭제 성공');
+        const userId = req.user.userId;
+        const incomeId = req.params.incomeId;
+
+        await incomeService.deleteIncome(userId, incomeId);
+        
         successResponse(res, { message: `수입 내역이 성공적으로 삭제되었습니다.` });
     } catch (error) {
         logger.error(error, '수입 내역 삭제 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 

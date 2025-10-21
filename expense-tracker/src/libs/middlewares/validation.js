@@ -8,6 +8,10 @@ const signupFields = {
   allowed: ['nickname', 'email', 'gender', 'birthday', 'password'],
 };
 
+const incomeFields = {
+  required: ['date', 'amount', 'category'],
+  allowed: ['date', 'amount', 'category', 'status', 'description'],
+};
 
 const validateRequiredFields = (requiredFields) => {
   return (req, res, next) => {
@@ -66,15 +70,32 @@ const validateSignup = (req, res, next) => {
   next();
 };
 
+const validateIncomeData = (req, res, next) => {
+  const { amount } = req.body;
 
+  if (amount !== undefined && (typeof amount !== 'number' || amount <= 0)) {
+    return res.status(400).json({
+      errorMsg: '금액(amount)은 0보다 큰 숫자여야 합니다.'
+    });
+  }
+
+  next();
+}
 
 const validateSignupRequired = validateRequiredFields(signupFields.required);
 const filterSignupBody = filterRequestBody(signupFields.allowed);
 const filterUserUpdateBody = filterRequestBody(userFields.allowed);
+
+const validateIncomeRequired = validateRequiredFields(incomeFields.required);
+const filterIncomeBody = filterRequestBody(incomeFields.allowed);
+
 
 module.exports = {
   validateSignupRequired,
   validateSignup,
   filterSignupBody,
   filterUserUpdateBody,
+  validateIncomeRequired,
+  validateIncomeData,
+  filterIncomeBody,
 };

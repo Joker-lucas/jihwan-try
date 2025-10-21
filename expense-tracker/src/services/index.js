@@ -1,9 +1,9 @@
 const userService = require('./user');
 const authService = require('./auth');
-const adminService = require('./admin');
+const incomeService = require('./income');
 
 module.exports = {
   userService,
   authService,
-  adminService,
+  incomeService
 };
