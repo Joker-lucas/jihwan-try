@@ -20,7 +20,6 @@ const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
-const { initializeFinancialYears } = require('./libs/jobs/scheduler');
 
 
 const app = express();
@@ -68,6 +67,25 @@ const setGracefulShutdown = (server) => {
     process.on('SIGTERM', () => _gracefulShutDown('SIGTERM'));
 };
 
+const _initializeFinancialYears = async () => {
+    const currentYear = new Date().getFullYear();
+    const yearsToGenerate = [];
+
+    for (let i = 0; i < 10; i++) {
+        yearsToGenerate.push(currentYear + i);
+    }
+
+    for (const year of yearsToGenerate) {
+        for (let month = 1; month <= 12; month++) {
+            await db.FinancialYear.findOrCreate({ 
+                where: { year, month }
+            });
+        }
+    }
+};
+
+
+
 const startServer = async () => {
     try {
         await Promise.all([
@@ -75,7 +93,7 @@ const startServer = async () => {
             connectToRedis()
         ]);
 
-        await initializeFinancialYears();
+        await _initializeFinancialYears();
         
         const redisStore = new RedisStore({ client: redisClient });
 
