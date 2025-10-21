@@ -1,0 +1,30 @@
+get:
+  tags: [Users]
+  summary: 프로필 조회
+  security:
+    - cookieAuth: []
+  responses:
+    '200':
+      description: 프로필 조회 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/UserProfile'
+    '401':
+      description: 인증 실패
+
+patch:
+  tags: [Users]
+  summary: 프로필 수정
+  security:
+    - cookieAuth: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/UserProfile'
+  responses:
+    '200':
+      description: 프로필 수정 성공
+    '401':
+      description: 인증 실패

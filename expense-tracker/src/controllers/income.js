@@ -1,3 +1,4 @@
+
 const { incomeService } = require('../services');
 const { getLogger } = require('../libs/logger');
 const { response, authUtils } = require('../libs/common'); 
@@ -73,6 +74,7 @@ const deleteIncome = async(req, res, next) => {
     } catch (error) {
         logger.error(error, '수입 내역 삭제 중 에러 발생');
         throw error;
+
     }
 };
 

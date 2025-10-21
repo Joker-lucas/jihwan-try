@@ -15,7 +15,18 @@ const signUp = async (req, res) => {
   try { 
     const newUser = await authService.signUp(req.body);
     logger.info({ newUserId: newUser.userId }, '회원가입 성공');
-    successResponse(res, newUser, 201);
+
+    const newUserPayload = {
+      nickname: newUser.nickname,
+      email: newUser.contactEmail,
+      profileImageUrl: newUser.profileImageUrl,
+      gender: newUser.gender,
+      birthday: newUser.birthday,
+      level: newUser.level,
+      exp: newUser.exp
+    };
+
+    successResponse(res, newUserPayload, 201);
 
   } catch (error) {
     logger.error(error, '회원가입 중 에러 발생');
@@ -36,12 +47,7 @@ const signIn = async (req, res, next) => {
       nickname: req.user.nickname,
       email: req.user.contactEmail,
     };
-    
-    if (req.originalUrl.includes('/jwt')) {
-      const token = jwt.sign({ userId: req.user.userId }, jwtSecret, { expiresIn: '1m' } );
-      logger.info('JWT 로그인 성공');
-      successResponse(res, { token, user: userPayload });
-    }
+
     logger.info('쿠키/세션 로그인 성공');
     successResponse(res, { message: '로그인 성공', user: userPayload });
 

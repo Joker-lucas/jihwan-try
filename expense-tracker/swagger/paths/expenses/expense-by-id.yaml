@@ -1,0 +1,29 @@
+patch:
+  tags: [Expenses]
+  summary: 지출 내역 수정
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/ExpenseId'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '../../components/schema.yaml#/schemas/ExpenseRequest'
+  responses:
+    '200':
+      description: 수정 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/Expense'
+delete:
+  tags: [Expenses]
+  summary: 지출 내역 삭제
+  security:
+    - cookieAuth: []
+  parameters:
+    - $ref: '../../components/parameter.yaml#/parameters/ExpenseId'
+  responses:
+    '204':
+      description: 삭제 성공
