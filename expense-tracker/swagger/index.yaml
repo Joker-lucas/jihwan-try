@@ -66,7 +66,7 @@ paths:
   # --- Challenges ---
   /api/challenges:
     $ref: './paths/challenges/challenge.yaml'
-  /api/users/me/challenges:
+  /api/users/{userId}/challenges:
     $ref: './paths/challenges/status.yaml'
     
   # --- Summary ---

@@ -4,8 +4,8 @@
   "description": "jihwan-try",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "npm run api-docs && node src/server.js",
+    "dev": "npm run api-docs && nodemon src/server.js",
     "api-docs": "swagger-cli bundle ./swagger/index.yaml --outfile swagger.yaml --type yaml",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
