@@ -7,6 +7,7 @@ const {
   isLogin
 } = require('../libs/middlewares');
 
+
 router.get('/', isLogin, userController.getAllUsers);
 router.get('/:userId', isLogin, userController.getUserById);
 router.patch('/:userId', isLogin, filterUserUpdateBody, userController.updateUserById);
@@ -16,5 +17,6 @@ router.get('/me', isLogin, userController.getMyProfile);
 router.patch('/me', isLogin, filterUserUpdateBody, userController.updateMyProfile);
 router.delete('/me', isLogin, userController.deleteMyAccount);
 router.get('/:userId/challenges', isLogin, challengeController.getChallengeStatus);
+
 
 module.exports = router;

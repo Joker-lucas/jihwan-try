@@ -1,8 +1,8 @@
 const { getLogger } = require('../libs/logger');
 const { response } = require('../libs/common');
 const { successResponse } = response;
-
 const logger = getLogger('controllers/report.js'); 
+
 
 const getMonthlyReport = (req, res, next) => {
     logger.info('월별 분석 보고서 조회 요청 시작');

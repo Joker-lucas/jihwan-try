@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { userController, challengeController } = require('../controllers'); 
+
 const {
   filterUserUpdateBody,
   isLogin
@@ -21,5 +22,6 @@ router.route('/challenges')
 router.route('/challenges/:challengeId')
     .patch(isLogin, challengeController.updateChallenge)
     .delete(isLogin, challengeController.deleteChallenge);
+
 
 module.exports = router;

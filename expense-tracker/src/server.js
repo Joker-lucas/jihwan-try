@@ -67,6 +67,25 @@ const setGracefulShutdown = (server) => {
     process.on('SIGTERM', () => _gracefulShutDown('SIGTERM'));
 };
 
+const _initializeFinancialYears = async () => {
+    const currentYear = new Date().getFullYear();
+    const yearsToGenerate = [];
+
+    for (let i = 0; i < 10; i++) {
+        yearsToGenerate.push(currentYear + i);
+    }
+
+    for (const year of yearsToGenerate) {
+        for (let month = 1; month <= 12; month++) {
+            await db.FinancialYear.findOrCreate({ 
+                where: { year, month }
+            });
+        }
+    }
+};
+
+
+
 const startServer = async () => {
     try {
         await Promise.all([
@@ -74,6 +93,8 @@ const startServer = async () => {
             connectToRedis()
         ]);
 
+        await _initializeFinancialYears();
+        
         const redisStore = new RedisStore({ client: redisClient });
 
         app.use(session({
@@ -102,6 +123,7 @@ const startServer = async () => {
             fs.readFileSync(path.join(__dirname, '../swagger.yaml'), 'utf8')
         );
         app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
         app.use('/api', mainRouter);
 

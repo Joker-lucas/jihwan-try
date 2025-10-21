@@ -1,5 +1,7 @@
+
 const { userService } = require('../services');
 const { response, error, errorDefinition, authUtils } = require('../libs/common');
+
 const { getLogger } = require('../libs/logger');
 const { successResponse } = response;
 const { CustomError } = error;
@@ -110,10 +112,13 @@ const getUserById = async (req, res, next) => {
     };
 
     successResponse(res, userAllPayload);
+
   } catch (error) {
+    logger.error(error, '내 프로필 조회 중 에러 발생');
     throw error;
   }
 };
+
 
 
 const updateUserById = async (req, res, next) => {
@@ -125,8 +130,9 @@ const updateUserById = async (req, res, next) => {
 
     const updatedUser = await userService.updateUserById(req.params.userId, req.body);
     if (!updatedUser) {
-      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);      
     }
+
 
     const updateUserAllPayload = {
       nickname: updatedUser.nickname,
@@ -157,6 +163,7 @@ const deleteUserById = async (req, res, next) => {
     }
     successResponse(res, { message: '성공적으로 삭제되었습니다.' });
   } catch (error) {
+    logger.error(error, '내 프로필 수정 중 에러 발생');
     throw error;
   }
 };
@@ -171,4 +178,5 @@ module.exports = {
   getUserById,
   updateUserById,
   deleteUserById,
+
 };
