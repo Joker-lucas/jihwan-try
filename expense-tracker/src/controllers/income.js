@@ -7,7 +7,7 @@ const { isAdmin } = authUtils;
 
 const logger = getLogger('controllers/income.js');
 
-const getAllIncomes = async (req, res, next) => {
+const getIncomes = async (req, res, next) => {
     try {
         const requester = req.user;
         const year = req.query.year;
@@ -16,20 +16,50 @@ const getAllIncomes = async (req, res, next) => {
         let targetUserId;
 
         if (isAdmin(requester)) {
-
-            if (req.query.userId) {
-                targetUserId = parseInt(req.query.userId); 
-            } else {
-                targetUserId = null; 
+            if (!req.query.userId) {
+                throw new CustomError(ERROR_CODES.BAD_REQUEST);
             }
+            targetUserId = parseInt(req.query.userId);
         } else {
+            if (req.query.userId && parseInt(req.query.userId) !== requester.userId) {
+                throw new CustomError(ERROR_CODES.FORBIDDEN);
+            }
             targetUserId = requester.userId;
         }
 
+        const page = parseInt(req.query.page || 1);
+        const limit = parseInt(req.query.limit || 10);
+        const offset = (page - 1) * limit;
 
-        const incomes = await incomeService.getAllIncomes(targetUserId, year, month);
+        const { totalCount, incomes } = await incomeService.getIncomes(
+            targetUserId, 
+            year, 
+            month, 
+            limit, 
+            offset
+        );
 
-        successResponse(res, incomes);
+        successResponse(res, {
+            totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+            currentPage: page,
+            incomes
+        });
+
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getIncomeById = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const incomeId = req.params.incomeId;
+
+        const income = await incomeService.getIncomeById(userId, incomeId);
+
+        successResponse(res, income);
+
     } catch (error) {
         throw error;
     }
@@ -79,7 +109,8 @@ const deleteIncome = async(req, res, next) => {
 };
 
 module.exports = {
-    getAllIncomes,
+    getIncomes,
+    getIncomeById,
     createIncome,
     updateIncome,
     deleteIncome,

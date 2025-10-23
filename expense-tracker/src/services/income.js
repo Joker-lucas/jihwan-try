@@ -11,7 +11,6 @@ const _getFinancialYearId = async (dateString, transaction) => {
 
     const [financialYear] = await FinancialYear.findOrCreate({
         where: { year, month },
-        defaults: { year, month },
         transaction
     });
 
@@ -19,12 +18,11 @@ const _getFinancialYearId = async (dateString, transaction) => {
 };
 
 
-const getAllIncomes = async (userId, year, month) => {
+const getIncomes = async (userId, year, month, limit, offset) => {
     const whereClause = {};
 
-    if (userId !== null) {
-        whereClause.userId = userId;
-    }
+    whereClause.userId = userId;
+
     if (year && month) {
         const financialYear = await FinancialYear.findOne({
             where: { year: parseInt(year), month: parseInt(month) }
@@ -33,39 +31,56 @@ const getAllIncomes = async (userId, year, month) => {
         if (financialYear) {
             whereClause.financialYearId = financialYear.financialYearId;
         } else {
-            return []; 
+            return { totalCount: 0, incomes: [] };
         }
     }
 
-    const incomes = await Income.findAll({
+    const { count, rows } = await Income.findAndCountAll({
         where: whereClause,
-        order: [['date', 'DESC']]
+        order: [['date', 'DESC']],
+        limit: limit,
+        offset: offset
     });
 
-    return incomes;
+    return {
+        totalCount: count,
+        incomes: rows
+    };
+};
+
+const getIncomeById = async (userId, incomeId) => {
+    const income = await Income.findOne({
+        where: {
+            incomeId: parseInt(incomeId),
+            userId: userId
+        }
+    });
+
+    if (!income) {
+        throw new CustomError(ERROR_CODES.NOT_FOUND);
+    }
+
+    return income;
 };
 
 const createIncome = async (userId, incomeData) => {
     const { date, amount, category, status, description } = incomeData;
-
-    const t = await sequelize.transaction();
     try {
-        const financialYearId = await _getFinancialYearId(date, t);
+
+        const financialYearId = await _getFinancialYearId(date);
 
         const newIncome = await Income.create({
-            userId,
-            financialYearId,
-            date,
-            amount,
-            category,
-            status,
-            description
-        }, { transaction: t });
+        userId,
+        financialYearId,
+        date,
+        amount,
+        category,
+        status,
+        description
+    });
 
-        await t.commit();
         return newIncome;
     } catch (error) {
-        await t.rollback();
         throw error;
     }
 };
@@ -126,7 +141,8 @@ const deleteIncome = async (userId, incomeId) => {
 
 module.exports = {
     createIncome,
-    getAllIncomes,
+    getIncomes,
+    getIncomeById,
     updateIncome,
     deleteIncome,
 };

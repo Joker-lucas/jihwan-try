@@ -9,7 +9,9 @@ const {
   filterIncomeBody
 } = require('../libs/middlewares');
 
-router.get('/', isLogin, incomeController.getAllIncomes);
+router.get('/', isLogin, incomeController.getIncomes);
+
+router.get('/:incomeId', isLogin, incomeController.getIncomeById);
 
 router.post('/', isLogin,validateIncomeRequired,validateIncomeData,filterIncomeBody,incomeController.createIncome);
 
