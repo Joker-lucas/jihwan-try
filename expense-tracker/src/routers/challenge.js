@@ -8,4 +8,10 @@ const {
 
 router.get('/', isLogin, challengeController.getAllChallenges);
 
+router.post('/', isLogin, challengeController.createChallenge);
+
+router.patch('/:challengeId', isLogin, challengeController.updateChallenge);
+
+router.delete('/:challengeId', isLogin, challengeController.deleteChallenge);
+
 module.exports = router;

@@ -9,7 +9,6 @@ const summaryRoute = require('./summary');
 const targetSpendingRoute = require('./target-spending');
 const reportRoute = require('./report');
 const challengeRoute = require('./challenge');
-const adminRoute = require('./admin');
 
 
 router.use('/users', userRoute);
@@ -20,7 +19,6 @@ router.use('/summary',summaryRoute);
 router.use('/target-spendings',targetSpendingRoute);
 router.use('/reports', reportRoute);
 router.use('/challengs', challengeRoute);
-router.use('/admin',adminRoute);
 
 
 router.use( (req, res) => {
