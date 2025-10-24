@@ -1,7 +1,7 @@
 
 const { incomeService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { response, authUtils } = require('../libs/common'); 
+const { response, authUtils } = require('../libs/common');
 const { successResponse } = response;
 const { isAdmin } = authUtils;
 
@@ -16,28 +16,26 @@ const getIncomes = async (req, res, next) => {
         let targetUserId;
 
         if (!req.query.userId) {
-                throw new CustomError(ERROR_CODES.BAD_REQUEST);
-            }
-
-        if (isAdmin(requester)) {
-            targetUserId = parseInt(req.query.userId);
+            throw new CustomError(ERROR_CODES.BAD_REQUEST);
         }
-        else {
+
+        if (!isAdmin(requester)) {
             if (parseInt(req.query.userId) !== requester.userId) {
                 throw new CustomError(ERROR_CODES.FORBIDDEN);
             }
-            targetUserId = requester.userId;
         }
+
+        targetUserId = parseInt(req.query.userId);
 
         const page = parseInt(req.query.page || 1);
         const limit = parseInt(req.query.limit || 10);
         const offset = (page - 1) * limit;
 
         const { totalCount, incomes } = await incomeService.getIncomes(
-            targetUserId, 
-            year, 
-            month, 
-            limit, 
+            targetUserId,
+            year,
+            month,
+            limit,
             offset
         );
 
@@ -79,10 +77,10 @@ const createIncome = async (req, res, next) => {
     }
 };
 
-const updateIncome = async(req, res, next) => {
+const updateIncome = async (req, res, next) => {
     try {
         const userId = req.user.userId;
-        const incomeId = req.params.incomeId; 
+        const incomeId = req.params.incomeId;
         const updateData = req.body;
 
         const updatedIncome = await incomeService.updateIncome(userId, incomeId, updateData);
@@ -93,13 +91,13 @@ const updateIncome = async(req, res, next) => {
     }
 };
 
-const deleteIncome = async(req, res, next) => {
+const deleteIncome = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const incomeId = req.params.incomeId;
 
         await incomeService.deleteIncome(userId, incomeId);
-        
+
         successResponse(res, { message: `수입 내역이 성공적으로 삭제되었습니다.` });
     } catch (error) {
         logger.error(error, '수입 내역 삭제 중 에러 발생');
