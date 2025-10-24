@@ -15,13 +15,15 @@ const getIncomes = async (req, res, next) => {
 
         let targetUserId;
 
-        if (isAdmin(requester)) {
-            if (!req.query.userId) {
+        if (!req.query.userId) {
                 throw new CustomError(ERROR_CODES.BAD_REQUEST);
             }
+
+        if (isAdmin(requester)) {
             targetUserId = parseInt(req.query.userId);
-        } else {
-            if (req.query.userId && parseInt(req.query.userId) !== requester.userId) {
+        }
+        else {
+            if (parseInt(req.query.userId) !== requester.userId) {
                 throw new CustomError(ERROR_CODES.FORBIDDEN);
             }
             targetUserId = requester.userId;
@@ -41,8 +43,6 @@ const getIncomes = async (req, res, next) => {
 
         successResponse(res, {
             totalCount,
-            totalPages: Math.ceil(totalCount / limit),
-            currentPage: page,
             incomes
         });
 
