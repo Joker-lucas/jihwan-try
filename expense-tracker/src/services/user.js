@@ -63,7 +63,6 @@ const deleteUserById = async (userId) => {
         
         await t.commit();
         return deletedRowCount; 
-        
     } catch (error) {
         await t.rollback();
         throw error;

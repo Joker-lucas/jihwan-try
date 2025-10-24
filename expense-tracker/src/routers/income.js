@@ -3,15 +3,20 @@ const router = express.Router();
 
 const { incomeController } = require('../controllers');
 const {
-  isLogin
+  isLogin,
+  validateIncomeRequired,
+  validateIncomeData,
+  filterIncomeBody
 } = require('../libs/middlewares');
 
-router.get('/', isLogin, incomeController.getAllIncomes);
+router.get('/', isLogin, incomeController.getIncomes);
 
-router.post('/', isLogin,incomeController.createIncome);
+router.get('/:incomeId', isLogin, incomeController.getIncomeById);
 
-router.patch('/:incomoeId',isLogin, incomeController.updateIncome);
+router.post('/', isLogin,validateIncomeRequired,validateIncomeData,filterIncomeBody,incomeController.createIncome);
 
-router.delete('/:incomoeId', isLogin, incomeController.deleteIncome);
+router.patch('/:incomeId',isLogin,validateIncomeData,filterIncomeBody,incomeController.updateIncome);
+
+router.delete('/:incomeId', isLogin, incomeController.deleteIncome);
 
 module.exports = router;
