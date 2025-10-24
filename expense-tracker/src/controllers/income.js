@@ -1,9 +1,11 @@
 
 const { incomeService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { response, authUtils } = require('../libs/common');
+const { response, authUtils, error, errorDefinition } = require('../libs/common');
 const { successResponse } = response;
 const { isAdmin } = authUtils;
+const { CustomError } = error;
+const { ERROR_CODES } = errorDefinition;
 
 const logger = getLogger('controllers/income.js');
 
