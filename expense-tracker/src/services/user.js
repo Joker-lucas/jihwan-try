@@ -1,10 +1,31 @@
 const { User, BasicCredential, sequelize } = require('../libs/db/models');
+const { Op } = require('sequelize');
 const { error, errorDefinition } = require('../libs/common');
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
-const getAllUsers = async () => {
-    const allUsers = await User.findAll();
+const getAllUsers = async (search, searchBy) => {
+    const whereClause = {};
+
+
+    if (search) {
+    const allowedFields = ['nickname', 'contactEmail'];
+
+    if (searchBy && !allowedFields.includes(searchBy)) {
+      throw new CustomError(ERROR_CODES.INVALID_INPUT);
+    }
+
+    if (searchBy === 'contactEmail') {
+      whereClause.contactEmail = { [Op.like]: `%${search}%` };
+    } else if (searchBy === 'nickname') {
+      whereClause.nickname = { [Op.like]: `%${search}%` };
+    }
+  }
+
+    const allUsers = await User.findAll({
+        where: whereClause
+    });
+
     return allUsers;
 };
 
