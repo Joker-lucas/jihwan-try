@@ -17,7 +17,10 @@ const getAllUsers = async (req, res, next) => {
       throw new CustomError(ERROR_CODES.FORBIDDEN);
     }
 
-    const users = await userService.getAllUsers();
+    const search = req.query.search;
+    const searchBy = req.query.searchBy;
+
+    const users = await userService.getAllUsers(search, searchBy);
 
     const usersPayload = users.map(user => ({
       nickname: user.nickname, 
@@ -42,14 +45,14 @@ const getUserById = async (req, res, next) => {
     const requester = req.user;
     const targetUserId = req.params.userId; 
 
+    if (!isSelfOrAdmin(requester, targetUserId)) {
+      throw new CustomError(ERROR_CODES.FORBIDDEN);
+    }
+
     const user = await userService.getUserById(targetUserId);
 
     if (!user) {
       throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
-    }
-
-    if (!isSelfOrAdmin(requester, targetUserId)) {
-      throw new CustomError(ERROR_CODES.FORBIDDEN);
     }
 
     const userPayload = {
@@ -66,7 +69,6 @@ const getUserById = async (req, res, next) => {
     successResponse(res, userPayload);
 
   } catch (error) {
-    logger.error(error, '내 프로필 조회 중 에러 발생');
     throw error;
   }
 };
@@ -80,14 +82,14 @@ const updateUserById = async (req, res, next) => {
     const targetUserId = req.params.userId;
     const updateData = req.body;
 
+    if (!isSelfOrAdmin(requester, targetUserId)) {
+      throw new CustomError(ERROR_CODES.FORBIDDEN);
+    }
+
     const user = await userService.getUserById(targetUserId);
 
     if (!user) {
         throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
-    }
-
-    if (!isSelfOrAdmin(requester, targetUserId)) {
-      throw new CustomError(ERROR_CODES.FORBIDDEN);
     }
 
     if (updateData.role && !isAdmin(requester)) {
@@ -119,13 +121,13 @@ const deleteUserById = async (req, res, next) => {
     const requester = req.user;
     const targetUserId = req.params.userId;
 
+    if (!isSelfOrAdmin(requester, targetUserId)) {
+      throw new CustomError(ERROR_CODES.FORBIDDEN);
+    }
+
     const userExists = await userService.getUserById(targetUserId);
     if (!userExists) {
         throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
-    }
-
-    if (!isSelfOrAdmin(requester, targetUserId)) {
-      throw new CustomError(ERROR_CODES.FORBIDDEN);
     }
 
     await userService.deleteUserById(targetUserId);
