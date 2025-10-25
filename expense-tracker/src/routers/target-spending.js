@@ -3,15 +3,20 @@ const router = express.Router();
 
 const { targetSpendingController } = require('../controllers');
 const {
-  isLogin
+  isLogin,
+  validateTargetSpendingRequired, 
+  validateTargetSpendingData,     
+  filterTargetSpendingBody        
 } = require('../libs/middlewares');
 
 
-router.get('/', isLogin, targetSpendingController.getAllTargetSpendings);
+router.get('/', isLogin, targetSpendingController.getTargetSpendings);
 
-router.post('/', isLogin, targetSpendingController.createTargetSpending);
+router.get('/:targetSpendingId', isLogin, targetSpendingController.getTargetSpendingById);
 
-router.patch('/:targetSpendingId',isLogin, targetSpendingController.updateTargetSpending);
+router.post('/', isLogin, validateTargetSpendingRequired, validateTargetSpendingData, filterTargetSpendingBody, targetSpendingController.createTargetSpending);
+
+router.patch('/:targetSpendingId',isLogin, validateTargetSpendingData,filterTargetSpendingBody,targetSpendingController.updateTargetSpending);
 
 router.delete('/:targetSpendingId',isLogin, targetSpendingController.deleteTargetSpending);
 
