@@ -3,14 +3,19 @@ const router = express.Router();
 
 const { expenseController } = require('../controllers');
 const {
-  isLogin
+  isLogin,
+  validateExpenseRequired, 
+  validateAmount,          
+  filterExpenseBody  
 } = require('../libs/middlewares');
 
-router.get('/', isLogin, expenseController.getAllExpenses);
+router.get('/', isLogin, expenseController.getExpenses);
 
-router.post('/', isLogin,expenseController.createExpense);
+router.get('/:expenseId', isLogin, expenseController.getExpenseById);
 
-router.patch('/:expenseId',isLogin, expenseController.updateExpense);
+router.post('/', isLogin, validateExpenseRequired, validateAmount, filterExpenseBody, expenseController.createExpense);
+
+router.patch('/:expenseId',isLogin, validateAmount,filterExpenseBody, expenseController.updateExpense);
 
 router.delete('/:expenseId', isLogin, expenseController.deleteExpense);
 

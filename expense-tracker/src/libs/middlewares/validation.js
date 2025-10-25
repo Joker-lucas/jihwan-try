@@ -19,6 +19,12 @@ const targetSpendingFields = {
   allowed: ['year', 'month', 'category', 'amount', 'description'],
 };
 
+
+const expenseFields = {
+  required: ['date', 'amount', 'category'],
+  allowed: ['date', 'amount', 'category', 'status', 'description', 'paymentMethod'], 
+};
+
 const validateRequiredFields = (requiredFields) => {
   return (req, res, next) => {
     const missingFields = [];
@@ -76,7 +82,7 @@ const validateSignup = (req, res, next) => {
   next();
 };
 
-const validateIncomeData = (req, res, next) => {
+const validateAmount = (req, res, next) => {
   const { amount } = req.body;
 
   if (amount !== undefined && (typeof amount !== 'number' || amount <= 0)) {
@@ -130,6 +136,9 @@ const filterIncomeBody = filterRequestBody(incomeFields.allowed);
 const validateTargetSpendingRequired = validateRequiredFields(targetSpendingFields.required);
 const filterTargetSpendingBody = filterRequestBody(targetSpendingFields.allowed);
 
+const validateExpenseRequired = validateRequiredFields(expenseFields.required);
+const filterExpenseBody = filterRequestBody(expenseFields.allowed);
+
 
 module.exports = {
   validateSignupRequired,
@@ -137,11 +146,16 @@ module.exports = {
   filterSignupBody,
   filterUserUpdateBody,
 
+  validateAmount,
+
   validateIncomeRequired,
-  validateIncomeData,
   filterIncomeBody,
+
   
   validateTargetSpendingRequired,
   validateTargetSpendingData,
-  filterTargetSpendingBody
+  filterTargetSpendingBody,
+
+  validateExpenseRequired,
+  filterExpenseBody,
 };
