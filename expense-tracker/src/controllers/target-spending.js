@@ -1,104 +1,114 @@
+const { targetSpendingService } = require('../services');
 const { getLogger } = require('../libs/logger');
-const { response } = require('../libs/common');
+const { response, authUtils, error, errorDefinition } = require('../libs/common');
 const { successResponse } = response;
+const { isAdmin } = authUtils;
+const { CustomError } = error;
+const { ERROR_CODES } = errorDefinition;
 
 const logger = getLogger('controllers/targetSpending.js');
 
-const getAllTargetSpendings = (req, res, next) => {
-    logger.info(`월별 목표 지출 조회 요청 시작`);
-
+const getTargetSpendings = async (req, res, next) => {
     try {
-        const testTargetSpendings = [
-            {
-                targetSpendingId: 1,
-                userId: 14,
-                financialYearId: 1,
-                category: 'LIVING_EXPENSES',
-                amount: 500000,
-                description: '10월 생활비 목표',
-            },
-            {
-                targetSpendingId: 2,
-                userId: 14,
-                financialYearId: 1,
-                category: 'LEISURE',
-                amount: 200000,
-                description: '10월 여가비 목표',
-            },
-        ];
+        const requester = req.user;
+        const year = req.query.year;
+        const month = req.query.month;
 
-        logger.info('월별 목표 지출 조회 성공');
-        successResponse(res, testTargetSpendings);
+        if (!year || !month) {
+            throw new CustomError(ERROR_CODES.BAD_REQUEST);
+        }
+    
+        let targetUserId;
+
+        if (!req.query.userId) {
+            throw new CustomError(ERROR_CODES.BAD_REQUEST);
+        }
+        if (!isAdmin(requester)) {
+            if (parseInt(req.query.userId) !== requester.userId) {
+                throw new CustomError(ERROR_CODES.FORBIDDEN);
+            }
+        }
+        targetUserId = parseInt(req.query.userId);
+        
+        const page = parseInt(req.query.page || 1);
+        const limit = parseInt(req.query.limit || 10);
+        const offset = (page - 1) * limit;
+
+        const { totalCount, targetSpendings } = await targetSpendingService.getTargetSpendings(
+            targetUserId,
+            year,
+            month,
+            limit,
+            offset
+        );
+
+        successResponse(res, {
+            totalCount,
+            targetSpendings 
+        });
+
     } catch (error) {
-        logger.error(error, '월별 목표 지출 조회 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const createTargetSpending = (req, res, next) => {
-    logger.info('새로운 월별 목표 지출 생성 요청 시작');
+const getTargetSpendingById = async (req, res, next) => {
     try {
-        const year = req.body.year;
-        const month = req.body.month;
-        const category = req.body.category;
-        const amount = req.body.amount;
-        const description = req.body.description;
+        const userId = req.user.userId;
+        const { targetSpendingId } = req.params;
 
-        const createdTargetSpending = {
-            targetSpendingId: 3, 
-            userId: 14,
-            financialYearId: 1,
-            category: category,
-            amount: amount,
-            description: description,
-        };
-
-        logger.info({ newId: createdTargetSpending.targetSpendingId }, '새로운 월별 목표 지출 생성 성공');
-        successResponse(res, createdTargetSpending, 201);
+        const target = await targetSpendingService.getTargetSpendingById(userId, targetSpendingId);
+        
+        successResponse(res, target);
     } catch (error) {
-        logger.error(error, '월별 목표 지출 생성 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const updateTargetSpending = (req, res, next) => {
-    logger.info( '월별 목표 지출 수정 요청 시작');
-
+const createTargetSpending = async (req, res, next) => {
     try {
-        const category = req.body.category;
-        const amount = req.body.amount;
-        const description = req.body.description;
+        const userId = req.user.userId;
+        const targetData = req.body; 
 
-        const updatedTargetSpending = {
-            targetSpendingId: parseInt(targetSpendingId),
-            userId: 14,
-            financialYearId: 1,
-            category: category || 'LIVING_EXPENSES',
-            amount: amount || 550000,
-            description: description || '10월 생활비 목표 (수정됨)',
-        };
+        const createdTarget = await targetSpendingService.createTargetSpending(userId, targetData);
 
-        logger.info({ updatedId: updatedTargetSpending.targetSpendingId }, '월별 목표 지출 수정 성공');
-        successResponse(res, updatedTargetSpending);
+        successResponse(res, createdTarget);
     } catch (error) {
-        logger.error(error, '월별 목표 지출 수정 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
-const deleteTargetSpending = (req, res, next) => {
-    logger.info( '월별 목표 지출 삭제 요청 시작');
+const updateTargetSpending = async (req, res, next) => {
     try {
-        logger.info({ deletedId: targetSpendingId }, '월별 목표 지출 삭제 성공');
+        const targetSpendingId = req.params.targetSpendingId;
+        const userId = req.user.userId;
+        const updateData = req.body;
+
+        const updatedTarget = await targetSpendingService.updateTargetSpending(userId, targetSpendingId, updateData);
+
+        successResponse(res, updatedTarget);
+    } catch (error) {
+        throw error;
+    }
+};
+
+const deleteTargetSpending = async (req, res, next) => {
+    try {
+        const targetSpendingId = req.params.targetSpendingId;
+        const userId = req.user.userId;
+
+        await targetSpendingService.deleteTargetSpending(userId, targetSpendingId);
+
         successResponse(res, { message: `월별 목표 지출이 성공적으로 삭제되었습니다.` });
     } catch (error) {
         logger.error(error, '월별 목표 지출 삭제 중 에러 발생');
-        next(error);
+        throw error;
     }
 };
 
 module.exports = {
-    getAllTargetSpendings,
+    getTargetSpendings,
+    getTargetSpendingById,
     createTargetSpending,
     updateTargetSpending,
     deleteTargetSpending,

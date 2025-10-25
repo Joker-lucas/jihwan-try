@@ -13,11 +13,17 @@ const incomeFields = {
   allowed: ['date', 'amount', 'category', 'status', 'description'],
 };
 
+
+const targetSpendingFields = {
+  required: ['year', 'month', 'category', 'amount'],
+  allowed: ['year', 'month', 'category', 'amount', 'description'],
+};
+
+
 const expenseFields = {
   required: ['date', 'amount', 'category'],
   allowed: ['date', 'amount', 'category', 'status', 'description', 'paymentMethod'], 
 };
-
 
 const validateRequiredFields = (requiredFields) => {
   return (req, res, next) => {
@@ -88,12 +94,47 @@ const validateAmount = (req, res, next) => {
   next();
 }
 
+
+const validateTargetSpendingData = (req, res, next) => {
+  const { amount, year, month } = req.body;
+  const currentYear = new Date().getFullYear();
+
+  if (amount !== undefined && (typeof amount !== 'number' || amount <= 0)) {
+    return res.status(400).json({
+      errorMsg: '금액(amount)은 0보다 큰 숫자여야 합니다.'
+    });
+  }
+
+  if (year !== undefined) {
+    if (typeof year !== 'number' || year < 2000 || year > currentYear + 10) {
+      return res.status(400).json({
+        errorMsg: `연도(year)는 2000년부터 ${currentYear + 10} 사이의 숫자여야 합니다.`
+      });
+    }
+  }
+  
+  if (month !== undefined) {
+    if (typeof month !== 'number' || month < 1 || month > 12) {
+      return res.status(400).json({
+        errorMsg: '월(month)은 1부터 12 사이의 숫자여야 합니다.'
+      });
+    }
+  }
+
+  next();
+}
+
+
+
 const validateSignupRequired = validateRequiredFields(signupFields.required);
 const filterSignupBody = filterRequestBody(signupFields.allowed);
 const filterUserUpdateBody = filterRequestBody(userFields.allowed);
 
 const validateIncomeRequired = validateRequiredFields(incomeFields.required);
 const filterIncomeBody = filterRequestBody(incomeFields.allowed);
+
+const validateTargetSpendingRequired = validateRequiredFields(targetSpendingFields.required);
+const filterTargetSpendingBody = filterRequestBody(targetSpendingFields.allowed);
 
 const validateExpenseRequired = validateRequiredFields(expenseFields.required);
 const filterExpenseBody = filterRequestBody(expenseFields.allowed);
@@ -109,6 +150,11 @@ module.exports = {
 
   validateIncomeRequired,
   filterIncomeBody,
+
+  
+  validateTargetSpendingRequired,
+  validateTargetSpendingData,
+  filterTargetSpendingBody,
 
   validateExpenseRequired,
   filterExpenseBody,
