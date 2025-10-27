@@ -29,7 +29,7 @@ app.use(requestLogger);
 
 let server;
 
-const setGracefulShutdown = (server) => {
+const setGracefulShutdown = (httpServer) => {
   const _gracefulShutDown = (signal) => {
     logger.info(`[${signal}] 종료 신호를 받았습니다. 서버 종료 시작합니다...`);
 
@@ -38,7 +38,7 @@ const setGracefulShutdown = (server) => {
       process.exit(1);
     }, 60000);
 
-    server.close(async () => {
+    httpServer.close(async () => {
       logger.info('처리 중인 요청이 완료되었습니다.');
       try {
         await db.sequelize.close();
@@ -65,17 +65,24 @@ const _initializeFinancialYears = async () => {
   const currentYear = new Date().getFullYear();
   const yearsToGenerate = [];
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10; i += 1) {
     yearsToGenerate.push(currentYear + i);
   }
 
+  const tasks = [];
+
+  // eslint-disable-next-line no-restricted-syntax
   for (const year of yearsToGenerate) {
-    for (let month = 1; month <= 12; month++) {
-      await db.FinancialYear.findOrCreate({
-        where: { year, month },
-      });
+    for (let month = 1; month <= 12; month += 1) {
+      tasks.push(
+        db.FinancialYear.findOrCreate({
+          where: { year, month },
+        }),
+      );
     }
   }
+
+  await Promise.all(tasks);
 };
 
 const startServer = async () => {
