@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const passport = require('passport');
 // const pinoHttp = require('pino-http');
@@ -21,7 +22,7 @@ const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.use(setupContext);
@@ -33,10 +34,12 @@ const setGracefulShutdown = (server) => {
   const _gracefulShutDown = (signal) => {
     logger.info(`[${signal}] 종료 신호를 받았습니다. 서버 종료 시작합니다...`);
 
+    const timeoutMs = parseInt(process.env.GRACEFUL_SHUTDOWN_TIMEOUT || 60000, 10);
+
     const timeout = setTimeout(() => {
       logger.error('정리 시간이 초과되어 강제로 종료합니다.');
       process.exit(1);
-    }, 60000);
+    }, timeoutMs);
 
     server.close(async () => {
       logger.info('처리 중인 요청이 완료되었습니다.');
@@ -90,14 +93,14 @@ const startServer = async () => {
     const redisStore = new RedisStore({ client: redisClient });
 
     app.use(session({
-      name: 'sssssssssid',
+      name: process.env.SESSION_NAME,
       store: redisStore,
-      secret: 'jihwanseesion',
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        maxAge: 60 * 60 * 1000,
+        maxAge: parseInt(process.env.SESSION_MAX_AGE || 600000, 10),
 
       },
     }));

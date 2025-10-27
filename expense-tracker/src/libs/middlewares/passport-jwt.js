@@ -1,8 +1,6 @@
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { User } = require('../db/models');
 
-const jwtSecret = 'jihwanproject';
-
 const _localGetUserById = async (jwtPayload) => {
   const user = await User.findByPk(jwtPayload.userId);
   return user;
@@ -11,7 +9,7 @@ const _localGetUserById = async (jwtPayload) => {
 const init = (passport) => {
   const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: jwtSecret,
+    secretOrKey: process.env.JWT_SECRET_KEY,
   };
 
   passport.use('jwt', new JwtStrategy(opts, async (jwtPayload, done) => {

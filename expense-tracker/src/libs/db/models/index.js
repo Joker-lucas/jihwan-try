@@ -7,26 +7,19 @@ const process = require('process');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 // eslint-disable-next-line import/no-dynamic-require
-const config = require(`${__dirname}/../../config/config.json`)[env];
+const config = require(`${__dirname}/../../config/config.js`)[env];
 const db = {};
 
 const logger = require('../../logger').getLogger('Sequelize');
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    {
-      ...config,
-      logging: (msg) => logger.debug(msg),
+config.logging = (msg) => logger.debug(msg);
 
-    },
-  );
-}
+const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  config,
+);
 
 fs
   .readdirSync(__dirname)
