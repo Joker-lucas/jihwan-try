@@ -1,8 +1,8 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
 const { transactionConstants } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class TargetSpending extends Model {
     /**
@@ -15,45 +15,47 @@ module.exports = (sequelize, DataTypes) => {
       TargetSpending.belongsTo(models.FinancialYear, { foreignKey: 'financialYearId' });
     }
   }
-  TargetSpending.init({
-    targetSpendingId: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false,
+  TargetSpending.init(
+    {
+      targetSpendingId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      financialYearId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      category: {
+        type: DataTypes.ENUM(
+          transactionConstants.EXPENSE_CATEGORIES.LIVING_EXPENSES,
+          transactionConstants.EXPENSE_CATEGORIES.FIXED_EXPENSES,
+          transactionConstants.EXPENSE_CATEGORIES.LEISURE,
+        ),
+        allowNull: false,
+      },
+      amount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+
     },
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+
+    {
+      sequelize,
+      modelName: 'TargetSpending',
+      timestamps: true,
+      paranoid: true,
     },
-    financialYearId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    category: {
-      type: DataTypes.ENUM(
-        transactionConstants.EXPENSE_CATEGORIES.LIVING_EXPENSES,
-        transactionConstants.EXPENSE_CATEGORIES.FIXED_EXPENSES,
-        transactionConstants.EXPENSE_CATEGORIES.LEISURE,
-      ),
-      allowNull: false,
-    },
-    amount: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    }
-    
-  },
-  
-   {
-    sequelize,
-    modelName: 'TargetSpending',
-    timestamps: true,
-    paranoid: true,
-  });
+  );
   return TargetSpending;
 };

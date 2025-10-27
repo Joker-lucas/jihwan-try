@@ -1,5 +1,3 @@
-'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -8,21 +6,21 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       nickname: {
         allowNull: false,
         unique: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       profileImageUrl: {
         allowNull: true,
-        type: Sequelize.STRING
-    },
+        type: Sequelize.STRING,
+      },
       contactEmail: {
         allowNull: true,
         unique: true,
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       gender: {
         allowNull: false,
@@ -35,9 +33,9 @@ module.exports = {
       },
       lastLoginAt: {
         allowNull: true,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
-      
+
       status: {
         allowNull: false,
         type: Sequelize.ENUM('active', 'inactive', 'blocked'),
@@ -51,34 +49,34 @@ module.exports = {
       level: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 1
+        defaultValue: 1,
       },
       exp: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 0
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
-      
+
       deletedAt: {
-        allowNull: true, 
-        type: Sequelize.DATE
-      }
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
     });
   },
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('Users');
-    await queryInterface.sequelize.query(`
-    DROP TYPE "public"."enum_Users_status";
-  `);
-  }
+    await queryInterface.sequelize.query('DROP TYPE "public"."enum_Users_gender";');
+    await queryInterface.sequelize.query('DROP TYPE "public"."enum_Users_status";');
+    await queryInterface.sequelize.query('DROP TYPE "public"."enum_Users_role";');
+  },
 };

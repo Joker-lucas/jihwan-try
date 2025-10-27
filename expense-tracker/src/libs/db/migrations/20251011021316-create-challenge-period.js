@@ -1,4 +1,3 @@
-'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -7,41 +6,41 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       challengeChecklistId: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { 
+        references: {
           model: 'ChallengeChecklists',
-          key: 'challengeChecklistId' 
+          key: 'challengeChecklistId',
         },
       },
       financialYearId: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { 
+        references: {
           model: 'FinancialYears',
-           key: 'financialYearId'
-           },
+          key: 'financialYearId',
+        },
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       deletedAt: {
         allowNull: true,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('ChallengePeriods');
-  }
+  },
 };

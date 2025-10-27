@@ -1,12 +1,12 @@
 const express = require('express');
+
 const router = express.Router();
 
-const { userController,challengeController } = require('../controllers'); 
+const { userController, challengeController } = require('../controllers');
 const {
   filterUserUpdateBody,
-  isLogin
+  isLogin,
 } = require('../libs/middlewares');
-
 
 router.get('/', isLogin, userController.getAllUsers);
 router.get('/:userId', isLogin, userController.getUserById);

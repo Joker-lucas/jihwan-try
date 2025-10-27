@@ -1,5 +1,3 @@
-'use strict';
-const { CHECKLIST_STATUS } = require('../../constants');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -8,53 +6,54 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'Users',
-          key: 'userId', 
+          key: 'userId',
         },
       },
       challengeId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: 'Challenges', 
+          model: 'Challenges',
           key: 'challengeId',
         },
       },
-      status: { 
+      status: {
         allowNull: false,
         type: Sequelize.ENUM(
           'PENDING',
-          'COMPLETED'
+          'COMPLETED',
         ),
-        defaultValue: 'PENDING'
+        defaultValue: 'PENDING',
       },
       achievedAt: {
         allowNull: true,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       deletedAt: {
         allowNull: true,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('ChallengeChecklists');
-  }
+    await queryInterface.sequelize.query('DROP TYPE "public"."enum_ChallengeChecklists_status";');
+  },
 };

@@ -1,20 +1,18 @@
-const isAdmin = (user) => {
-    return !!user && user.role === 'admin';
-};
+const isAdmin = (user) => !!user && user.role === 'admin';
 
 const isSelfOrAdmin = (user, resourceUserId) => {
-    if (isAdmin(user)) {
-        return true;
-    }
-    
-    if (user && user.userId == resourceUserId) { 
-        return true;
-    }
+  if (isAdmin(user)) {
+    return true;
+  }
 
-    return false;
+  if (user && user.userId === resourceUserId) {
+    return true;
+  }
+
+  return false;
 };
 
 module.exports = {
-    isAdmin, 
-    isSelfOrAdmin,
+  isAdmin,
+  isSelfOrAdmin,
 };

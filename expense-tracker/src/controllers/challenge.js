@@ -100,7 +100,7 @@ const createChallenge = (req, res, next) => {
         successResponse(res, newChallenge, 201);
     } catch (error) {
         logger.error(error, '도전과제 생성 중 에러 발생 (Admin)');
-        next(error);
+        throw error;
     }
 };
 

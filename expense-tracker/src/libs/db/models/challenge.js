@@ -1,7 +1,7 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Challenge extends Model {
     /**
@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Challenge.hasMany(models.ChallengeChecklist,{ foreignKey: 'challengeId' });
+      Challenge.hasMany(models.ChallengeChecklist, { foreignKey: 'challengeId' });
     }
   }
   Challenge.init({
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
-    }
+    },
   }, {
     sequelize,
     modelName: 'Challenge',

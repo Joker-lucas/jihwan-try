@@ -1,7 +1,8 @@
 const Redis = require('ioredis');
 
-const { getLogger } = require('../logger'); 
-const logger = getLogger('libs/redis/index.js'); 
+const { getLogger } = require('../logger');
+
+const logger = getLogger('libs/redis/index.js');
 
 const redisClient = new Redis({
   host: process.env.REDIS_HOST || 'localhost',
@@ -9,23 +10,19 @@ const redisClient = new Redis({
   enableOfflineQueue: false,
 });
 
-const connectToRedis = () => {
+const connectToRedis = () => new Promise((resolve, reject) => {
+  redisClient.on('connect', () => {
+    logger.info('Redis연결 성공.');
+    resolve();
+  });
 
-    return new Promise((resolve, reject) => {
-
-        redisClient.on('connect', () => {
-            logger.info('Redis연결 성공.');
-            resolve();
-        });
-        
-        redisClient.on('error', (err) => {
-            logger.info('Redis 연결 실패.:', err);
-            reject(err);
-        });
-    });
-};
+  redisClient.on('error', (err) => {
+    logger.info('Redis 연결 실패.:', err);
+    reject(err);
+  });
+});
 
 module.exports = {
-    redisClient,
-    connectToRedis,
+  redisClient,
+  connectToRedis,
 };

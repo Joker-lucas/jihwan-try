@@ -1,7 +1,7 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class UserLog extends Model {
     /**
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
     details: {
       type: DataTypes.JSON,
       allowNull: true,
-    }
+    },
   }, {
     sequelize,
     modelName: 'UserLog',

@@ -1,4 +1,3 @@
-'use strict';
 const {
   Model,
 } = require('sequelize');
@@ -12,17 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      User.hasOne(models.BasicCredential, {foreignKey: 'userId'});
+      User.hasOne(models.BasicCredential, { foreignKey: 'userId' });
 
       User.hasMany(models.TargetSpending, { foreignKey: 'userId' });
-      User.hasMany(models.Income, { foreignKey: 'userId' }); 
+      User.hasMany(models.Income, { foreignKey: 'userId' });
       User.hasMany(models.Expense, { foreignKey: 'userId' });
       User.hasMany(models.ChallengeChecklist, { foreignKey: 'userId' });
-      User.hasMany(models.UserLog, { foreignKey: 'userId' }); 
+      User.hasMany(models.UserLog, { foreignKey: 'userId' });
     }
   }
   User.init({
-     userId: {
+    userId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -35,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     profileImageUrl: {
       type: DataTypes.STRING,
-      allowNull: true,       
+      allowNull: true,
     },
     contactEmail: {
       type: DataTypes.STRING,
@@ -44,8 +43,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     gender: {
       type: DataTypes.ENUM(
-        userConstants.GENDER.MALE, 
-        userConstants.GENDER.FEMALE
+        userConstants.GENDER.MALE,
+        userConstants.GENDER.FEMALE,
       ),
       allowNull: false,
       defaultValue: userConstants.GENDER.MALE,
@@ -61,9 +60,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM(
-        userConstants.USER_STATUS.ACTIVE, 
-        userConstants.USER_STATUS.BLOCKED, 
-        userConstants.USER_STATUS.INACTIVE
+        userConstants.USER_STATUS.ACTIVE,
+        userConstants.USER_STATUS.BLOCKED,
+        userConstants.USER_STATUS.INACTIVE,
       ),
       allowNull: false,
       defaultValue: userConstants.USER_STATUS.ACTIVE,
@@ -71,21 +70,21 @@ module.exports = (sequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM(
         userConstants.USER_ROLE.ADMIN,
-         userConstants.USER_ROLE.USER
-        ),
+        userConstants.USER_ROLE.USER,
+      ),
       allowNull: false,
       defaultValue: userConstants.USER_ROLE.USER,
     },
     level: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 1 
+      defaultValue: 1,
     },
     exp: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0 
-    }
+      defaultValue: 0,
+    },
   }, {
     sequelize,
     modelName: 'User',

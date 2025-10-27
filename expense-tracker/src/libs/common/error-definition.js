@@ -1,4 +1,3 @@
-
 const ERROR_CODES = Object.freeze({
   RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
   INVALID_INPUT: 'INVALID_INPUT',
@@ -9,7 +8,6 @@ const ERROR_CODES = Object.freeze({
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   DUPLICATE_EMAIL: 'DUPLICATE_EMAIL',
   INVALID_PASSWORD: 'INVALID_PASSWORD',
-
 
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
 });
@@ -23,7 +21,7 @@ const ERROR_INFO = {
   [ERROR_CODES.INVALID_PASSWORD]: { statusCode: 401, message: '비밀번호가 일치하지 않습니다.' },
   [ERROR_CODES.INTERNAL_SERVER_ERROR]: { statusCode: 500, message: '서버에 문제가 발생했습니다.' },
   [ERROR_CODES.FORBIDDEN]: { statusCode: 403, message: '접근 권한이 없습니다.' },
-  [ERROR_CODES.BAD_REQUEST]: { statusCode: 400, message: '잘못된 요청입니다.' }, 
+  [ERROR_CODES.BAD_REQUEST]: { statusCode: 400, message: '잘못된 요청입니다.' },
 };
 
 module.exports = {

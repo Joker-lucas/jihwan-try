@@ -1,7 +1,7 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class FinancialYear extends Model {
     /**
@@ -25,20 +25,20 @@ module.exports = (sequelize, DataTypes) => {
     },
     year: {
       type: DataTypes.INTEGER,
-      allowNull: false, 
+      allowNull: false,
     },
     month: {
       type: DataTypes.INTEGER,
-      allowNull: false, 
-    }
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'FinancialYear',
-    timestamps: true, 
+    timestamps: true,
     indexes: [{
       unique: true,
-      fields: ['year','month']
-    }]
+      fields: ['year', 'month'],
+    }],
   });
   return FinancialYear;
 };
