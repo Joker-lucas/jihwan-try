@@ -4,9 +4,9 @@
   "description": "jihwan-try",
   "main": "index.js",
   "scripts": {
-    "start": "npm run api-docs && node src/server.js",
-    "dev": "npm run api-docs && nodemon src/server.js",
-    "api-docs": "swagger-cli bundle ./swagger/index.yaml --outfile swagger.yaml --type yaml",
+    "start": "npm run swagger-build && node src/server.js",
+    "dev": "npm run swagger-build && nodemon src/server.js",
+    "swagger-build": "swagger-cli bundle ./swagger/index.yaml --outfile swagger.yaml --type yaml",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -33,6 +33,9 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.32.0",
     "sequelize-cli": "^6.6.3"
   }
 }

@@ -1,9 +1,9 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
 
 const { challengeConstants } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class ChallengeChecklist extends Model {
     /**
@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-    ChallengeChecklist.belongsTo(models.User, { foreignKey: 'userId' });
-    ChallengeChecklist.belongsTo(models.Challenge, { foreignKey: 'challengeId' });
-    ChallengeChecklist.hasMany(models.ChallengePeriod, { foreignKey: 'challengePeriodId' });
+      ChallengeChecklist.belongsTo(models.User, { foreignKey: 'userId' });
+      ChallengeChecklist.belongsTo(models.Challenge, { foreignKey: 'challengeId' });
+      ChallengeChecklist.hasMany(models.ChallengePeriod, { foreignKey: 'challengePeriodId' });
     }
   }
   ChallengeChecklist.init({
@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     achievedAt: {
       type: DataTypes.DATE,
       allowNull: true,
-    }
+    },
   }, {
     sequelize,
     modelName: 'ChallengeChecklist',

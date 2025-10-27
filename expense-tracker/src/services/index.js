@@ -4,8 +4,6 @@ const incomeService = require('./income');
 const targetSpendingService = require('./target-spending');
 const expenseService = require('./expense');
 
-
-
 module.exports = {
   userService,
   authService,

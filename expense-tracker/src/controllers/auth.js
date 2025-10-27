@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 
 const { authService } = require('../services');
 const { getLogger } = require('../libs/logger');
@@ -7,14 +7,12 @@ const { successResponse } = response;
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
-const jwtSecret = 'jihwanproject';
+// const jwtSecret = 'jihwanproject';
 const logger = getLogger('controllers/auth.js');
 
 const signUp = async (req, res) => {
-  logger.info({ body: req.body }, '회원가입 요청 시작');
   try { 
     const newUser = await authService.signUp(req.body);
-    logger.info({ newUserId: newUser.userId }, '회원가입 성공');
 
     const newUserPayload = {
       nickname: newUser.nickname,
@@ -29,13 +27,11 @@ const signUp = async (req, res) => {
     successResponse(res, newUserPayload, 201);
 
   } catch (error) {
-    logger.error(error, '회원가입 중 에러 발생');
     throw error;
   }
 };
 
 const signIn = async (req, res, next) => {
-  logger.info('로그인 요청 시작');
   try {
     if (!req.user) {
       logger.warn('Passport 인증 실패');
@@ -48,11 +44,9 @@ const signIn = async (req, res, next) => {
       email: req.user.contactEmail,
     };
 
-    logger.info('쿠키/세션 로그인 성공');
     successResponse(res, { message: '로그인 성공', user: userPayload });
 
   } catch(error){
-    logger.error(error, '로그인 중 에러 발생');
     throw error;
   }
 
@@ -60,7 +54,6 @@ const signIn = async (req, res, next) => {
 const signOut = (req, res, next) => {
   req.logout((err) => {
     if (err) {
-      logger.error(err, 'req.logout 중 에러 발생');
       return next(err);
     }
     res.clearCookie('sssssssssid');
@@ -70,7 +63,6 @@ const signOut = (req, res, next) => {
       if (err) {
         return next(err);
       }
-      logger.info('로그아웃 성공');
       successResponse(res, { message: '성공적으로 로그아웃되었습니다.' });
     });
   });

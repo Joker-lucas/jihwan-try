@@ -4,5 +4,5 @@ const CHECKLIST_STATUS = Object.freeze({
 });
 
 module.exports = {
- CHECKLIST_STATUS,
-}
+  CHECKLIST_STATUS,
+};

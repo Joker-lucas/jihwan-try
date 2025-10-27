@@ -1,8 +1,8 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
-module.exports = (sequelize,DataTypes) => {
+
+module.exports = (sequelize, DataTypes) => {
   class BasicCredential extends Model {
     /**
      * Helper method for defining associations.
@@ -10,8 +10,8 @@ module.exports = (sequelize,DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      BasicCredential.belongsTo(models.User, {foreignKey: 'userId'});
-    };
+      BasicCredential.belongsTo(models.User, { foreignKey: 'userId' });
+    }
   }
   BasicCredential.init({
     basicCredentialId: {
@@ -29,11 +29,11 @@ module.exports = (sequelize,DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    userId: { 
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-    }
+    },
   }, {
     sequelize,
     modelName: 'BasicCredential',

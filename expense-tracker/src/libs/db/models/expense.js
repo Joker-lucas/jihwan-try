@@ -1,8 +1,8 @@
-'use strict';
 const {
-  Model
+  Model,
 } = require('sequelize');
 const { transactionConstants } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class Expense extends Model {
     /**
@@ -67,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
-    }
+    },
   }, {
     sequelize,
     modelName: 'Expense',

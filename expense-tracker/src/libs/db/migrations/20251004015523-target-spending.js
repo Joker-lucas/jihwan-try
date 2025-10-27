@@ -1,5 +1,3 @@
-'use strict';
-const { EXPENSE_CATEGORIES } = require('../../constants');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -8,7 +6,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       userId: {
         allowNull: false,
@@ -26,40 +24,40 @@ module.exports = {
           key: 'financialYearId',
         },
       },
-      category: { 
+      category: {
         allowNull: false,
         type: Sequelize.ENUM(
           'LIVING_EXPENSES',
           'FIXED_EXPENSES',
-          'LEISURE'
+          'LEISURE',
         ),
       },
       amount: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       description: {
         allowNull: true,
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.fn('now'),
       },
       deletedAt: {
         allowNull: true,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
-
   },
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable('TargetSpendings');
-  }
+    await queryInterface.sequelize.query('DROP TYPE "public"."enum_TargetSpendings_category";');
+  },
 };
