@@ -1,5 +1,5 @@
 // const jwt = require('jsonwebtoken');
-
+require('dotenv').config();
 const { authService } = require('../services');
 const { getLogger } = require('../libs/logger');
 const { response, error, errorDefinition } = require('../libs/common');
@@ -8,7 +8,6 @@ const { successResponse } = response;
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
-// const jwtSecret = 'jihwanproject';
 const logger = getLogger('controllers/auth.js');
 
 const signUp = async (req, res) => {
@@ -46,7 +45,7 @@ const signOut = (req, res) => {
     if (err) {
       throw error;
     }
-    res.clearCookie('sssssssssid');
+    res.clearCookie(process.env.SESSION_NAME);
 
     req.session.destroy((e) => {
       if (e) {
