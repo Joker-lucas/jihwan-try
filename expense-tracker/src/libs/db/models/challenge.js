@@ -33,6 +33,18 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0,
     },
+    challengeStartDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    challengeEndDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    limitTime: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'Challenge',

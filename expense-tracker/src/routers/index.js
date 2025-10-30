@@ -18,7 +18,7 @@ router.use('/expenses', expenseRoute);
 router.use('/summary', summaryRoute);
 router.use('/target-spendings', targetSpendingRoute);
 router.use('/reports', reportRoute);
-router.use('/challengs', challengeRoute);
+router.use('/challenges', challengeRoute);
 
 router.use((req, res) => {
   res.status(404).json({ errorMsg: '페이지를 찾을 수 없습니다.' });

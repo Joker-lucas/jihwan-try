@@ -13,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
       FinancialYear.hasMany(models.Income, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.Expense, { foreignKey: 'financialYearId' });
       FinancialYear.hasMany(models.TargetSpending, { foreignKey: 'financialYearId' });
-      FinancialYear.hasMany(models.ChallengePeriod, { foreignKey: 'financialYearId' });
     }
   }
   FinancialYear.init({
