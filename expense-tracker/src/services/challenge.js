@@ -19,7 +19,7 @@ const getChallengeById = async (challengeId) => {
     where: { challengeId, deletedAt: null },
   });
   if (!challenge) {
-    throw new CustomError(ERROR_CODES.RESOURCE_NOT_FOUND);
+    throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
   }
   return challenge;
 };
@@ -29,7 +29,7 @@ const updateChallenge = async (challengeId, updateData) => {
   try {
     const challenge = await Challenge.findOne({ where: { challengeId, deletedAt: null } });
     if (!challenge) {
-      throw new CustomError(ERROR_CODES.RESOURCE_NOT_FOUND);
+      throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
     }
 
     await challenge.update(updateData, { transaction: t });

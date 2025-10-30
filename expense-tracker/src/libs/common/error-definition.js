@@ -8,6 +8,8 @@ const ERROR_CODES = Object.freeze({
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   DUPLICATE_EMAIL: 'DUPLICATE_EMAIL',
   INVALID_PASSWORD: 'INVALID_PASSWORD',
+  CHALLENGE_NOT_FOUND: 'CHALLENGE_NOT_FOUND',
+  CHALLENGE_CHECKLIST_NOT_FOUND: 'CHALLENGE_CHECKLIST_NOT_FOUND',
 
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
 });
@@ -22,6 +24,8 @@ const ERROR_INFO = {
   [ERROR_CODES.INTERNAL_SERVER_ERROR]: { statusCode: 500, message: '서버에 문제가 발생했습니다.' },
   [ERROR_CODES.FORBIDDEN]: { statusCode: 403, message: '접근 권한이 없습니다.' },
   [ERROR_CODES.BAD_REQUEST]: { statusCode: 400, message: '잘못된 요청입니다.' },
+  [ERROR_CODES.CHALLENGE_NOT_FOUND]: { statusCode: 404, message: '챌린지를 찾을 수 없습니다.' },
+  [ERROR_CODES.CHALLENGE_CHECKLIST_NOT_FOUND]: { statusCode: 404, message: '챌린지 체크리스트찾을 수 없습니다.' },
 };
 
 module.exports = {
