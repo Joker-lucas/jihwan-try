@@ -2,6 +2,8 @@ const {
   Model,
 } = require('sequelize');
 
+const { userLogConstants } = require('../../constants');
+
 module.exports = (sequelize, DataTypes) => {
   class UserLog extends Model {
     /**
@@ -24,13 +26,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    traceId: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     actionType: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM(
+        userLogConstants.USER_LOG_RESULT.APPROVE,
+        userLogConstants.USER_LOG_RESULT.REJECTED,
+      ),
+      allowNull: false,
+      defaultValue: userLogConstants.USER_LOG_RESULT.APPROVE,
     },
     details: {
       type: DataTypes.JSON,
