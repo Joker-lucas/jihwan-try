@@ -11,15 +11,15 @@ const getLogs = async (req, res) => {
     throw new CustomError(ERROR_CODES.FORBIDDEN);
   }
 
-  const { userId } = req.query;
+  const { userId, traceId } = req.query;
   const page = parseInt(req.query.page || 1, 10);
   const limit = parseInt(req.query.limit || 10, 10);
-  const offset = (page - 1) * limit;
 
   const logs = await userLogService.getLogs({
     limit,
-    offset,
+    page,
     userId: userId ? parseInt(userId, 10) : undefined,
+    traceId,
   });
 
   successResponse(res, logs);

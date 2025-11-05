@@ -32,14 +32,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.ENUM(
-        userLogConstants.USER_LOG_RESULT.APPROVE,
-        userLogConstants.USER_LOG_RESULT.REJECTED,
+        userLogConstants.USER_LOG_RESULT.SUCCESS,
+        userLogConstants.USER_LOG_RESULT.FAILURE,
       ),
       allowNull: false,
-      defaultValue: userLogConstants.USER_LOG_RESULT.APPROVE,
+      defaultValue: userLogConstants.USER_LOG_RESULT.SUCCESS,
     },
     details: {
       type: DataTypes.JSON,
+      allowNull: true,
+    },
+    traceId: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   }, {

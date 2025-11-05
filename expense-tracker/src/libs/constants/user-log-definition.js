@@ -1,4 +1,4 @@
-const { userLogConstants } = require('../constants');
+const { userLogConstants } = require('.');
 
 const LOG_CODES = Object.freeze({
   USER_SIGNUP: 'USER_SIGNUP',

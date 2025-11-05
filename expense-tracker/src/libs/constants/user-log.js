@@ -1,6 +1,6 @@
 const USER_LOG_RESULT = Object.freeze({
-  APPROVE: 'APPROVE',
-  REJECTED: 'REJECTED',
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE',
 });
 
 module.exports = {
