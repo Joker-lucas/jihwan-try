@@ -16,8 +16,8 @@ const mapChallengeToPayload = (challenge) => {
     description: challenge.description,
     rewardXp: challenge.rewardXp,
     challengeStartDate: challenge.challengeStartDate,
-    challengeEndDate: challenge.challengeEndDate,
-    limitTime: challenge.limitTime,
+    challengeExpireDate: challenge.challengeExpireDate,
+    limitDay: challenge.limitDay,
   };
 };
 
@@ -29,7 +29,7 @@ const mapChallengeChecklistToPayload = (checklist) => {
     challengeId: checklist.challengeId,
     status: checklist.status,
     userStartDate: checklist.userStartDate,
-    userEndDate: checklist.userEndDate,
+    userExpireDate: checklist.userExpireDate,
     completeDate: checklist.completeDate,
     challenge: checklist.Challenge ? mapChallengeToPayload(checklist.Challenge) : undefined,
   };
@@ -38,6 +38,7 @@ const mapChallengeChecklistToPayload = (checklist) => {
 const createChallengeChecklist = async (req, res) => {
   const { userId } = req.user;
   const { challengeId } = req.body;
+
   const newChecklist = await challengeChecklistService.createChallengeChecklist(
     userId,
     challengeId,
@@ -51,13 +52,33 @@ const getChallengeChecklists = async (req, res) => {
 
   if (isAdmin(requester) && req.query.userId) {
     targetUserId = req.query.userId;
-  } else if (!isAdmin(requester) && targetUserId !== requester.userId) {
+  } else if
+  (!isAdmin(requester) && req.query.userId && parseInt(req.query.userId, 10) !== requester.userId) {
     throw new CustomError(ERROR_CODES.FORBIDDEN);
   }
 
-  const checklists = await challengeChecklistService.getChallengeChecklists(targetUserId);
+  const page = parseInt(req.query.page || 1, 10);
+  const limit = parseInt(req.query.limit || 10, 10);
+  const offset = (page - 1) * limit;
+
+  const { totalItems, checklists } = await challengeChecklistService.getChallengeChecklists(
+    targetUserId,
+    limit,
+    offset,
+  );
+
   const checklistsPayload = checklists.map(mapChallengeChecklistToPayload);
-  successResponse(res, checklistsPayload);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  successResponse(res, {
+    checklists: checklistsPayload,
+    pagination: {
+      totalItems,
+      totalPages,
+      currentPage: page,
+      limit,
+    },
+  });
 };
 
 const getChallengeChecklistById = async (req, res) => {
@@ -65,10 +86,6 @@ const getChallengeChecklistById = async (req, res) => {
   const { challengeChecklistId } = req.params;
 
   const checklist = await challengeChecklistService.getChallengeChecklistById(challengeChecklistId);
-
-  if (!checklist) {
-    throw new CustomError(ERROR_CODES.CHALLENGE_CHECKLIST_NOT_FOUND);
-  }
 
   if (!isSelfOrAdmin(requester, checklist.userId)) {
     throw new CustomError(ERROR_CODES.FORBIDDEN);

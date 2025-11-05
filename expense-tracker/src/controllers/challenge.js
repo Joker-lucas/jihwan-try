@@ -14,8 +14,8 @@ const mapChallengeToPayload = (challenge) => ({
   description: challenge.description,
   rewardXp: challenge.rewardXp,
   challengeStartDate: challenge.challengeStartDate,
-  challengeEndDate: challenge.challengeEndDate,
-  limitTime: challenge.limitTime,
+  challengeExpireDate: challenge.challengeExpireDate,
+  limitDay: challenge.limitDay,
 });
 
 const createChallenge = async (req, res) => {
@@ -28,14 +28,33 @@ const createChallenge = async (req, res) => {
 };
 
 const getChallenges = async (req, res) => {
-  const challenges = await challengeService.getChallenges();
+  const page = parseInt(req.query.page || 1, 10);
+  const limit = parseInt(req.query.limit || 10, 10);
+  const offset = (page - 1) * limit;
+
+  const { totalItems, challenges } = await challengeService.getChallenges({ limit, offset });
+
   const challengesPayload = challenges.map(mapChallengeToPayload);
-  successResponse(res, challengesPayload);
+  const totalPages = Math.ceil(totalItems / limit);
+
+  successResponse(res, {
+    challenges: challengesPayload,
+    pagination: {
+      totalItems,
+      totalPages,
+      currentPage: page,
+      limit,
+    },
+  });
 };
 
 const getChallengeById = async (req, res) => {
   const { challengeId } = req.params;
   const challenge = await challengeService.getChallengeById(challengeId);
+
+  if (!challenge) {
+    throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
+  }
   successResponse(res, mapChallengeToPayload(challenge));
 };
 
@@ -44,18 +63,12 @@ const updateChallenge = async (req, res) => {
     throw new CustomError(ERROR_CODES.FORBIDDEN);
   }
   const { challengeId } = req.params;
+  if (!challengeId) {
+    throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
+  }
   const updateData = req.body;
   const updatedChallenge = await challengeService.updateChallenge(challengeId, updateData);
   successResponse(res, mapChallengeToPayload(updatedChallenge));
-};
-
-const deleteChallenge = async (req, res) => {
-  if (!isAdmin(req.user)) {
-    throw new CustomError(ERROR_CODES.FORBIDDEN);
-  }
-  const { challengeId } = req.params;
-  await challengeService.deleteChallenge(challengeId);
-  successResponse(res, { message: 'Challenge deleted successfully' });
 };
 
 module.exports = {
@@ -63,5 +76,4 @@ module.exports = {
   getChallenges,
   getChallengeById,
   updateChallenge,
-  deleteChallenge,
 };

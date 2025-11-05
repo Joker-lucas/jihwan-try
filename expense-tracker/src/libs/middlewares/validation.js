@@ -23,8 +23,8 @@ const expenseFields = {
 };
 
 const challengeFields = {
-  required: ['title', 'rewardXp'],
-  allowed: ['title', 'description', 'rewardXp', 'challengeStartDate', 'challengeEndDate', 'limitTime'],
+  required: ['title', 'rewardXp', 'challengeType', 'targetValue'],
+  allowed: ['title', 'description', 'rewardXp', 'challengeStartDate', 'challengeExpireDate', 'limitDay', 'challengeType', 'targetValue'],
 };
 
 // eslint-disable-next-line consistent-return
@@ -128,7 +128,7 @@ const validateTargetSpendingData = (req, res, next) => {
 // eslint-disable-next-line consistent-return
 const validateChallengeData = (req, res, next) => {
   const {
-    title, rewardXp, challengeStartDate, challengeEndDate, limitTime,
+    title, rewardXp, challengeStartDate, challengeExpireDate, limitDay,
   } = req.body;
 
   if (title !== undefined && (typeof title !== 'string' || title.trim() === '')) {
@@ -148,25 +148,25 @@ const validateChallengeData = (req, res, next) => {
     }
   }
 
-  if (challengeEndDate !== undefined && challengeEndDate !== null) {
-    if (typeof challengeEndDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(challengeEndDate)) {
-      return res.status(400).json({ errorMsg: '챌린지 종료일(challengeEndDate)은 YYYY-MM-DD 형식의 유효한 날짜 문자열이어야 합니다.' });
+  if (challengeExpireDate !== undefined && challengeExpireDate !== null) {
+    if (typeof challengeExpireDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(challengeExpireDate)) {
+      return res.status(400).json({ errorMsg: '챌린지 종료일(challengeExpireDate)은 YYYY-MM-DD 형식의 유효한 날짜 문자열이어야 합니다.' });
     }
-    if (Number.isNaN(new Date(challengeEndDate).getTime())) {
-      return res.status(400).json({ errorMsg: '챌린지 종료일(challengeEndDate)이 유효한 날짜가 아닙니다.' });
+    if (Number.isNaN(new Date(challengeExpireDate).getTime())) {
+      return res.status(400).json({ errorMsg: '챌린지 종료일(challengeExpireDate)이 유효한 날짜가 아닙니다.' });
     }
   }
 
-  if (challengeStartDate && challengeEndDate) {
+  if (challengeStartDate && challengeExpireDate) {
     const start = new Date(challengeStartDate);
-    const end = new Date(challengeEndDate);
-    if (start > end) {
-      return res.status(400).json({ errorMsg: '챌린지 시작일(challengeStartDate)은 종료일(challengeEndDate)보다 빠를 수 없습니다.' });
+    const expire = new Date(challengeExpireDate);
+    if (start > expire) {
+      return res.status(400).json({ errorMsg: '챌린지 시작일(challengeStartDate)은 종료일(challengeExpireDate)보다 빠를 수 없습니다.' });
     }
   }
 
-  if (limitTime !== undefined && (typeof limitTime !== 'number' || limitTime < 0 || !Number.isInteger(limitTime))) {
-    return res.status(400).json({ errorMsg: '제한 시간(limitTime)은 0 이상의 정수여야 합니다.' });
+  if (limitDay !== undefined && (typeof limitDay !== 'number' || limitDay < 0 || !Number.isInteger(limitDay))) {
+    return res.status(400).json({ errorMsg: '제한 시간(limitDay)은 0 이상의 정수여야 합니다.' });
   }
 
   next();

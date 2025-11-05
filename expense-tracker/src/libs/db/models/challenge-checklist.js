@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
-    userEndDate: {
+    userExpireDate: {
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
