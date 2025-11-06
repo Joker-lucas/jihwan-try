@@ -5,6 +5,9 @@ const {
 const { CustomError } = require('../libs/common/error');
 const { ERROR_CODES } = require('../libs/common/error-definition');
 const { challengeConstants } = require('../libs/constants');
+const { getLogger } = require('../libs/logger');
+
+const logger = getLogger('services/challenge-checklist.js');
 
 const createChallengeChecklist = async (userId, challengeId) => {
   const challenge = await Challenge.findOne({ where: { challengeId, deletedAt: null } });
@@ -52,7 +55,9 @@ const createChallengeChecklist = async (userId, challengeId) => {
   return newChecklist;
 };
 
-const getChallengeChecklists = async (userId, limit, offset) => {
+const getChallengeChecklists = async (userId, page, limit) => {
+  const offset = (page - 1) * limit;
+
   const { count, rows: checklists } = await ChallengeChecklist.findAndCountAll({
     where: { userId, deletedAt: null },
     include: [{
@@ -81,38 +86,27 @@ const getChallengeChecklistById = async (challengeChecklistId) => {
   return checklist;
 };
 
-const _getChallengePeriod = (checklist) => {
-  const challengeData = checklist.Challenge;
-
+const _getChallengePeriod = (checklist, challenge) => {
   const userStartDate = new Date(checklist.userStartDate);
 
-  let finalStartDate = userStartDate;
+  const finalStartDate = userStartDate;
   let finalExpireDate = null;
 
   if (checklist.userExpireDate) {
     finalExpireDate = new Date(checklist.userExpireDate);
-  } else if (challengeData.challengeExpireDate) {
-    finalExpireDate = new Date(challengeData.challengeExpireDate);
+  } else if (challenge.challengeExpireDate) {
+    finalExpireDate = new Date(challenge.challengeExpireDate);
   }
 
-  if (challengeData.challengeStartDate) {
-    const fixStartDate = new Date(challengeData.challengeStartDate);
-
-    if (fixStartDate > userStartDate) {
-      finalStartDate = fixStartDate;
-    }
-  }
   return { startDate: finalStartDate, expireDate: finalExpireDate };
 };
 
-const _checkSuccessJudgment = async (checklist) => {
+const _checkSuccessJudgment = async (checklist, challenge) => {
   const { userId } = checklist;
-  const challengeData = checklist.Challenge;
 
-  const { challengeType } = challengeData;
-  const { targetValue } = challengeData;
+  const { challengeType, targetValue } = challenge;
 
-  const { startDate, expireDate } = _getChallengePeriod(checklist);
+  const { startDate, expireDate } = _getChallengePeriod(checklist, challenge);
 
   const periodCondition = {
     userId,
@@ -130,35 +124,35 @@ const _checkSuccessJudgment = async (checklist) => {
   switch (challengeType) {
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_MORE:
       trueValue = await Expense.count({ where: periodCondition });
-      return trueValue > targetValue;
+      return trueValue >= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_LESS:
       trueValue = await Expense.count({ where: periodCondition });
-      return trueValue < targetValue;
+      return trueValue <= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.INCOME_COUNT_MORE:
       trueValue = await Income.count({ where: periodCondition });
-      return trueValue > targetValue;
+      return trueValue >= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.INCOME_COUNT_LESS:
       trueValue = await Income.count({ where: periodCondition });
-      return trueValue < targetValue;
+      return trueValue <= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_TOTAL_AMOUNT_MORE:
-      trueValue = await Expense.sum('amount', { where: periodCondition }) || 0;
-      return trueValue > targetValue;
+      trueValue = (await Expense.sum('amount', { where: periodCondition })) || 0;
+      return trueValue >= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_TOTAL_AMOUNT_LESS:
-      trueValue = await Expense.sum('amount', { where: periodCondition }) || 0;
-      return trueValue < targetValue;
+      trueValue = (await Expense.sum('amount', { where: periodCondition })) || 0;
+      return trueValue <= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.INCOME_TOTAL_AMOUNT_MORE:
-      trueValue = await Income.sum('amount', { where: periodCondition }) || 0;
-      return trueValue > targetValue;
+      trueValue = (await Income.sum('amount', { where: periodCondition })) || 0;
+      return trueValue >= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.INCOME_TOTAL_AMOUNT_LESS:
-      trueValue = await Income.sum('amount', { where: periodCondition }) || 0;
-      return trueValue < targetValue;
+      trueValue = (await Income.sum('amount', { where: periodCondition })) || 0;
+      return trueValue <= targetValue;
 
     default: return false;
   }
@@ -199,35 +193,47 @@ const intervalChecklistStatusUpdateJob = async () => {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // eslint-disable-next-line no-restricted-syntax
-  for (const checklist of checklists) {
-    const { expireDate } = _getChallengePeriod(checklist);
 
-    if (expireDate && expireDate < today) {
-      // eslint-disable-next-line no-await-in-loop
-      await updateChecklistStatus(
-        checklist.challengeChecklistId,
-        { status: challengeConstants.CHECKLIST_STATUS.FAILED },
-      );
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-    if (checklist.Challenge.challengeType) {
-      // eslint-disable-next-line no-await-in-loop
-      const isSuccess = await _checkSuccessJudgment(checklist);
+  const tasks = checklists.map(async (checklist) => {
+    const { Challenge: challenge } = checklist;
+    const { expireDate } = _getChallengePeriod(checklist, challenge);
 
-      if (isSuccess) {
-        // eslint-disable-next-line no-await-in-loop
-        await updateChecklistStatus(
-          checklist.challengeChecklistId,
-          {
-            status: challengeConstants.CHECKLIST_STATUS.COMPLETED,
-            completeDate: today,
-          },
-        );
+    if (expireDate) {
+      const isExpired = expireDate && expireDate < today;
+
+      if (!isExpired) {
+        return Promise.resolve();
       }
+
+      const isSuccess = await _checkSuccessJudgment(checklist, challenge);
+      if (isSuccess) {
+        return updateChecklistStatus(checklist.challengeChecklistId, {
+          status: challengeConstants.CHECKLIST_STATUS.COMPLETED,
+          completeDate: today,
+        });
+      }
+      return updateChecklistStatus(checklist.challengeChecklistId, {
+        status: challengeConstants.CHECKLIST_STATUS.FAILED,
+      });
     }
-  }
+
+    const isSuccess = await _checkSuccessJudgment(checklist, challenge);
+    if (isSuccess) {
+      return updateChecklistStatus(checklist.challengeChecklistId, {
+        status: challengeConstants.CHECKLIST_STATUS.COMPLETED,
+        completeDate: today,
+      });
+    }
+    return Promise.resolve();
+  });
+
+  const results = await Promise.allSettled(tasks);
+
+  results.forEach((result) => {
+    if (result.status === 'rejected') {
+      logger.error(result.reason, '체크리스트 상태 업데이트 중 오류가 발생했습니다.');
+    }
+  });
 };
 
 module.exports = {

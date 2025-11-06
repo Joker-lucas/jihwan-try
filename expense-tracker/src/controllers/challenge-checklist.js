@@ -59,25 +59,18 @@ const getChallengeChecklists = async (req, res) => {
 
   const page = parseInt(req.query.page || 1, 10);
   const limit = parseInt(req.query.limit || 10, 10);
-  const offset = (page - 1) * limit;
 
   const { totalItems, checklists } = await challengeChecklistService.getChallengeChecklists(
     targetUserId,
+    page,
     limit,
-    offset,
   );
 
   const checklistsPayload = checklists.map(mapChallengeChecklistToPayload);
-  const totalPages = Math.ceil(totalItems / limit);
 
   successResponse(res, {
     checklists: checklistsPayload,
-    pagination: {
-      totalItems,
-      totalPages,
-      currentPage: page,
-      limit,
-    },
+    totalItems,
   });
 };
 
