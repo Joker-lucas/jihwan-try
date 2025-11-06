@@ -12,13 +12,13 @@ const getLogs = async (req, res) => {
   }
 
   const { userId, traceId } = req.query;
-  const page = parseInt(req.query.page || 1, 10);
-  const limit = parseInt(req.query.limit || 10, 10);
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
 
   const logs = await userLogService.getLogs({
     limit,
     page,
-    userId: userId ? parseInt(userId, 10) : undefined,
+    userId: parseInt(userId, 10),
     traceId,
   });
 

@@ -1,15 +1,12 @@
 const { UserLog, User } = require('../libs/db/models');
-const { userLogDefinition } = require('../libs/common');
 const { getContext } = require('../libs/context');
-
-const { LOG_INFO } = userLogDefinition;
+const { LOG_INFO } = require('../libs/constants/user-log');
 
 const createLog = async (logData) => {
   const {
     userId, actionType, details, status,
   } = logData;
   const traceId = getContext('traceId');
-
 
   const logInfo = LOG_INFO[actionType];
   const statusInfo = logInfo[status];
