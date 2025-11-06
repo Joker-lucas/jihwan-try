@@ -37,19 +37,38 @@ const createChallengeChecklist = async (userId, challengeId) => {
     throw new CustomError(ERROR_CODES.CHECKLIST_ALREADY_EXISTS);
   }
 
-  let userExpireDate = null;
+  let relativeExpireDate = null;
+  let fixedExpireDate = null;
+
   if (challenge.limitDay && challenge.limitDay > 0) {
     const expireDate = new Date(today);
     expireDate.setDate(today.getDate() + challenge.limitDay);
-    userExpireDate = expireDate;
+    relativeExpireDate = expireDate;
+  }
+  if (challenge.challengeExpireDate) {
+    fixedExpireDate = new Date(challenge.challengeExpireDate);
   }
 
+  let finalUserExpireDate = null;
+
+  if (relativeExpireDate && fixedExpireDate) {
+    finalUserExpireDate = new Date(
+      Math.min(
+        relativeExpireDate.getTime(),
+        fixedExpireDate.getTime(),
+      ),
+    );
+  } else if (relativeExpireDate) {
+    finalUserExpireDate = relativeExpireDate;
+  } else if (fixedExpireDate) {
+    finalUserExpireDate = fixedExpireDate;
+  }
   const newChecklist = await ChallengeChecklist.create({
     userId,
     challengeId,
     status: challengeConstants.CHECKLIST_STATUS.PENDING,
     userStartDate: today,
-    userExpireDate,
+    userExpireDate: finalUserExpireDate,
   });
 
   return newChecklist;
