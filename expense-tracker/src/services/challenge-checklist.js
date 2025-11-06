@@ -105,16 +105,13 @@ const getChallengeChecklistById = async (challengeChecklistId) => {
   return checklist;
 };
 
-const _getChallengePeriod = (checklist, challenge) => {
+const _getChallengePeriod = (checklist) => {
   const userStartDate = new Date(checklist.userStartDate);
-
   const finalStartDate = userStartDate;
   let finalExpireDate = null;
 
   if (checklist.userExpireDate) {
     finalExpireDate = new Date(checklist.userExpireDate);
-  } else if (challenge.challengeExpireDate) {
-    finalExpireDate = new Date(challenge.challengeExpireDate);
   }
 
   return { startDate: finalStartDate, expireDate: finalExpireDate };
@@ -221,29 +218,31 @@ const intervalChecklistStatusUpdateJob = async () => {
       const isExpired = expireDate && expireDate < today;
 
       if (!isExpired) {
-        return Promise.resolve();
+        return;
       }
 
       const isSuccess = await _checkSuccessJudgment(checklist, challenge);
       if (isSuccess) {
-        return updateChecklistStatus(checklist.challengeChecklistId, {
+        await updateChecklistStatus(checklist.challengeChecklistId, {
           status: challengeConstants.CHECKLIST_STATUS.COMPLETED,
           completeDate: today,
         });
+        return;
       }
-      return updateChecklistStatus(checklist.challengeChecklistId, {
+
+      await updateChecklistStatus(checklist.challengeChecklistId, {
         status: challengeConstants.CHECKLIST_STATUS.FAILED,
       });
+      return;
     }
 
     const isSuccess = await _checkSuccessJudgment(checklist, challenge);
     if (isSuccess) {
-      return updateChecklistStatus(checklist.challengeChecklistId, {
+      await updateChecklistStatus(checklist.challengeChecklistId, {
         status: challengeConstants.CHECKLIST_STATUS.COMPLETED,
         completeDate: today,
       });
     }
-    return Promise.resolve();
   });
 
   const results = await Promise.allSettled(tasks);
@@ -254,7 +253,6 @@ const intervalChecklistStatusUpdateJob = async () => {
     }
   });
 };
-
 module.exports = {
   createChallengeChecklist,
   getChallengeChecklists,

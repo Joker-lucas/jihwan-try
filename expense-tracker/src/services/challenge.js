@@ -65,9 +65,26 @@ const updateChallenge = async (challengeId, updateData) => {
   }
   const dataToUpdate = { ...updateData };
 
+  const wasInfinite = !challenge.challengeExpireDate && !challenge.limitDay;
+
+  const isTryingToAddExpire = dataToUpdate.challengeExpireDate !== undefined
+  || dataToUpdate.limitDay !== undefined;
+
+  if (wasInfinite && isTryingToAddExpire) {
+    throw new CustomError(ERROR_CODES.BAD_REQUEST);
+  }
+
   const isDateChanging = dataToUpdate.challengeStartDate !== undefined
   || dataToUpdate.challengeExpireDate !== undefined;
 
+  if (dataToUpdate.challengeExpireDate && challenge.challengeExpireDate) {
+    const newExpireDate = new Date(dataToUpdate.challengeExpireDate);
+    const oldExpireDate = new Date(challenge.challengeExpireDate);
+
+    if (newExpireDate < oldExpireDate) {
+      throw new CustomError(ERROR_CODES.BAD_REQUEST);
+    }
+  }
   if (isDateChanging) {
     const finalStartDate = dataToUpdate.challengeStartDate !== undefined
       ? dataToUpdate.challengeStartDate
