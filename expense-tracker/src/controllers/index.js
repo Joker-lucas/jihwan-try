@@ -6,6 +6,7 @@ const summaryController = require('./summary');
 const targetSpendingController = require('./target-spending');
 const reportController = require('./report');
 const challengeController = require('./challenge');
+const userLogController = require('./user-log');
 
 module.exports = {
   userController,
@@ -16,4 +17,5 @@ module.exports = {
   targetSpendingController,
   reportController,
   challengeController,
+  userLogController,
 };
