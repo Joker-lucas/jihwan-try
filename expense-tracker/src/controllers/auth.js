@@ -11,7 +11,11 @@ const { ERROR_CODES } = errorDefinition;
 const logger = getLogger('controllers/auth.js');
 
 const signUp = async (req, res) => {
-  const newUser = await authService.signUp(req.body);
+  const context = {
+    method: req.method,
+    url: req.originalUrl,
+  };
+  const newUser = await authService.signUp(req.body, context);
 
   const newUserPayload = {
     nickname: newUser.nickname,
