@@ -5,6 +5,20 @@ const ERROR_CODES = Object.freeze({
   FORBIDDEN: 'FORBIDDEN',
   BAD_REQUEST: 'BAD_REQUEST',
 
+  MISSING_REQUIRED_FIELDS: 'MISSING_REQUIRED_FIELDS',
+  INVALID_REQUEST_BODY_FORMAT: 'INVALID_REQUEST_BODY_FORMAT',
+  NICKNAME_LENGTH_INVALID: 'NICKNAME_LENGTH_INVALID',
+  NICKNAME_CONTAINS_SPECIAL_CHARACTERS: 'NICKNAME_CONTAINS_SPECIAL_CHARACTERS',
+  PASSWORD_TOO_SHORT: 'PASSWORD_TOO_SHORT',
+  INVALID_AMOUNT: 'INVALID_AMOUNT',
+  INVALID_YEAR: 'INVALID_YEAR',
+  INVALID_MONTH: 'INVALID_MONTH',
+  INVALID_CHALLENGE_TITLE: 'INVALID_CHALLENGE_TITLE',
+  INVALID_REWARD_XP: 'INVALID_REWARD_XP',
+  INVALID_DATE_FORMAT: 'INVALID_DATE_FORMAT',
+  INVALID_DATE_VALUE: 'INVALID_DATE_VALUE',
+  INVALID_LIMIT_DAY: 'INVALID_LIMIT_DAY',
+
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   DUPLICATE_EMAIL: 'DUPLICATE_EMAIL',
   INVALID_PASSWORD: 'INVALID_PASSWORD',
@@ -34,6 +48,20 @@ const ERROR_INFO = {
   [ERROR_CODES.CHALLENGE_NOT_STARTED]: { statusCode: 400, message: '챌린지 시작 전입니다.' },
   [ERROR_CODES.CHECKLIST_ALREADY_EXISTS]: { statusCode: 400, message: '이미 체크리스트가 존재합니다.' },
   [ERROR_CODES.INVALID_DATE_RANGE]: { statusCode: 400, message: '시작일이 종료일보다 빠릅니다.' },
+
+  [ERROR_CODES.MISSING_REQUIRED_FIELDS]: { statusCode: 400, message: '필수 필드가 누락되었습니다.' },
+  [ERROR_CODES.INVALID_REQUEST_BODY_FORMAT]: { statusCode: 400, message: '요청 본문이 객체 형식이 아닙니다.' },
+  [ERROR_CODES.NICKNAME_LENGTH_INVALID]: { statusCode: 400, message: '닉네임은 2자 이상, 15자 이하로 입력해주세요.' },
+  [ERROR_CODES.NICKNAME_CONTAINS_SPECIAL_CHARACTERS]: { statusCode: 400, message: '닉네임에 특수문자를 사용할 수 없습니다.' },
+  [ERROR_CODES.PASSWORD_TOO_SHORT]: { statusCode: 400, message: '비밀번호는 6자 이상이어야 합니다.' },
+  [ERROR_CODES.INVALID_AMOUNT]: { statusCode: 400, message: '금액은 0보다 큰 숫자여야 합니다.' },
+  [ERROR_CODES.INVALID_YEAR]: { statusCode: 400, message: '연도(year)가 유효하지 않습니다.' },
+  [ERROR_CODES.INVALID_MONTH]: { statusCode: 400, message: '월(month)이 유효하지 않습니다.' },
+  [ERROR_CODES.INVALID_CHALLENGE_TITLE]: { statusCode: 400, message: '챌린지 제목(title)은 비어 있지 않은 문자열이어야 합니다.' },
+  [ERROR_CODES.INVALID_REWARD_XP]: { statusCode: 400, message: '보상 경험치(rewardXp)는 0 이상의 숫자여야 합니다.' },
+  [ERROR_CODES.INVALID_DATE_FORMAT]: { statusCode: 400, message: '날짜는 YYYY-MM-DD 형식의 유효한 날짜 문자열이어야 합니다.' },
+  [ERROR_CODES.INVALID_DATE_VALUE]: { statusCode: 400, message: '날짜가 유효하지 않습니다.' },
+  [ERROR_CODES.INVALID_LIMIT_DAY]: { statusCode: 400, message: '제한 시간(limitDay)은 0 이상의 정수여야 합니다.' },
 };
 
 module.exports = {
