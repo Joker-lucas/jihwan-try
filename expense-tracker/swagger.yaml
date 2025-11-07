@@ -131,6 +131,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+              example:
+                - nickname: admin_user
+                  contactEmail: admin@example.com
+                  profileImageUrl: null
+                  gender: male
+                  birthday: '1990-01-01'
+                  level: 10
+                  exp: 1500
+                  role: admin
+                - nickname: test_user_1
+                  contactEmail: user1@example.com
+                  profileImageUrl: null
+                  gender: female
+                  birthday: '1995-05-10'
+                  level: 5
+                  exp: 750
+                  role: user
         '403':
           description: 권한 없음
   /api/users/me:
@@ -147,6 +164,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfile'
+              example:
+                nickname: current_user
+                contactEmail: current@example.com
+                profileImageUrl: null
+                gender: male
+                birthday: '1992-12-25'
+                level: 8
+                exp: 1200
         '401':
           description: 인증 실패
     patch:
@@ -182,6 +207,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              example:
+                nickname: test_user_1
+                contactEmail: user1@example.com
+                profileImageUrl: null
+                gender: female
+                birthday: '1995-05-10'
+                level: 5
+                exp: 750
+                role: user
         '403':
           description: 접근 권한 없음
         '404':
@@ -207,6 +241,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              example:
+                nickname: new_nickname
+                contactEmail: user1@example.com
+                profileImageUrl: null
+                gender: female
+                birthday: '1995-05-11'
+                role: user
         '403':
           description: 접근 권한 없음
         '404':
@@ -221,8 +262,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/UserId'
       responses:
-        '204':
+        '200':
           description: 삭제 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: 성공적으로 삭제되었습니다.
         '403':
           description: 접근 권한 없음
         '404':
@@ -471,7 +521,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetChallengeChecklistsResponse'
+                $ref: '#/components/schemas/GetChallengesResponse'
+              example:
+                challenges:
+                  - challengeId: 1
+                    title: 일주일 지출 10회 미만
+                    description: 일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.
+                    rewardXp: 100
+                    challengeStartDate: '2025-11-10'
+                    challengeExpireDate: '2025-11-17'
+                    limitDay: 7
+                  - challengeId: 2
+                    title: 한달 수입 50만원 이상 달성
+                    description: '부수입, 월급 외 추가 수입으로 50만원 이상을 벌어보세요.'
+                    rewardXp: 200
+                    challengeStartDate: '2025-11-01'
+                    challengeExpireDate: '2025-11-30'
+                    limitDay: 30
+                totalItems: 2
     post:
       tags:
         - Challenges
@@ -510,6 +577,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Challenge'
+              example:
+                challengeId: 1
+                title: 일주일 지출 10회 미만
+                description: 일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.
+                rewardXp: 100
+                challengeStartDate: '2025-11-10'
+                challengeExpireDate: '2025-11-17'
+                limitDay: 7
         '404':
           description: 챌린지를 찾을 수 없음
     patch:
@@ -533,10 +608,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Challenge'
-        '403':
-          description: 권한 없음
-        '404':
-          description: 챌린지를 찾을 수 없음
+              example:
+                challengeId: 1
+                title: 일주일 지출 5회 미만으로 변경
+                description: 일주일 동안 지출 횟수를 5회 미만으로 유지하여 절약 습관을 길러보세요.
+                rewardXp: 150
+                challengeStartDate: '2025-11-10'
+                challengeExpireDate: '2025-11-17'
+                limitDay: 7
   /api/challenge-checklists:
     get:
       tags:
@@ -560,6 +639,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetChallengeChecklistsResponse'
+              example:
+                checklists:
+                  - challengeChecklistId: 1
+                    userId: 1
+                    challengeId: 1
+                    status: PENDING
+                    userStartDate: '2025-11-10T00:00:00Z'
+                    userExpireDate: '2025-11-17T23:59:59Z'
+                    completeDate: null
+                    challenge:
+                      challengeId: 1
+                      title: 일주일 지출 10회 미만
+                      description: 일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.
+                      rewardXp: 100
+                      challengeStartDate: '2025-11-10'
+                      challengeExpireDate: '2025-11-17'
+                      limitDay: 7
+                totalItems: 1
     post:
       tags:
         - ChallengeChecklists
@@ -580,6 +677,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChallengeChecklist'
+              example:
+                challengeChecklistId: 2
+                userId: 1
+                challengeId: 2
+                status: PENDING
+                userStartDate: '2025-11-07T10:00:00Z'
+                userExpireDate: '2025-11-14T23:59:59Z'
+                completeDate: null
+                challenge:
+                  challengeId: 2
+                  title: 한달 수입 50만원 이상 달성
+                  description: '부수입, 월급 외 추가 수입으로 50만원 이상을 벌어보세요.'
+                  rewardXp: 200
+                  challengeStartDate: '2025-11-01'
+                  challengeExpireDate: '2025-11-30'
+                  limitDay: 30
   '/api/challenge-checklists/{challengeChecklistId}':
     get:
       tags:
@@ -602,6 +715,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChallengeChecklist'
+              example:
+                challengeChecklistId: 1
+                userId: 1
+                challengeId: 1
+                status: PENDING
+                userStartDate: '2025-11-10T00:00:00Z'
+                userExpireDate: '2025-11-17T23:59:59Z'
+                completeDate: null
+                challenge:
+                  challengeId: 1
+                  title: 일주일 지출 10회 미만
+                  description: 일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.
+                  rewardXp: 100
+                  challengeStartDate: '2025-11-10'
+                  challengeExpireDate: '2025-11-17'
+                  limitDay: 7
         '403':
           description: 접근 권한 없음
         '404':
@@ -637,6 +766,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetLogsResponse'
+              example:
+                count: 1
+                rows:
+                  - logId: 101
+                    userId: 1
+                    actionType: USER_LOGIN_SUCCESS
+                    details:
+                      message: 사용자(1)가 성공적으로 로그인했습니다.
+                    traceId: a1b2c3d4-e5f6-7890-1234-567890abcdef
+                    createdAt: '2025-11-07T10:00:00Z'
+                    User:
+                      nickname: test_user_1
+                      email: user1@example.com
+                      role: user
         '403':
           description: 권한 없음
   /api/summary/monthly:
@@ -1063,18 +1206,32 @@ components:
         createdAt:
           type: string
           format: date-time
+        User:
+          type: object
+          properties:
+            nickname:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
     GetLogsResponse:
       type: object
       properties:
-        logs:
+        count:
+          type: integer
+        rows:
           type: array
           items:
             $ref: '#/components/schemas/UserLog'
+    GetChallengesResponse:
+      type: object
+      properties:
+        challenges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Challenge'
         totalItems:
-          type: integer
-        totalPages:
-          type: integer
-        currentPage:
           type: integer
     UserProfile:
       type: object

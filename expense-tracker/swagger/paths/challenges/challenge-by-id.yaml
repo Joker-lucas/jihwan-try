@@ -12,6 +12,14 @@ get:
         application/json:
           schema:
             $ref: '../../components/schema.yaml#/schemas/Challenge'
+          example:
+            challengeId: 1
+            title: "일주일 지출 10회 미만"
+            description: "일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요."
+            rewardXp: 100
+            challengeStartDate: "2025-11-10"
+            challengeExpireDate: "2025-11-17"
+            limitDay: 7
     '404':
       description: 챌린지를 찾을 수 없음
 
@@ -35,7 +43,11 @@ patch:
         application/json:
           schema:
             $ref: '../../components/schema.yaml#/schemas/Challenge'
-    '403':
-      description: 권한 없음
-    '404':
-      description: 챌린지를 찾을 수 없음
+          example:
+            challengeId: 1
+            title: "일주일 지출 5회 미만으로 변경"
+            description: "일주일 동안 지출 횟수를 5회 미만으로 유지하여 절약 습관을 길러보세요."
+            rewardXp: 150
+            challengeStartDate: "2025-11-10"
+            challengeExpireDate: "2025-11-17"
+            limitDay: 7

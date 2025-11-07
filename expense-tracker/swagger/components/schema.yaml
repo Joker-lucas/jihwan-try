@@ -376,19 +376,34 @@ schemas:
       createdAt:
         type: string
         format: date-time
+      User:
+        type: object
+        properties:
+          nickname:
+            type: string
+          email:
+            type: string
+          role:
+            type: string
 
   GetLogsResponse:
     type: object
     properties:
-      logs:
+      count:
+        type: integer
+      rows:
         type: array
         items:
           $ref: '#/schemas/UserLog'
+
+  GetChallengesResponse:
+    type: object
+    properties:
+      challenges:
+        type: array
+        items:
+          $ref: '#/schemas/Challenge'
       totalItems:
-        type: integer
-      totalPages:
-        type: integer
-      currentPage:
         type: integer
         
   UserProfile:

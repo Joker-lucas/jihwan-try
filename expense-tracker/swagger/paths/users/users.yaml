@@ -27,5 +27,22 @@ get:
             type: array
             items:
               $ref: '../../components/schema.yaml#/schemas/User'
+          example:
+            - nickname: "admin_user"
+              contactEmail: "admin@example.com"
+              profileImageUrl: null
+              gender: "male"
+              birthday: "1990-01-01"
+              level: 10
+              exp: 1500
+              role: "admin"
+            - nickname: "test_user_1"
+              contactEmail: "user1@example.com"
+              profileImageUrl: null
+              gender: "female"
+              birthday: "1995-05-10"
+              level: 5
+              exp: 750
+              role: "user"
     '403':
       description: 권한 없음

@@ -27,5 +27,19 @@ get:
         application/json:
           schema:
             $ref: '../../components/schema.yaml#/schemas/GetLogsResponse'
+          example:
+            count: 1
+            rows:
+              - logId: 101
+                userId: 1
+                actionType: "USER_LOGIN_SUCCESS"
+                details: 
+                  message: "사용자(1)가 성공적으로 로그인했습니다."
+                traceId: "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                createdAt: "2025-11-07T10:00:00Z"
+                User:
+                  nickname: "test_user_1"
+                  email: "user1@example.com"
+                  role: "user"
     '403':
       description: 권한 없음
