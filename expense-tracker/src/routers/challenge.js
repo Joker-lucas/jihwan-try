@@ -5,14 +5,14 @@ const router = express.Router();
 const { challengeController } = require('../controllers');
 const {
   isLogin,
+  validateChallengeRequired,
+  filterChallengeBody,
+  validateChallengeData,
 } = require('../libs/middlewares');
 
-router.get('/', isLogin, challengeController.getAllChallenges);
-
-router.post('/', isLogin, challengeController.createChallenge);
-
-router.patch('/:challengeId', isLogin, challengeController.updateChallenge);
-
-router.delete('/:challengeId', isLogin, challengeController.deleteChallenge);
+router.post('/', isLogin, validateChallengeRequired, filterChallengeBody, validateChallengeData, challengeController.createChallenge);
+router.get('/', isLogin, challengeController.getChallenges);
+router.get('/:challengeId', isLogin, challengeController.getChallengeById);
+router.patch('/:challengeId', isLogin, filterChallengeBody, validateChallengeData, challengeController.updateChallenge);
 
 module.exports = router;

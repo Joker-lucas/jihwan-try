@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       ChallengeChecklist.belongsTo(models.User, { foreignKey: 'userId' });
       ChallengeChecklist.belongsTo(models.Challenge, { foreignKey: 'challengeId' });
-      ChallengeChecklist.hasMany(models.ChallengePeriod, { foreignKey: 'challengePeriodId' });
     }
   }
   ChallengeChecklist.init({
@@ -36,11 +35,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM(
         challengeConstants.CHECKLIST_STATUS.PENDING,
         challengeConstants.CHECKLIST_STATUS.COMPLETED,
+        challengeConstants.CHECKLIST_STATUS.FAILED,
       ),
       allowNull: false,
       defaultValue: challengeConstants.CHECKLIST_STATUS.PENDING,
     },
-    achievedAt: {
+    userStartDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    userExpireDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+    completeDate: {
       type: DataTypes.DATE,
       allowNull: true,
     },

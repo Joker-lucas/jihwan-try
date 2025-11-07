@@ -8,8 +8,13 @@ const ERROR_CODES = Object.freeze({
   USER_NOT_FOUND: 'USER_NOT_FOUND',
   DUPLICATE_EMAIL: 'DUPLICATE_EMAIL',
   INVALID_PASSWORD: 'INVALID_PASSWORD',
-
+  CHALLENGE_NOT_FOUND: 'CHALLENGE_NOT_FOUND',
+  CHALLENGE_CHECKLIST_NOT_FOUND: 'CHALLENGE_CHECKLIST_NOT_FOUND',
+  CHALLENGE_EXPIRED: 'CHALLENGE_EXPIRED',
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
+  CHALLENGE_NOT_STARTED: 'CHALLENGE_NOT_STARTED',
+  CHECKLIST_ALREADY_EXISTS: 'CHECKLIST_ALREADY_EXISTS',
+  INVALID_DATE_RANGE: 'INVALID_DATE_RANGE',
 });
 
 const ERROR_INFO = {
@@ -17,11 +22,18 @@ const ERROR_INFO = {
   [ERROR_CODES.INVALID_INPUT]: { statusCode: 400, message: '입력값이 유효하지 않습니다.' },
   [ERROR_CODES.UNAUTHORIZED]: { statusCode: 401, message: '인증이 필요합니다.' },
   [ERROR_CODES.USER_NOT_FOUND]: { statusCode: 404, message: '사용자를 찾을 수 없습니다.' },
+  [ERROR_CODES.CHALLENGE_EXPIRED]: { statusCode: 400, message: '이미 마감된 챌린지입니다.' },
   [ERROR_CODES.DUPLICATE_EMAIL]: { statusCode: 409, message: '이미 사용 중인 이메일입니다.' },
   [ERROR_CODES.INVALID_PASSWORD]: { statusCode: 401, message: '비밀번호가 일치하지 않습니다.' },
   [ERROR_CODES.INTERNAL_SERVER_ERROR]: { statusCode: 500, message: '서버에 문제가 발생했습니다.' },
   [ERROR_CODES.FORBIDDEN]: { statusCode: 403, message: '접근 권한이 없습니다.' },
   [ERROR_CODES.BAD_REQUEST]: { statusCode: 400, message: '잘못된 요청입니다.' },
+  [ERROR_CODES.CHALLENGE_NOT_FOUND]: { statusCode: 404, message: '챌린지를 찾을 수 없습니다.' },
+  [ERROR_CODES.CHALLENGE_CHECKLIST_NOT_FOUND]: { statusCode: 404, message: '챌린지 체크리스트찾을 수 없습니다.' },
+  [ERROR_CODES.CHALLENGE_EXPIRED]: { statusCode: 400, message: '이미 마감된 챌린지입니다.' },
+  [ERROR_CODES.CHALLENGE_NOT_STARTED]: { statusCode: 400, message: '챌린지 시작 전입니다.' },
+  [ERROR_CODES.CHECKLIST_ALREADY_EXISTS]: { statusCode: 400, message: '이미 체크리스트가 존재합니다.' },
+  [ERROR_CODES.INVALID_DATE_RANGE]: { statusCode: 400, message: '시작일이 종료일보다 빠릅니다.' },
 };
 
 module.exports = {
