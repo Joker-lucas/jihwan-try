@@ -25,6 +25,10 @@ tags:
     description: 월별 보고서
   - name: Challenges
     description: 도전과제
+  - name: ChallengeChecklists
+    description: 사용자의 도전과제 참여 현황
+  - name: UserLogs
+    description: 사용자 활동 로그 (관리자 전용)
   - name: Admin
     description: 관리자 기능
 
@@ -38,8 +42,12 @@ paths:
     $ref: './paths/auths/sign-out.yaml'
 
   # --- Users ---
+  /api/users:
+    $ref: './paths/users/users.yaml'
   /api/users/me:
     $ref: './paths/users/me.yaml'
+  /api/users/{userId}:
+    $ref: './paths/users/user-by-id.yaml'
     
   # --- Incomes ---
   /api/incomes:
@@ -66,22 +74,22 @@ paths:
   # --- Challenges ---
   /api/challenges:
     $ref: './paths/challenges/challenge.yaml'
-  /api/users/{userId}/challenges:
-    $ref: './paths/challenges/status.yaml'
-    
+  /api/challenges/{challengeId}:
+    $ref: './paths/challenges/challenge-by-id.yaml'
+
+  # --- Challenge Checklists ---
+  /api/challenge-checklists:
+    $ref: './paths/challenge-checklists/checklists.yaml'
+  /api/challenge-checklists/{challengeChecklistId}:
+    $ref: './paths/challenge-checklists/checklist-by-id.yaml'
+
+  # --- User Logs ---
+  /api/user-logs:
+    $ref: './paths/user-logs/logs.yaml'
+
   # --- Summary ---
   /api/summary/monthly:
     $ref: './paths/summarys/monthly.yaml'
-    
-  # --- Admin ---
-  /api/admin/users:
-    $ref: './paths/admins/user.yaml'
-  /api/admin/users/{userId}:
-    $ref: './paths/admins/user-by-id.yaml'
-  /api/admin/challenges:
-    $ref: './paths/admins/challenge.yaml'
-  /api/admin/challenges/{challengeId}:
-    $ref: './paths/admins/challenge-by-id.yaml'
 
 components:
   schemas:

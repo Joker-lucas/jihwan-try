@@ -22,7 +22,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '../../components/schema.yaml#/schemas/UserProfile'
+          $ref: '../../components/schema.yaml#/schemas/UpdateMyProfileRequest'
   responses:
     '200':
       description: 프로필 수정 성공

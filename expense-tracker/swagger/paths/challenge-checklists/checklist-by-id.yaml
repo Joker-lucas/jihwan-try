@@ -1,0 +1,24 @@
+get:
+  tags: [ChallengeChecklists]
+  summary: 챌린지 참여 내역 상세 조회
+  description: 특정 챌린지 참여 내역(체크리스트)의 상세 정보를 조회합니다.
+  security:
+    - cookieAuth: []
+  parameters:
+    - name: challengeChecklistId
+      in: path
+      required: true
+      description: 조회할 챌린지 체크리스트의 ID
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: 조회 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/ChallengeChecklist'
+    '403':
+      description: 접근 권한 없음
+    '404':
+      description: 리소스를 찾을 수 없음

@@ -23,6 +23,10 @@ tags:
     description: 월별 보고서
   - name: Challenges
     description: 도전과제
+  - name: ChallengeChecklists
+    description: 사용자의 도전과제 참여 현황
+  - name: UserLogs
+    description: 사용자 활동 로그 (관리자 전용)
   - name: Admin
     description: 관리자 기능
 paths:
@@ -94,6 +98,41 @@ paths:
                     example: 성공적으로 로그아웃되었습니다.
         '401':
           description: 인증되지 않은 사용자 (로그인 상태가 아님)
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: 모든 사용자 목록 조회 (관리자 전용)
+      description: 관리자만 모든 사용자의 목록을 조회할 수 있습니다. 닉네임 또는 이메일로 검색할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: 검색할 사용자의 이메일 또는 닉네임
+          schema:
+            type: string
+        - name: searchBy
+          in: query
+          required: false
+          description: 검색할 필드 (nickname 또는 email)
+          schema:
+            type: string
+            enum:
+              - nickname
+              - email
+      responses:
+        '200':
+          description: 사용자 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: 권한 없음
   /api/users/me:
     get:
       tags:
@@ -120,12 +159,74 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UpdateMyProfileRequest'
       responses:
         '200':
           description: 프로필 수정 성공
         '401':
           description: 인증 실패
+  '/api/users/{userId}':
+    get:
+      tags:
+        - Users
+      summary: 특정 사용자 정보 조회
+      description: 본인 또는 관리자만 특정 사용자의 정보를 조회할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 사용자를 찾을 수 없음
+    patch:
+      tags:
+        - Users
+      summary: 특정 사용자 정보 수정
+      description: 본인 또는 관리자만 특정 사용자의 정보를 수정할 수 있습니다. role 필드는 관리자만 수정 가능합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserByAdminRequest'
+      responses:
+        '200':
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 사용자를 찾을 수 없음
+    delete:
+      tags:
+        - Users
+      summary: 특정 사용자 삭제
+      description: 본인 또는 관리자만 사용자를 삭제할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: 삭제 성공
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 사용자를 찾을 수 없음
   /api/incomes:
     get:
       tags:
@@ -361,34 +462,183 @@ paths:
       summary: 전체 도전과제 목록 조회
       security:
         - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: 조회 성공
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Challenge'
-  '/api/users/{userId}/challenges':
+                $ref: '#/components/schemas/GetChallengeChecklistsResponse'
+    post:
+      tags:
+        - Challenges
+      summary: 새로운 도전과제 생성 (관리자 전용)
+      description: 관리자만 새로운 도전과제를 생성할 수 있습니다.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChallengeRequest'
+      responses:
+        '201':
+          description: 생성 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '403':
+          description: 권한 없음
+  '/api/challenges/{challengeId}':
     get:
       tags:
-        - Users
-      summary: 특정 유저의 도전과제 현황 조회 (본인/관리자)
-      description: '일반 사용자는 본인의 현황만, 관리자는 모든 유저의 현황을 조회할 수 있습니다.'
+        - Challenges
+      summary: 특정 도전과제 상세 조회
       security:
         - cookieAuth: []
       parameters:
-        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ChallengeId'
       responses:
         '200':
           description: 조회 성공
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserChallengeStatus'
+                $ref: '#/components/schemas/Challenge'
+        '404':
+          description: 챌린지를 찾을 수 없음
+    patch:
+      tags:
+        - Challenges
+      summary: 특정 도전과제 수정 (관리자 전용)
+      description: 관리자만 도전과제 정보를 수정할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ChallengeId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChallengeRequest'
+      responses:
+        '200':
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '403':
+          description: 권한 없음
+        '404':
+          description: 챌린지를 찾을 수 없음
+  /api/challenge-checklists:
+    get:
+      tags:
+        - ChallengeChecklists
+      summary: 챌린지 참여 목록 조회
+      description: 사용자가 참여하고 있는 챌린지 목록을 조회합니다. 관리자는 userId 쿼리를 통해 특정 사용자의 목록을 조회할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: userId
+          in: query
+          description: 조회할 사용자의 ID (관리자 전용)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetChallengeChecklistsResponse'
+    post:
+      tags:
+        - ChallengeChecklists
+      summary: 챌린지 참여 (체크리스트 생성)
+      description: 사용자가 특정 챌린지에 참여를 시작합니다.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChallengeChecklistRequest'
+      responses:
+        '201':
+          description: 챌린지 참여 시작 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeChecklist'
+  '/api/challenge-checklists/{challengeChecklistId}':
+    get:
+      tags:
+        - ChallengeChecklists
+      summary: 챌린지 참여 내역 상세 조회
+      description: 특정 챌린지 참여 내역(체크리스트)의 상세 정보를 조회합니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: challengeChecklistId
+          in: path
+          required: true
+          description: 조회할 챌린지 체크리스트의 ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeChecklist'
+        '403':
+          description: 접근 권한 없음
+        '404':
+          description: 리소스를 찾을 수 없음
+  /api/user-logs:
+    get:
+      tags:
+        - UserLogs
+      summary: 사용자 활동 로그 조회 (관리자 전용)
+      description: 관리자만 사용자의 활동 로그를 조회할 수 있습니다. 여러 쿼리 파라미터를 통해 결과를 필터링할 수 있습니다.
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: userId
+          in: query
+          required: false
+          description: 로그를 필터링할 사용자 ID
+          schema:
+            type: integer
+        - name: traceId
+          in: query
+          required: false
+          description: 특정 요청의 전체 흐름을 추적하기 위한 ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 로그 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLogsResponse'
+        '403':
+          description: 권한 없음
   /api/summary/monthly:
     get:
       tags:
@@ -407,91 +657,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MonthlySummaryResponse'
-  /api/admin/users:
-    get:
-      tags:
-        - Admin
-      summary: 전체 사용자 목록 조회
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Search'
-        - $ref: '#/components/parameters/Role'
-      responses:
-        '200':
-          description: 사용자 목록 조회 성공
-  '/api/admin/users/{userId}':
-    patch:
-      tags:
-        - Admin
-      summary: 특정 사용자 정보 수정(관리자 용)
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/UserId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserByAdminRequest'
-      responses:
-        '200':
-          description: 수정 성공
-  /api/admin/challenges:
-    get:
-      tags:
-        - Admin
-      summary: 전체 도전과제 목록 조회 (관리자 전용)
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Search'
-      responses:
-        '200':
-          description: 도전과제 목록 조회 성공
-    post:
-      tags:
-        - Admin
-      summary: 새로운 도전과제 생성
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateChallengeRequest'
-      responses:
-        '201':
-          description: 생성 성공
-  '/api/admin/challenges/{challengeId}':
-    patch:
-      tags:
-        - Admin
-      summary: 특정 도전과제 수정
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/ChallengeId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateChallengeRequest'
-      responses:
-        '200':
-          description: 수정 성공
-    delete:
-      tags:
-        - Admin
-      summary: 특정 도전과제 삭제
-      security:
-        - cookieAuth: []
-      parameters:
-        - $ref: '#/components/parameters/ChallengeId'
-      responses:
-        '204':
-          description: 삭제 성공
 components:
   schemas:
     SignUpRequest:
@@ -501,7 +666,6 @@ components:
         - password
         - nickname
         - gender
-        - birthday
       properties:
         email:
           type: string
@@ -696,21 +860,125 @@ components:
       required:
         - title
         - rewardXp
+        - challengeType
+        - targetValue
       properties:
         title:
           type: string
+          example: 일주일 지출 10회 미만
         description:
           type: string
+          example: 일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.
         rewardXp:
           type: integer
+          example: 100
+        challengeStartDate:
+          type: string
+          format: date
+          example: '2025-11-10'
+        challengeExpireDate:
+          type: string
+          format: date
+          example: '2025-11-17'
+        limitDay:
+          type: integer
+          example: 7
+        challengeType:
+          type: string
+          enum:
+            - EXPENSE_COUNT_MORE
+            - EXPENSE_COUNT_LESS
+            - INCOME_COUNT_MORE
+            - INCOME_COUNT_LESS
+            - EXPENSE_TOTAL_AMOUNT_LESS
+            - EXPENSE_TOTAL_AMOUNT_MORE
+            - INCOME_TOTAL_AMOUNT_LESS
+            - INCOME_TOTAL_AMOUNT_MORE
+          example: EXPENSE_COUNT_LESS
+        targetValue:
+          type: integer
+          example: 10
     UpdateChallengeRequest:
       type: object
       properties:
         title:
           type: string
+          example: 일주일 지출 5회 미만
         description:
           type: string
+          example: 절약 챌린지 난이도 상승!
         rewardXp:
+          type: integer
+          example: 150
+        challengeStartDate:
+          type: string
+          format: date
+          example: '2025-12-01'
+        challengeExpireDate:
+          type: string
+          format: date
+          example: '2025-12-08'
+        limitDay:
+          type: integer
+          example: 7
+        challengeType:
+          type: string
+          enum:
+            - EXPENSE_COUNT_MORE
+            - EXPENSE_COUNT_LESS
+            - INCOME_COUNT_MORE
+            - INCOME_COUNT_LESS
+            - EXPENSE_TOTAL_AMOUNT_LESS
+            - EXPENSE_TOTAL_AMOUNT_MORE
+            - INCOME_TOTAL_AMOUNT_LESS
+            - INCOME_TOTAL_AMOUNT_MORE
+          example: EXPENSE_COUNT_LESS
+        targetValue:
+          type: integer
+          example: 5
+    ChallengeChecklist:
+      type: object
+      properties:
+        challengeChecklistId:
+          type: integer
+        userId:
+          type: integer
+        challengeId:
+          type: integer
+        status:
+          type: string
+          enum:
+            - PENDING
+            - COMPLETED
+            - FAILED
+        userStartDate:
+          type: string
+          format: date-time
+        userExpireDate:
+          type: string
+          format: date-time
+        completeDate:
+          type: string
+          format: date-time
+          nullable: true
+        challenge:
+          $ref: '#/components/schemas/Challenge'
+    CreateChallengeChecklistRequest:
+      type: object
+      required:
+        - challengeId
+      properties:
+        challengeId:
+          type: integer
+          description: 참여할 챌린지의 ID
+    GetChallengeChecklistsResponse:
+      type: object
+      properties:
+        checklists:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChallengeChecklist'
+        totalItems:
           type: integer
     Challenge:
       type: object
@@ -777,6 +1045,36 @@ components:
         level:
           type: integer
         exp:
+          type: integer
+    UserLog:
+      type: object
+      properties:
+        logId:
+          type: integer
+        userId:
+          type: integer
+        actionType:
+          type: string
+        details:
+          type: object
+        traceId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+    GetLogsResponse:
+      type: object
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserLog'
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+        currentPage:
           type: integer
     UserProfile:
       type: object
@@ -978,6 +1276,22 @@ components:
           items:
             $ref: '#/components/schemas/WeeklySummary'
   parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: 페이지 번호
+      schema:
+        type: integer
+        default: 1
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: 페이지 당 항목 수
+      schema:
+        type: integer
+        default: 10
     Year:
       name: year
       in: query

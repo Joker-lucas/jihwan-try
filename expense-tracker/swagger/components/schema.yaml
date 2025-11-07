@@ -6,7 +6,6 @@ schemas:
       - password
       - nickname
       - gender
-      - birthday
     properties:
       email:
         type: string
@@ -178,22 +177,126 @@ schemas:
     required:
       - title
       - rewardXp
+      - challengeType
+      - targetValue
     properties:
       title:
         type: string
+        example: '일주일 지출 10회 미만'
       description:
         type: string
+        example: '일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.'
       rewardXp:
         type: integer
+        example: 100
+      challengeStartDate:
+        type: string
+        format: date
+        example: '2025-11-10'
+      challengeExpireDate:
+        type: string
+        format: date
+        example: '2025-11-17'
+      limitDay:
+        type: integer
+        example: 7
+      challengeType:
+        type: string
+        enum:
+          - EXPENSE_COUNT_MORE
+          - EXPENSE_COUNT_LESS
+          - INCOME_COUNT_MORE
+          - INCOME_COUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_MORE
+          - INCOME_TOTAL_AMOUNT_LESS
+          - INCOME_TOTAL_AMOUNT_MORE
+        example: 'EXPENSE_COUNT_LESS'
+      targetValue:
+        type: integer
+        example: 10
         
   UpdateChallengeRequest:
     type: object
     properties:
       title:
         type: string
+        example: '일주일 지출 5회 미만'
       description:
         type: string
+        example: '절약 챌린지 난이도 상승!'
       rewardXp:
+        type: integer
+        example: 150
+      challengeStartDate:
+        type: string
+        format: date
+        example: '2025-12-01'
+      challengeExpireDate:
+        type: string
+        format: date
+        example: '2025-12-08'
+      limitDay:
+        type: integer
+        example: 7
+      challengeType:
+        type: string
+        enum:
+          - EXPENSE_COUNT_MORE
+          - EXPENSE_COUNT_LESS
+          - INCOME_COUNT_MORE
+          - INCOME_COUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_MORE
+          - INCOME_TOTAL_AMOUNT_LESS
+          - INCOME_TOTAL_AMOUNT_MORE
+        example: 'EXPENSE_COUNT_LESS'
+      targetValue:
+        type: integer
+        example: 5
+
+  ChallengeChecklist:
+    type: object
+    properties:
+      challengeChecklistId:
+        type: integer
+      userId:
+        type: integer
+      challengeId:
+        type: integer
+      status:
+        type: string
+        enum: ['PENDING', 'COMPLETED', 'FAILED']
+      userStartDate:
+        type: string
+        format: date-time
+      userExpireDate:
+        type: string
+        format: date-time
+      completeDate:
+        type: string
+        format: date-time
+        nullable: true
+      challenge:
+        $ref: '#/schemas/Challenge'
+
+  CreateChallengeChecklistRequest:
+    type: object
+    required:
+      - challengeId
+    properties:
+      challengeId:
+        type: integer
+        description: 참여할 챌린지의 ID
+
+  GetChallengeChecklistsResponse:
+    type: object
+    properties:
+      checklists:
+        type: array
+        items:
+          $ref: '#/schemas/ChallengeChecklist'
+      totalItems:
         type: integer
 
   Challenge:
@@ -254,6 +357,38 @@ schemas:
       level:
         type: integer
       exp:
+        type: integer
+
+  UserLog:
+    type: object
+    properties:
+      logId:
+        type: integer
+      userId:
+        type: integer
+      actionType:
+        type: string
+      details:
+        type: object
+      traceId:
+        type: string
+        format: uuid
+      createdAt:
+        type: string
+        format: date-time
+
+  GetLogsResponse:
+    type: object
+    properties:
+      logs:
+        type: array
+        items:
+          $ref: '#/schemas/UserLog'
+      totalItems:
+        type: integer
+      totalPages:
+        type: integer
+      currentPage:
         type: integer
         
   UserProfile:
