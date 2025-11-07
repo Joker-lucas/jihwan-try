@@ -102,28 +102,21 @@ router.get('/', isLogin, challengeController.getChallenges);
 #### 2. 컨트롤러 (Controller)
 
 -   **파일:** `src/controllers/challenge.js`
--   **역할:** HTTP 요청으로부터 페이지네이션에 필요한 `page`와 `limit` 값을 추출하고, 이를 기반으로 `offset`을 계산합니다. 핵심 로직은 서비스에 위임하고, 서비스로부터 받은 결과(데이터 목록, 전체 아이템 수)를 가공하여 최종적인 API 응답 형태를 만듭니다.
+-   **역할:** HTTP 요청으로부터 페이지네이션에 필요한 `page`와 `limit` 값을 추출하여 서비스에 그대로 전달합니다. 서비스로부터 받은 결과(데이터 목록, 전체 아이템 수)를 받아 최종 API 응답을 생성합니다. 프론트엔드에서 페이지네이션 계산을 담당하므로, 백엔드는 `pagination` 객체를 만들지 않습니다.
 
 ```javascript
 // src/controllers/challenge.js
 const getChallenges = async (req, res) => {
   const page = parseInt(req.query.page || 1, 10);
   const limit = parseInt(req.query.limit || 10, 10);
-  const offset = (page - 1) * limit;
 
-  const { totalItems, challenges } = await challengeService.getChallenges({ limit, offset });
+  const { totalItems, challenges } = await challengeService.getChallenges({ limit, page });
 
   const challengesPayload = challenges.map(mapChallengeToPayload);
-  const totalPages = Math.ceil(totalItems / limit);
 
   successResponse(res, {
     challenges: challengesPayload,
-    pagination: {
-      totalItems,
-      totalPages,
-      currentPage: page,
-      limit,
-    },
+    totalItems,
   });
 };
 ```
@@ -131,11 +124,13 @@ const getChallenges = async (req, res) => {
 #### 3. 서비스 (Service)
 
 -   **파일:** `src/services/challenge.js`
--   **역할:** 컨트롤러로부터 `limit`, `offset` 값을 받아, `findAndCountAll`을 사용하여 페이지네이션에 필요한 전체 아이템 수와 실제 데이터 목록을 함께 반환합니다.
+-   **역할:** 컨트롤러로부터 `limit`, `page` 값을 받아, 내부적으로 `offset`을 계산합니다. `findAndCountAll`을 사용하여 페이지네이션에 필요한 전체 아이템 수와 실제 데이터 목록을 함께 반환하여 서비스의 재사용성을 높입니다.
 
 ```javascript
 // src/services/challenge.js
-const getChallenges = async ({ limit, offset }) => {
+const getChallenges = async ({ limit, page }) => {
+  const offset = (page - 1) * limit;
+
   const { count, rows: challenges } = await Challenge.findAndCountAll({
     where: { deletedAt: null },
     order: [['challengeId', 'DESC']],
@@ -348,7 +343,7 @@ const createIncome = async (userId, incomeData) => {
 
 -   **컨트롤러의 역할:**
     -   컨트롤러는 HTTP 요청 처리(파라미터 추출, 쿼리 스트링 파싱 등)와 응답(데이터 가공 및 전송)에 집중하는 **'게이트키퍼(Gatekeeper)'** 역할을 수행합니다.
-    -   페이지네이션 처리 시, 컨트롤러는 `page`, `limit` 값을 추출하고 `offset`을 계산하여 서비스에 넘기는 역할까지만 담당합니다.
+    -   페이지네이션 처리 시, 컨트롤러는 `page`, `limit` 값을 추출하여 서비스에 그대로 전달하는 역할을 담당합니다.
 
 -   **비동기 처리 (Async/Await):**
     -   데이터베이스 접근 등 모든 비동기 작업에는 `async/await`를 일관되게 사용합니다.

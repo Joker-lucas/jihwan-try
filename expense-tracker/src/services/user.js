@@ -5,7 +5,7 @@ const { error, errorDefinition } = require('../libs/common');
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
-const getAllUsers = async (search, searchBy) => {
+const getAllUsers = async (search, searchBy, page, limit) => {
   const whereClause = {};
 
   if (search) {
@@ -22,11 +22,19 @@ const getAllUsers = async (search, searchBy) => {
     }
   }
 
-  const allUsers = await User.findAll({
+  const offset = (page - 1) * limit;
+
+  const { count, rows } = await User.findAndCountAll({
     where: whereClause,
+    limit,
+    offset,
+    order: [['userId', 'DESC']],
   });
 
-  return allUsers;
+  return {
+    totalItems: count,
+    users: rows,
+  };
 };
 
 const getUserById = async (userId) => {
