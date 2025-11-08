@@ -10,6 +10,14 @@ get:
         application/json:
           schema:
             $ref: '../../components/schema.yaml#/schemas/UserProfile'
+          example:
+            nickname: "current_user"
+            contactEmail: "current@example.com"
+            profileImageUrl: null
+            gender: "male"
+            birthday: "1992-12-25"
+            level: 8
+            exp: 1200
     '401':
       description: 인증 실패
 
@@ -22,7 +30,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '../../components/schema.yaml#/schemas/UserProfile'
+          $ref: '../../components/schema.yaml#/schemas/UpdateMyProfileRequest'
   responses:
     '200':
       description: 프로필 수정 성공
