@@ -17,7 +17,7 @@ const _getFinancialYearId = async (dateString, transaction) => {
   return financialYear.financialYearId;
 };
 
-const getExpenses = async (userId, year, month, limit, offset) => {
+const getExpenses = async (userId, year, month, page, limit) => {
   const whereClause = {};
 
   whereClause.userId = userId;
@@ -33,6 +33,8 @@ const getExpenses = async (userId, year, month, limit, offset) => {
       return { totalCount: 0, expenses: [] };
     }
   }
+
+  const offset = (page - 1) * limit;
 
   const { count, rows } = await Expense.findAndCountAll({
     where: whereClause,
