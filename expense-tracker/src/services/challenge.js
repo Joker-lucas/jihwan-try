@@ -38,7 +38,9 @@ const createChallenge = async (challengeData) => {
   return newChallenge;
 };
 
-const getChallenges = async ({ limit, offset }) => {
+const getChallenges = async ({ limit, page }) => {
+  const offset = (page - 1) * limit;
+
   const { count, rows: challenges } = await Challenge.findAndCountAll({
     where: { deletedAt: null },
     order: [['challengeId', 'DESC']],

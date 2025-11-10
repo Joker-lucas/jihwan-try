@@ -28,23 +28,16 @@ const createChallenge = async (req, res) => {
 };
 
 const getChallenges = async (req, res) => {
-  const page = parseInt(req.query.page || 1, 10);
-  const limit = parseInt(req.query.limit || 10, 10);
-  const offset = (page - 1) * limit;
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
 
-  const { totalItems, challenges } = await challengeService.getChallenges({ limit, offset });
+  const { totalItems, challenges } = await challengeService.getChallenges({ limit, page });
 
   const challengesPayload = challenges.map(mapChallengeToPayload);
-  const totalPages = Math.ceil(totalItems / limit);
 
   successResponse(res, {
     challenges: challengesPayload,
-    pagination: {
-      totalItems,
-      totalPages,
-      currentPage: page,
-      limit,
-    },
+    totalItems,
   });
 };
 

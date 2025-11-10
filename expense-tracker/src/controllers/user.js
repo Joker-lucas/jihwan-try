@@ -20,7 +20,15 @@ const getAllUsers = async (req, res) => {
   const { search } = req.query;
   const { searchBy } = req.query;
 
-  const users = await userService.getAllUsers(search, searchBy);
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
+
+  const { totalItems, users } = await userService.getAllUsers({
+    search,
+    searchBy,
+    page,
+    limit,
+  });
 
   const usersPayload = users.map((user) => ({
     nickname: user.nickname,
@@ -33,7 +41,10 @@ const getAllUsers = async (req, res) => {
     role: user.role,
   }));
 
-  successResponse(res, usersPayload);
+  successResponse(res, {
+    usersPayload,
+    totalItems,
+  });
 };
 
 const getUserById = async (req, res) => {

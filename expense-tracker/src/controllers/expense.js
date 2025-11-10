@@ -28,16 +28,15 @@ const getExpenses = async (req, res) => {
 
   const targetUserId = parseInt(req.query.userId, 10);
 
-  const page = parseInt(req.query.page || 1, 10);
-  const limit = parseInt(req.query.limit || 10, 10);
-  const offset = (page - 1) * limit;
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
 
   const { totalCount, expenses } = await expenseService.getExpenses(
     targetUserId,
     year,
     month,
+    page,
     limit,
-    offset,
   );
 
   successResponse(res, {
