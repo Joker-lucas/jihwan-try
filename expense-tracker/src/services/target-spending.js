@@ -1,4 +1,4 @@
-const { TargetSpending, FinancialYear, sequelize } = require('../libs/db/models');
+const { TargetSpending, FinancialYear } = require('../libs/db/models');
 const { error, errorDefinition } = require('../libs/common');
 
 const { CustomError } = error;
@@ -14,24 +14,25 @@ const _getFinancialYearId = async (year, month, transaction) => {
 };
 
 const getTargetSpendings = async (userId, year, month, page, limit) => {
-  const whereClause = {};
-  whereClause.userId = userId;
+  const whereClause = { userId };
+  const includeClause = [];
 
   if (year && month) {
-    const financialYear = await FinancialYear.findOne({
-      where: { year: parseInt(year, 10), month: parseInt(month, 10) },
+    includeClause.push({
+      model: FinancialYear,
+      where: {
+        year: parseInt(year, 10),
+        month: parseInt(month, 10),
+      },
+      required: true,
     });
-
-    if (financialYear) {
-      whereClause.financialYearId = financialYear.financialYearId;
-    } else {
-      return { totalCount: 0, targetSpendings: [] };
-    }
   }
+
   const offset = (page - 1) * limit;
 
   const { count, rows } = await TargetSpending.findAndCountAll({
     where: whereClause,
+    include: includeClause,
     order: [['category', 'DESC']],
     limit,
     offset,
@@ -78,33 +79,25 @@ const createTargetSpending = async (userId, targetData) => {
 const updateTargetSpending = async (userId, targetSpendingId, updateData) => {
   const { amount, description, category } = updateData;
 
-  const t = await sequelize.transaction();
-  try {
-    const target = await TargetSpending.findOne({
-      where: {
-        targetSpendingId: parseInt(targetSpendingId, 10),
-        userId,
-      },
-      transaction: t,
-    });
+  const target = await TargetSpending.findOne({
+    where: {
+      targetSpendingId: parseInt(targetSpendingId, 10),
+      userId,
+    },
+  });
 
-    if (!target) {
-      throw new CustomError(ERROR_CODES.NOT_FOUND);
-    }
-
-    const newValues = {};
-    if (amount) newValues.amount = amount;
-    if (category) newValues.category = category;
-    if (description !== undefined) newValues.description = description;
-
-    await target.update(newValues, { transaction: t });
-
-    await t.commit();
-    return target;
-  } catch (e) {
-    await t.rollback();
-    throw e;
+  if (!target) {
+    throw new CustomError(ERROR_CODES.NOT_FOUND);
   }
+
+  const newValues = {};
+  if (amount) newValues.amount = amount;
+  if (category) newValues.category = category;
+  if (description !== undefined) newValues.description = description;
+
+  await target.update(newValues);
+
+  return target;
 };
 
 const deleteTargetSpending = async (userId, targetSpendingId) => {
