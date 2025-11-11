@@ -1,21 +1,20 @@
-// const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { authService } = require('../services');
-const { getLogger } = require('../libs/logger');
+const { userLogService } = require('../services/user-log');
 const { response, error, errorDefinition } = require('../libs/common');
+const { LOG_CODES } = require('../libs/constants/user-log');
 
 const { successResponse } = response;
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
-
-const logger = getLogger('controllers/auth.js');
 
 const signUp = async (req, res) => {
   const context = {
     method: req.method,
     url: req.originalUrl,
   };
-  const newUser = await authService.signUp(req.body, context);
+
+  const newUser = await authService.signUp(req.body);
 
   const newUserPayload = {
     nickname: newUser.nickname,
@@ -27,14 +26,38 @@ const signUp = async (req, res) => {
     exp: newUser.exp,
   };
 
+  await userLogService.createLog({
+    userId: newUser.userId,
+    actionType: LOG_CODES.USER_SIGNUP,
+    status: 'SUCCESS',
+    details: {
+      context,
+      target: { userId: newUser.userId, email: newUser.contactEmail },
+    },
+  });
+
   successResponse(res, newUserPayload, 201);
 };
 
 const signIn = async (req, res) => {
   if (!req.user) {
-    logger.warn('Passport 인증 실패');
     throw new CustomError(ERROR_CODES.UNAUTHORIZED);
   }
+
+  const context = {
+    method: req.method,
+    url: req.originalUrl,
+  };
+
+  await userLogService.createLog({
+    userId: req.user.userId,
+    actionType: LOG_CODES.USER_LOGIN,
+    status: 'SUCCESS',
+    details: {
+      context,
+      target: { userId: req.user.userId, email: req.user.contactEmail },
+    },
+  });
 
   const userPayload = {
     userId: req.user.userId,
@@ -44,18 +67,33 @@ const signIn = async (req, res) => {
 
   successResponse(res, { message: '로그인 성공', user: userPayload });
 };
-const signOut = (req, res) => {
+
+const signOut = async (req, res) => {
+  const context = {
+    method: req.method,
+    url: req.originalUrl,
+  };
+  const { userId, contactEmail } = req.user;
   req.logout((err) => {
     if (err) {
-      throw error;
+      throw err;
     }
     res.clearCookie(process.env.SESSION_NAME);
 
-    req.session.destroy((e) => {
+    req.session.destroy(async (e) => {
       if (e) {
         throw e;
       }
-      successResponse(res, { message: '성공적으로 로그아웃되었습니다.' });
+      await userLogService.createLog({
+        userId,
+        actionType: LOG_CODES.USER_LOGOUT,
+        status: 'SUCCESS',
+        details: {
+          context,
+          target: { userId, email: contactEmail },
+        },
+      });
+      return successResponse(res, { message: '성공적으로 로그아웃되었습니다.' });
     });
   });
 };

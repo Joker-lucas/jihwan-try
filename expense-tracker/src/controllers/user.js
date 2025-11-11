@@ -1,16 +1,14 @@
 const { userService } = require('../services');
+const { userLogService } = require('../services/user-log');
 const {
   response, error, errorDefinition, authUtils,
 } = require('../libs/common');
-
-const { getLogger } = require('../libs/logger');
+const { LOG_CODES } = require('../libs/constants/user-log');
 
 const { successResponse } = response;
 const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 const { isAdmin, isSelfOrAdmin } = authUtils;
-
-const logger = getLogger('controllers/user.js');
 
 const getAllUsers = async (req, res) => {
   if (!isAdmin(req.user)) {
@@ -79,40 +77,78 @@ const updateUserById = async (req, res) => {
   const requester = req.user;
   const targetUserId = req.params.userId;
   const updateData = req.body;
-
-  if (!isSelfOrAdmin(requester, targetUserId)) {
-    throw new CustomError(ERROR_CODES.FORBIDDEN);
-  }
-
-  const user = await userService.getUserById(targetUserId);
-
-  if (!user) {
-    throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
-  }
-
-  if (updateData.role && !isAdmin(requester)) {
-    throw new CustomError(ERROR_CODES.FORBIDDEN);
-  }
-
-  await userService.updateUserById(targetUserId, updateData);
-
-  const updateUserAllPayload = {
-    nickname: user.nickname,
-    contactEmail: user.contactEmail,
-    profileImageUrl: user.profileImageUrl,
-    gender: user.gender,
-    birthday: user.birthday,
-    role: user.role,
+  const context = {
+    method: req.method,
+    url: req.originalUrl,
   };
 
-  successResponse(res, updateUserAllPayload);
+  try {
+    if (!isSelfOrAdmin(requester, targetUserId)) {
+      throw new CustomError(ERROR_CODES.FORBIDDEN);
+    }
+
+    const user = await userService.getUserById(targetUserId);
+
+    if (!user) {
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+    }
+
+    if (updateData.role && !isAdmin(requester)) {
+      throw new CustomError(ERROR_CODES.FORBIDDEN);
+    }
+
+    const updatedUser = await userService.updateUserById(targetUserId, updateData);
+
+    if (requester.role === 'admin' && requester.userId !== parseInt(targetUserId, 10)) {
+      await userLogService.createLog({
+        userId: requester.userId,
+        actionType: LOG_CODES.UPDATE_USER,
+        status: 'SUCCESS',
+        details: {
+          context,
+          actor: { id: requester.userId, email: requester.contactEmail },
+          target: { id: targetUserId, email: updatedUser.contactEmail },
+        },
+      });
+    }
+
+    const updateUserAllPayload = {
+      nickname: updatedUser.nickname,
+      contactEmail: updatedUser.contactEmail,
+      profileImageUrl: updatedUser.profileImageUrl,
+      gender: updatedUser.gender,
+      birthday: updatedUser.birthday,
+      role: updatedUser.role,
+    };
+
+    successResponse(res, updateUserAllPayload);
+  } catch (e) {
+    if (requester.role === 'admin' && requester.userId !== parseInt(targetUserId, 10)) {
+      await userLogService.createLog({
+        userId: requester.userId,
+        actionType: LOG_CODES.UPDATE_USER,
+        status: 'FAILURE',
+        details: {
+          context,
+          actor: { id: requester.userId, email: requester.contactEmail },
+          target: { id: targetUserId, email: (await userService.getUserById(targetUserId))?.contactEmail || 'unknown' },
+          error: e.message,
+        },
+      });
+    }
+    throw e;
+  }
 };
 
 const deleteUserById = async (req, res) => {
-  try {
-    const requester = req.user;
-    const targetUserId = req.params.userId;
+  const requester = req.user;
+  const targetUserId = req.params.userId;
+  const context = {
+    method: req.method,
+    url: req.originalUrl,
+  };
 
+  try {
     if (!isSelfOrAdmin(requester, targetUserId)) {
       throw new CustomError(ERROR_CODES.FORBIDDEN);
     }
@@ -124,9 +160,34 @@ const deleteUserById = async (req, res) => {
 
     await userService.deleteUserById(targetUserId);
 
+    if (requester.role === 'admin' && requester.userId !== parseInt(targetUserId, 10)) {
+      await userLogService.createLog({
+        userId: requester.userId,
+        actionType: LOG_CODES.DELETE_USER,
+        status: 'SUCCESS',
+        details: {
+          context,
+          actor: { id: requester.userId, email: requester.contactEmail },
+          target: { id: targetUserId, email: userExists.contactEmail },
+        },
+      });
+    }
+
     successResponse(res, { message: '성공적으로 삭제되었습니다.' });
   } catch (e) {
-    logger.error(e, '월별 목표 지출 삭제 중 에러 발생');
+    if (requester.role === 'admin' && requester.userId !== parseInt(targetUserId, 10)) {
+      await userLogService.createLog({
+        userId: requester.userId,
+        actionType: LOG_CODES.DELETE_USER,
+        status: 'FAILURE',
+        details: {
+          context,
+          actor: { id: requester.userId, email: requester.contactEmail },
+          target: { id: targetUserId, email: (await userService.getUserById(targetUserId))?.contactEmail || 'unknown' },
+          error: e.message,
+        },
+      });
+    }
     throw e;
   }
 };
