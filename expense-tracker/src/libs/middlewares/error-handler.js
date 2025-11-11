@@ -27,7 +27,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 
   logger.error({ err, message: finalMessage }, '오류가 발생했습니다.');
 
-  errorResponse(res, finalMessage, statusCode, errorCode);
+  errorResponse(res, finalMessage, errorCode, statusCode);
 };
 
 module.exports = {

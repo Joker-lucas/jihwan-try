@@ -39,9 +39,16 @@ const createChallengeChecklist = async (req, res) => {
   const { userId } = req.user;
   const { challengeId } = req.body;
 
+  const context = {
+    userId: req.user.userId,
+    method: req.method,
+    url: req.originalUrl,
+  };
+
   const newChecklist = await challengeChecklistService.createChallengeChecklist(
     userId,
     challengeId,
+    context,
   );
   successResponse(res, mapChallengeChecklistToPayload(newChecklist), 201);
 };

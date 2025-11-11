@@ -18,6 +18,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn('UserLogs', 'status');
+    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "public"."enum_UserLogs_status";');
     await queryInterface.addColumn('UserLogs', 'status', {
       type: Sequelize.ENUM(
         'APPROVE',
