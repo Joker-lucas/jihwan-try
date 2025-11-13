@@ -14,13 +14,11 @@ const { db, connectToDatabase } = require('./libs/db');
 const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
-const passportJwtSet = require('./libs/middlewares/passport-jwt');
 const { setupContext } = require('./libs/middlewares/initialize-context');
 const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
-const { initializescheduler, stopScheduler } = require('./jobs/scheduler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -45,9 +43,6 @@ const setGracefulShutdown = (httpServer) => {
     httpServer.close(async () => {
       logger.info('처리 중인 요청이 완료되었습니다.');
       try {
-        stopScheduler();
-        logger.info('스케줄러가 성공적으로 중지되었습니다.');
-
         await db.sequelize.close();
         logger.info('데이터베이스 연결이 성공적으로 종료되었습니다.');
 
@@ -101,8 +96,6 @@ const startServer = async () => {
 
     await _initializeFinancialYears();
 
-    await initializescheduler();
-
     const redisStore = new RedisStore({ client: redisClient });
 
     app.use(session({
@@ -119,7 +112,6 @@ const startServer = async () => {
     }));
 
     passportCookieSet.init(passport);
-    passportJwtSet.init(passport);
 
     app.use(passport.initialize());
     app.use(passport.session());
