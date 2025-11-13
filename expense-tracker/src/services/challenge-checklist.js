@@ -9,69 +9,89 @@ const { getLogger } = require('../libs/logger');
 
 const logger = getLogger('services/challenge-checklist.js');
 
-const createChallengeChecklist = async (userId, challengeId) => {
-  const challenge = await Challenge.findOne({ where: { challengeId, deletedAt: null } });
-  if (!challenge) {
-    throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
-  }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+const userLogService = require('./user-log');
+const { LOG_CODES } = require('../libs/constants/user-log');
 
-  if (challenge.challengeStartDate) {
-    const challengeStartDate = new Date(challenge.challengeStartDate);
-    if (today < challengeStartDate) {
-      throw new CustomError(ERROR_CODES.CHALLENGE_NOT_STARTED);
+const createChallengeChecklist = async (userId, challengeId, context) => {
+  try {
+    const challenge = await Challenge.findOne({ where: { challengeId, deletedAt: null } });
+    if (!challenge) {
+      throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
     }
-  }
-  if (challenge.challengeExpireDate) {
-    const challengeExpireDate = new Date(challenge.challengeExpireDate);
-    if (today > challengeExpireDate) {
-      throw new CustomError(ERROR_CODES.CHALLENGE_EXPIRED);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (challenge.challengeStartDate) {
+      const challengeStartDate = new Date(challenge.challengeStartDate);
+      if (today < challengeStartDate) {
+        throw new CustomError(ERROR_CODES.CHALLENGE_NOT_STARTED);
+      }
     }
+    if (challenge.challengeExpireDate) {
+      const challengeExpireDate = new Date(challenge.challengeExpireDate);
+      if (today > challengeExpireDate) {
+        throw new CustomError(ERROR_CODES.CHALLENGE_EXPIRED);
+      }
+    }
+    const existingChecklist = await ChallengeChecklist.findOne({
+      where: { userId, challengeId, deletedAt: null },
+    });
+
+    if (existingChecklist) {
+      throw new CustomError(ERROR_CODES.CHECKLIST_ALREADY_EXISTS);
+    }
+
+    let relativeExpireDate = null;
+    let fixedExpireDate = null;
+
+    if (challenge.limitDay && challenge.limitDay > 0) {
+      const expireDate = new Date(today);
+      expireDate.setDate(today.getDate() + challenge.limitDay);
+      relativeExpireDate = expireDate;
+    }
+    if (challenge.challengeExpireDate) {
+      fixedExpireDate = new Date(challenge.challengeExpireDate);
+    }
+
+    let finalUserExpireDate = null;
+
+    if (relativeExpireDate && fixedExpireDate) {
+      finalUserExpireDate = new Date(
+        Math.min(
+          relativeExpireDate.getTime(),
+          fixedExpireDate.getTime(),
+        ),
+      );
+    } else if (relativeExpireDate) {
+      finalUserExpireDate = relativeExpireDate;
+    } else if (fixedExpireDate) {
+      finalUserExpireDate = fixedExpireDate;
+    }
+    const newChecklist = await ChallengeChecklist.create({
+      userId,
+      challengeId,
+      status: challengeConstants.CHECKLIST_STATUS.PENDING,
+      userStartDate: today,
+      userExpireDate: finalUserExpireDate,
+    });
+
+    await userLogService.createLog({
+      userId,
+      actionType: LOG_CODES.CREATE_CHALLENGE_CHECKLIST,
+      status: 'SUCCESS',
+      details: { context, target: { challengeId } },
+    });
+
+    return newChecklist;
+  } catch (e) {
+    await userLogService.createLog({
+      userId,
+      actionType: LOG_CODES.CREATE_CHALLENGE_CHECKLIST,
+      status: 'FAILURE',
+      details: { context, target: { challengeId }, error: e.message },
+    });
+    throw e;
   }
-  const existingChecklist = await ChallengeChecklist.findOne({
-    where: { userId, challengeId, deletedAt: null },
-  });
-
-  if (existingChecklist) {
-    throw new CustomError(ERROR_CODES.CHECKLIST_ALREADY_EXISTS);
-  }
-
-  let relativeExpireDate = null;
-  let fixedExpireDate = null;
-
-  if (challenge.limitDay && challenge.limitDay > 0) {
-    const expireDate = new Date(today);
-    expireDate.setDate(today.getDate() + challenge.limitDay);
-    relativeExpireDate = expireDate;
-  }
-  if (challenge.challengeExpireDate) {
-    fixedExpireDate = new Date(challenge.challengeExpireDate);
-  }
-
-  let finalUserExpireDate = null;
-
-  if (relativeExpireDate && fixedExpireDate) {
-    finalUserExpireDate = new Date(
-      Math.min(
-        relativeExpireDate.getTime(),
-        fixedExpireDate.getTime(),
-      ),
-    );
-  } else if (relativeExpireDate) {
-    finalUserExpireDate = relativeExpireDate;
-  } else if (fixedExpireDate) {
-    finalUserExpireDate = fixedExpireDate;
-  }
-  const newChecklist = await ChallengeChecklist.create({
-    userId,
-    challengeId,
-    status: challengeConstants.CHECKLIST_STATUS.PENDING,
-    userStartDate: today,
-    userExpireDate: finalUserExpireDate,
-  });
-
-  return newChecklist;
 };
 
 const getChallengeChecklists = async (userId, page, limit) => {
@@ -89,20 +109,37 @@ const getChallengeChecklists = async (userId, page, limit) => {
   return { totalItems: count, checklists };
 };
 
-const getChallengeChecklistById = async (challengeChecklistId) => {
-  const checklist = await ChallengeChecklist.findOne({
-    where: { challengeChecklistId, deletedAt: null },
-    include: [{
-      model: Challenge,
-      attributes: ['title', 'description', 'rewardXp', 'challengeType', 'targetValue', 'limitDay'],
-    }],
-  });
+const getChallengeChecklistById = async (challengeChecklistId, context) => {
+  try {
+    const checklist = await ChallengeChecklist.findOne({
+      where: { challengeChecklistId, deletedAt: null },
+      include: [{
+        model: Challenge,
+        attributes: ['title', 'description', 'rewardXp', 'challengeType', 'targetValue', 'limitDay'],
+      }],
+    });
 
-  if (!checklist) {
-    throw new CustomError(ERROR_CODES.CHALLENGE_CHECKLIST_NOT_FOUND);
+    if (!checklist) {
+      throw new CustomError(ERROR_CODES.CHALLENGE_CHECKLIST_NOT_FOUND);
+    }
+
+    await userLogService.createLog({
+      userId: context.userId,
+      actionType: LOG_CODES.GET_CHALLENGE_CHECKLIST_DETAIL,
+      status: 'SUCCESS',
+      details: { context, target: { challengeChecklistId } },
+    });
+
+    return checklist;
+  } catch (e) {
+    await userLogService.createLog({
+      userId: context.userId,
+      actionType: LOG_CODES.GET_CHALLENGE_CHECKLIST_DETAIL,
+      status: 'FAILURE',
+      details: { context, target: { challengeChecklistId }, error: e.message },
+    });
+    throw e;
   }
-
-  return checklist;
 };
 
 const _getChallengePeriod = (checklist) => {

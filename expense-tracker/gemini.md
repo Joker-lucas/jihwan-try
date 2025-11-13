@@ -22,11 +22,33 @@
 #### 1. 라우터 (Router)
 
 -   **파일:** `src/routers/expense.js`
--   **역할:** 특정 경로(`path`)와 HTTP 메서드(`method`)를 담당할 컨트롤러와 미들웨어를 연결합니다.
+-   **역할:** 특정 경로(`path`)와 HTTP 메서드(`method`)를 담당할 컨트롤러와 미들웨어를 연결합니다. 지출 내역의 CRUD(생성, 조회, 수정, 삭제)를 위한 모든 경로를 정의합니다.
 
 ```javascript
 // src/routers/expense.js
+const express = require('express');
+
+const router = express.Router();
+
+const { expenseController } = require('../controllers');
+const {
+  isLogin,
+  validateExpenseRequired,
+  validateAmount,
+  filterExpenseBody,
+} = require('../libs/middlewares');
+
+router.get('/', isLogin, expenseController.getExpenses);
+
+router.get('/:expenseId', isLogin, expenseController.getExpenseById);
+
 router.post('/', isLogin, validateExpenseRequired, validateAmount, filterExpenseBody, expenseController.createExpense);
+
+router.patch('/:expenseId', isLogin, validateAmount, filterExpenseBody, expenseController.updateExpense);
+
+router.delete('/:expenseId', isLogin, expenseController.deleteExpense);
+
+module.exports = router;
 ```
 
 #### 2. 컨트롤러 (Controller)
@@ -39,7 +61,9 @@ router.post('/', isLogin, validateExpenseRequired, validateAmount, filterExpense
 const createExpense = async (req, res) => {
   const { userId } = req.user;
   const expenseData = req.body;
+
   const newExpense = await expenseService.createExpense(userId, expenseData);
+
   successResponse(res, newExpense, 201);
 };
 ```
@@ -52,16 +76,22 @@ const createExpense = async (req, res) => {
 ```javascript
 // src/services/expense.js
 const createExpense = async (userId, expenseData) => {
-  const { date, amount, category, ... } = expenseData;
+  const {
+    date, amount, category, status, description, paymentMethod,
+  } = expenseData;
   const financialYearId = await _getFinancialYearId(date);
+
   const newExpense = await Expense.create({
     userId,
     financialYearId,
     date,
     amount,
     category,
-    // ...
+    paymentMethod,
+    status,
+    description,
   });
+
   return newExpense;
 };
 ```
@@ -73,15 +103,47 @@ const createExpense = async (userId, expenseData) => {
 
 ```javascript
 // src/libs/db/models/expense.js
-Expense.init({
-  expenseId: { /* ... */ },
-  amount: { /* ... */ },
-}, {
-  sequelize,
-  modelName: 'Expense',
-  timestamps: true,
-  paranoid: true, // soft delete 활성화
-});
+const {
+  Model,
+} = require('sequelize');
+const { transactionConstants } = require('../../constants');
+
+module.exports = (sequelize, DataTypes) => {
+  class Expense extends Model {
+    static associate(models) {
+      Expense.belongsTo(models.User, { foreignKey: 'userId' });
+      Expense.belongsTo(models.FinancialYear, { foreignKey: 'financialYearId' });
+    }
+  }
+  Expense.init({
+    expenseId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+    userId: { /* ... */ },
+    financialYearId: { /* ... */ },
+    category: {
+      type: DataTypes.ENUM(
+        transactionConstants.EXPENSE_CATEGORIES.LIVING_EXPENSES,
+        // ...
+      ),
+      allowNull: false,
+    },
+    paymentMethod: { /* ... */ },
+    amount: { /* ... */ },
+    status: { /* ... */ },
+    date: { /* ... */ },
+    description: { /* ... */ },
+  }, {
+    sequelize,
+    modelName: 'Expense',
+    timestamps: true,
+    paranoid: true, // soft delete 활성화
+  });
+  return Expense;
+};
 ```
 
 ---
@@ -96,6 +158,7 @@ Expense.init({
 -   **역할:** `/api/challenges` 경로로 들어오는 `GET` 요청을 `challengeController.getChallenges` 함수에 연결합니다.
 
 ```javascript
+// src/routers/challenge.js
 router.get('/', isLogin, challengeController.getChallenges);
 ```
 
@@ -107,8 +170,8 @@ router.get('/', isLogin, challengeController.getChallenges);
 ```javascript
 // src/controllers/challenge.js
 const getChallenges = async (req, res) => {
-  const page = parseInt(req.query.page || 1, 10);
-  const limit = parseInt(req.query.limit || 10, 10);
+  const page = parseInt(req.query.page, 10);
+  const limit = parseInt(req.query.limit, 10);
 
   const { totalItems, challenges } = await challengeService.getChallenges({ limit, page });
 
@@ -151,39 +214,43 @@ const getChallenges = async ({ limit, page }) => {
 
 -   **파일:** `src/libs/db/models/challenge.js`
 -   **역할:** 챌린지 성공 조건을 정의하기 위해 `Challenge` 모델에 `challengeType`, `targetValue` 등의 칼럼이 추가되었습니다.
-    -   `challengeType` (ENUM): 챌린지의 유형을 정의합니다. (예: `EXPENSE_COUNT_LESS` (지출 횟수 n회 미만), `INCOME_TOTAL_AMOUNT_MORE` (수입 총액 n원 이상) 등)
+    -   `challengeType` (ENUM): 챌린지의 유형을 정의합니다. (예: `EXPENSE_COUNT_LESS` (지출 횟수 n회 이하), `INCOME_TOTAL_AMOUNT_MORE` (수입 총액 n원 이상) 등)
     -   `targetValue` (INTEGER): 챌린지 달성을 위한 목표 수치를 정의합니다. (예: 10회, 50000원 등)
 
 ```javascript
 // src/libs/db/models/challenge.js
+const {
+  Model,
+} = require('sequelize');
 const { challengeConstants } = require('../../constants');
 
-// ...
-
-Challenge.init({
-  // ...
-  challengeType: {
-    type: DataTypes.ENUM(
-      challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_MORE,
-      challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_LESS,
-      challengeConstants.CHALLENGE_TYPE.INCOME_COUNT_MORE,
-      challengeConstants.CHALLENGE_TYPE.INCOME_COUNT_LESS,
-      challengeConstants.CHALLENGE_TYPE.EXPENSE_TOTAL_AMOUNT_MORE,
-      challengeConstants.CHALLENGE_TYPE.EXPENSE_TOTAL_AMOUNT_LESS,
-      challengeConstants.CHALLENGE_TYPE.INCOME_TOTAL_AMOUNT_MORE,
-      challengeConstants.CHALLENGE_TYPE.INCOME_TOTAL_AMOUNT_LESS,
-    ),
-    allowNull: true,
-  },
-  targetValue: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  limitDay: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-}, { /* ... */ });
+module.exports = (sequelize, DataTypes) => {
+  class Challenge extends Model {
+    static associate(models) {
+      Challenge.hasMany(models.ChallengeChecklist, { foreignKey: 'challengeId' });
+    }
+  }
+  Challenge.init({
+    // ...
+    challengeType: {
+      type: DataTypes.ENUM(
+        challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_MORE,
+        challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_LESS,
+        // ...
+      ),
+      allowNull: true,
+    },
+    targetValue: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    limitDay: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+  }, { sequelize, modelName: 'Challenge', timestamps: true, paranoid: true });
+  return Challenge;
+};
 ```
 
 #### 2. 성공 여부 판단 로직 (Cron Job)
@@ -196,10 +263,10 @@ Challenge.init({
 // src/services/challenge-checklist.js
 
 // 실제 성공 여부 판단 로직
-const _checkSuccessJudgment = async (checklist) => {
+const _checkSuccessJudgment = async (checklist, challenge) => {
   const { userId } = checklist;
-  const { challengeType, targetValue } = checklist.Challenge;
-  const { startDate, expireDate } = _getChallengePeriod(checklist);
+  const { challengeType, targetValue } = challenge;
+  const { startDate, expireDate } = _getChallengePeriod(checklist, challenge);
 
   const periodCondition = {
     userId,
@@ -214,11 +281,11 @@ const _checkSuccessJudgment = async (checklist) => {
   switch (challengeType) {
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_COUNT_MORE:
       trueValue = await Expense.count({ where: periodCondition });
-      return trueValue > targetValue;
+      return trueValue >= targetValue;
 
     case challengeConstants.CHALLENGE_TYPE.EXPENSE_TOTAL_AMOUNT_LESS:
-      trueValue = await Expense.sum('amount', { where: periodCondition }) || 0;
-      return trueValue < targetValue;
+      trueValue = (await Expense.sum('amount', { where: periodCondition })) || 0;
+      return trueValue <= targetValue;
 
     // ... 기타 모든 챌린지 유형에 대한 case
     
@@ -231,17 +298,15 @@ const intervalChecklistStatusUpdateJob = async () => {
   const checklists = await getPendingChecklistsForUpdate();
   // ...
   for (const checklist of checklists) {
-    // ... 만료 여부 체크
-
-    if (checklist.Challenge.challengeType) {
-      const isSuccess = await _checkSuccessJudgment(checklist);
-      if (isSuccess) {
-        await updateChecklistStatus(
-          checklist.challengeChecklistId,
-          { status: challengeConstants.CHECKLIST_STATUS.COMPLETED, /* ... */ },
-        );
-      }
+    // ... 만료 여부 체크 및 로직 수행
+    const isSuccess = await _checkSuccessJudgment(checklist, checklist.Challenge);
+    if (isSuccess) {
+      await updateChecklistStatus(
+        checklist.challengeChecklistId,
+        { status: challengeConstants.CHECKLIST_STATUS.COMPLETED, /* ... */ },
+      );
     }
+    // ...
   }
 };
 ```
@@ -265,7 +330,13 @@ const setupContext = async (req, res, next) => {
 
   asyncLocalStorage.run(requestContext, () => {
     setContext('traceId', randomUUID()); // 고유 traceId 생성 및 컨텍스트 저장
-    // ...
+
+    const cleanup = () => {
+      requestContext.clear();
+    };
+
+    res.on('finish', cleanup); // 응답 완료 시 컨텍스트 정리
+
     next();
   });
 };
@@ -275,23 +346,31 @@ const setupContext = async (req, res, next) => {
 
 -   **파일:** `src/services/user-log.js`
 -   **역할:** 사용자 활동 로그를 생성하는 핵심 로직을 담당합니다.
--   **핵심 로직:** `createLog` 함수는 로그 데이터를 받아 DB에 저장합니다. 이때, `traceId`를 인자로 받지 않고, `getContext('traceId')`를 호출하여 현재 요청의 컨텍스트에 저장된 `traceId`를 직접 가져와 사용합니다. 이는 `traceId` 관리의 책임을 `userLogService`로 중앙화하여 다른 서비스의 복잡도를 낮춥니다.
+-   **핵심 로직:** `createLog` 함수는 로그 데이터를 받아 DB에 저장합니다. 이때, `traceId`를 인자로 받지 않고, `getContext('traceId')`를 호출하여 현재 요청의 컨텍스트에 저장된 `traceId`를 직접 가져와 사용합니다. 또한 `LOG_INFO` 상수를 사용하여 `actionType`과 `status`에 맞는 로그 메시지를 동적으로 생성합니다.
 
 ```javascript
 // src/services/user-log.js
+const { UserLog, User } = require('../libs/db/models');
 const { getContext } = require('../libs/context');
-// ...
+const { LOG_INFO } = require('../libs/constants/user-log');
 
 const createLog = async (logData) => {
-  const { userId, actionType, details, status } = logData;
+  const {
+    userId, actionType, details, status,
+  } = logData;
   const traceId = getContext('traceId'); // 컨텍스트에서 직접 traceId를 가져온다.
 
-  // ...
+  const logInfo = LOG_INFO[actionType];
+  const statusInfo = logInfo[status];
+  const message = statusInfo(details); // 동적 메시지 생성
+
   const newLog = await UserLog.create({
     userId,
     actionType,
     status,
-    details: { /* ... */ },
+    details: {
+      message,
+    },
     traceId, // 가져온 traceId를 사용한다.
   });
 
@@ -301,27 +380,39 @@ const createLog = async (logData) => {
 
 #### 3. 서비스에서의 로그 생성 활용 예시
 
--   **파일:** `src/services/income.js`
--   **역할:** `userLogService`를 호출하여 수입 생성 활동을 기록합니다.
--   **특징:** `incomeService`는 `traceId`의 존재나 전달 방식에 대해 전혀 신경 쓸 필요가 없습니다. 그저 `userLogService.createLog`를 호출하기만 하면, `traceId`는 자동으로 로그에 포함됩니다.
+-   **파일:** `src/services/challenge-checklist.js`
+-   **역할:** `userLogService`를 호출하여 챌린지 참여 활동을 기록합니다.
+-   **특징:** `challengeChecklistService`는 `traceId`의 존재나 전달 방식에 대해 전혀 신경 쓸 필요가 없습니다. 그저 `userLogService.createLog`를 호출하기만 하면, `traceId`는 자동으로 로그에 포함됩니다.
 
 ```javascript
-// src/services/income.js
-const { userLogService } = require('./');
+// src/services/challenge-checklist.js
+const userLogService = require('./user-log');
+const { LOG_CODES } = require('../libs/constants/user-log');
 
-const createIncome = async (userId, incomeData) => {
-  // ... 수입 생성 로직 ...
-  const newIncome = await Income.create({ ... });
+const createChallengeChecklist = async (userId, challengeId, context) => {
+  try {
+    // ... 챌린지 체크리스트 생성 로직 ...
+    const newChecklist = await ChallengeChecklist.create({ /* ... */ });
 
-  // userLogService를 호출할 때 traceId를 전달하지 않는다.
-  await userLogService.createLog({
-    userId,
-    actionType: 'INCOME_CREATE',
-    status: 'SUCCESS',
-    details: { incomeId: newIncome.incomeId },
-  });
+    // userLogService를 호출할 때 traceId를 전달하지 않는다.
+    await userLogService.createLog({
+      userId,
+      actionType: LOG_CODES.CREATE_CHALLENGE_CHECKLIST,
+      status: 'SUCCESS',
+      details: { context, target: { challengeId } },
+    });
 
-  return newIncome;
+    return newChecklist;
+  } catch (e) {
+    // 실패 로그 기록
+    await userLogService.createLog({
+      userId,
+      actionType: LOG_CODES.CREATE_CHALLENGE_CHECKLIST,
+      status: 'FAILURE',
+      details: { context, target: { challengeId }, error: e.message },
+    });
+    throw e;
+  }
 };
 ```
 
@@ -359,4 +450,3 @@ const createIncome = async (userId, incomeData) => {
 
 -   **응답 데이터 필터링:**
     -   모든 컨트롤러는 `mapXxxToPayload`와 같은 헬퍼 함수를 사용하여, API 명세에 맞는 필드만 선별적으로 클라이언트에 응답해야 합니다. 이는 모델의 내부 구조가 외부에 직접 노출되는 것을 방지합니다.
-

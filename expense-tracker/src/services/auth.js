@@ -10,42 +10,32 @@ const salt = 10;
 
 const signUp = async (userData) => {
   const t = await sequelize.transaction();
-  try {
-    // const { nickname, gender, email, birthday, password } = userData;
+  const { nickname } = userData;
+  const { gender } = userData;
+  const { email } = userData;
+  const { birthday } = userData;
+  const { password } = userData;
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const newUser = await User.create({
+    nickname, contactEmail: email, gender, birthday,
+  }, { transaction: t });
+  await BasicCredential.create({
+    loginEmail: email,
+    password: hashedPassword,
+    userId: newUser.userId,
+  }, { transaction: t });
 
-    const { nickname } = userData;
-    const { gender } = userData;
-    const { email } = userData;
-    const { birthday } = userData;
-    const { password } = userData;
-    const hashedPassword = await bcrypt.hash(password, salt);
+  await t.commit();
 
-    const newUser = await User.create({
-      nickname, contactEmail: email, gender, birthday,
-    }, { transaction: t });
-    await BasicCredential.create({
-      loginEmail: email,
-      password: hashedPassword,
-      userId: newUser.userId,
-    }, { transaction: t });
+  const foundUser = await User.findByPk(newUser.userId, {
+    include: [{
+      model: BasicCredential,
+      attributes: ['loginEmail'],
+    }],
+  });
+  const result = foundUser.toJSON();
 
-    await t.commit();
-
-    const foundUser = await User.findByPk(newUser.userId, {
-      include: [{
-        model: BasicCredential,
-        attributes: ['loginEmail'],
-      }],
-    });
-    const result = foundUser.toJSON();
-    return result;
-  } catch (e) {
-    await t.rollback();
-    if (e.name === 'SequelizeUniqueConstraintError') {
-      throw new CustomError(ERROR_CODES.DUPLICATE_EMAIL);
-    }
-    throw e;
-  }
+  return result;
 };
 
 const signIn = async (email, password) => {
