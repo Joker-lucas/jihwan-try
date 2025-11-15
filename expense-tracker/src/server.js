@@ -19,6 +19,7 @@ const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
+const setupRepeatableJobs = require('./bullmq/scheduler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -95,6 +96,8 @@ const startServer = async () => {
     ]);
 
     await _initializeFinancialYears();
+
+    await setupRepeatableJobs();
 
     const redisStore = new RedisStore({ client: redisClient });
 

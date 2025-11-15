@@ -4,11 +4,13 @@ const { getLogger } = require('../logger');
 
 const logger = getLogger('libs/redis/index.js');
 
-const redisClient = new Redis({
+const redisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
   enableOfflineQueue: false,
-});
+};
+
+const redisClient = new Redis(redisOptions);
 
 const connectToRedis = () => new Promise((resolve, reject) => {
   redisClient.on('connect', () => {
@@ -25,4 +27,5 @@ const connectToRedis = () => new Promise((resolve, reject) => {
 module.exports = {
   redisClient,
   connectToRedis,
+  redisOptions,
 };
