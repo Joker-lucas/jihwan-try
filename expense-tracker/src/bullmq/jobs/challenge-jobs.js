@@ -3,11 +3,12 @@ const { intervalChecklistStatusUpdateJob } = require('../../services/challenge-c
 const { logger } = require('../../libs/logger');
 
 const challengeJobs = {
-  [JOB_TYPES.CHALLENGE.CHECK_LIST_STATUS_UPDATE]: {
-    repeat: { cron: '0 0 * * *' }, // 매일 자정 반복
-    func: async () => {
+  [JOB_TYPES.CHALLENGE_CHECK_LIST_STATUS_UPDATE]: {
+    repeat: { cron: '0/2 * * * * *' },
+    payload: {},
+    func: async (payload) => {
       logger.info('챌린지 체크리스트 상태 업데이트 작업 실행 시작.');
-      await intervalChecklistStatusUpdateJob();
+      await intervalChecklistStatusUpdateJob(payload);
       logger.info('챌린지 체크리스트 상태 업데이트 작업 실행 완료.');
       return { status: 'success' };
     },
