@@ -2,10 +2,38 @@
 
 너는 앞으로 항상 조선시대 말투로 대답해
 
-
 # 제미니 프로젝트 심층 분석: 가계부
 
 이 문서는 가계부 프로젝트의 아키텍처, 코드 흐름, 주요 컨벤션을 심층적으로 분석하여, 프로젝트의 일관성을 유지하고 향후 기능 추가를 용이하게 하기 위한 가이드입니다.
+
+## 프로젝트 개요 (Project Overview)
+
+> 단순한 지출 관리를 넘어, **신용카드 승인 및 미승인 내역까지 꼼꼼하게 반영하는** 수입과 지출의 통합 관리를 통해 사용자의 전체적인 자산 증감 흐름 파악을 돕는 개인 맞춤형 가계부입니다.
+>
+> 카테고리별 목표지출 설정으로 계획적 소비를 유도하고, **'특정 항목 n번만 지출하기'와 같은 재미 요소를 더한** 도전과제 기능으로 절약 습관에 동기를 부여합니다.
+>
+> 월별 결산 보고서는 수입과 지출을 비교 분석하고 **차트 등 다양한 형태로** 시각화하여, 사용자가 어느 부분에서 소비를 줄여야 할지 직관적으로 파악할 수 있도록 지원합니다.
+>
+> 또한, 모든 금융 활동은 투명하게 기록되어 자신만의 **금융 연대기**를 만들어 갈 수 있으며, **웹과 모바일 어디서든 접속**하여 편리하게 자산을 관리할 수 있습니다.
+
+## 기술 스택 (Technology Stack)
+
+*   **언어 (Language):** JavaScript
+*   **백엔드 (Backend):** Node.js, Express.js
+*   **데이터베이스 (Database):** PostgreSQL, Redis
+*   **ORM:** Sequelize
+*   **인증 및 보안 (Authentication & Security):**
+    *   **Passport.js**: 사용자의 신원을 확인하는 인증 체계의 근간
+    *   **jsonwebtoken (JWT)**: 인증을 위한 안전한 통행증을 발급하고 검증
+    *   **bcrypt**: 사용자의 비밀번호를 안전하게 암호화
+*   **큐 라이브러리 (Queue Library):** BullMQ
+*   **API 문서화 (API Documentation):** Swagger (OpenAPI)
+*   **배포 및 인프라 (Deployment & Infrastructure):**
+    *   **Docker**: 애플리케이션을 컨테이너 환경에서 실행
+*   **개발 도구 (Development Tools):**
+    *   ESLint, dotenv, Nodemon
+*   **로깅 (Logging):**
+    *   **pino**: 서버의 작동 기록을 체계적으로 관리
 
 ## 1. 프로젝트 아키텍처 및 요청 흐름
 
@@ -206,9 +234,9 @@ const getChallenges = async ({ limit, page }) => {
 
 ---
 
-### 기능 심층 분석 3: 챌린지 성공 조건 정의 및 판별
+### 기능 심층 분석 3: 챌린지 성공 조건 정의 및 판별 (백그라운드 작업)
 
-챌린지 기능이 고도화되면서, 성공 조건을 데이터베이스에 저장하고 동적으로 판별하는 방식이 도입되었습니다.
+챌린지 기능이 고도화되면서, 성공 조건을 데이터베이스에 저장하고 **주기적인 백그라운드 작업**을 통해 동적으로 판별하는 방식이 도입되었습니다.
 
 #### 1. 모델 (Model)
 
@@ -253,14 +281,14 @@ module.exports = (sequelize, DataTypes) => {
 };
 ```
 
-#### 2. 성공 여부 판단 로직 (Cron Job)
+#### 2. 성공 여부 판단 로직 (Job Definition)
 
--   **파일:** `src/services/challenge-checklist.js`
--   **역할:** Cron Job(또는 주기적인 스케줄러)은 `intervalChecklistStatusUpdateJob` 함수를 호출하여, `PENDING` 상태인 모든 챌린지 체크리스트의 성공/실패 여부를 판별하고 상태를 업데이트합니다.
+-   **파일:** `src/job-queue/definitions/challenge-jobs.js` (경로 변경)
+-   **역할:** `intervalChecklistStatusUpdateJob` 함수는 **주기적으로 실행될 작업의 실제 내용**을 정의합니다. `PENDING` 상태인 모든 챌린지 체크리스트의 성공/실패 여부를 판별하고 상태를 업데이트합니다. 이 함수는 **Worker**에 의해 호출됩니다.
 -   **핵심 로직:** 핵심 로직은 `_checkSuccessJudgment` 함수에 구현되어 있습니다. 이 함수는 `challengeType`에 따라 `Expense` 또는 `Income` 테이블의 데이터를 집계(`count` 또는 `sum`)하고, 그 결과를 `targetValue`와 비교하여 성공 여부를 반환합니다.
 
 ```javascript
-// src/services/challenge-checklist.js
+// src/services/challenge-checklist.js 내부의 로직 예시 (실제로는 job-definitions에서 호출)
 
 // 실제 성공 여부 판단 로직
 const _checkSuccessJudgment = async (checklist, challenge) => {
@@ -293,7 +321,7 @@ const _checkSuccessJudgment = async (checklist, challenge) => {
   }
 };
 
-// Cron Job에 의해 호출될 메인 함수
+// 주기적으로 실행될 작업의 본체
 const intervalChecklistStatusUpdateJob = async () => {
   const checklists = await getPendingChecklistsForUpdate();
   // ...
@@ -310,6 +338,8 @@ const intervalChecklistStatusUpdateJob = async () => {
   }
 };
 ```
+
+---
 
 ### 기능 심층 분석 4: 사용자 활동 로그 및 추적 ID (traceId)
 
@@ -415,6 +445,32 @@ const createChallengeChecklist = async (userId, challengeId, context) => {
   }
 };
 ```
+
+---
+
+### 기능 심층 분석 5: 백그라운드 작업 처리 (Job Queue)
+
+주기적인 작업(챌린지 상태 업데이트, 월별 보고서 생성 등)을 안정적으로 처리하기 위해 **BullMQ** 기반의 Job Queue 시스템을 도입했습니다. 관련 파일들은 `src/job-queue/` 폴더에 모여 있습니다.
+
+#### 1. 스케줄러 (Scheduler)
+
+-   **파일:** `src/job-queue/scheduler.js`
+-   **역할:** '관리인'. 어떤 작업을 언제, 얼마나 자주 실행할지 정의하고 대기열(Queue)에 등록합니다. 예를 들어, "매일 자정에 챌린지 상태를 점검하라" 또는 "매월 1일 새벽에 월간 리포트를 생성하라"와 같은 반복 작업을 설정합니다.
+
+#### 2. 워커 (Worker)
+
+-   **파일:** `src/job-queue/worker.js`
+-   **역할:** '일꾼'. 대기열을 감시하고 있다가 새로운 작업이 등록되면, 이를 가져와 실제로 처리합니다. 워커는 `definitions` 폴더에 정의된 작업 함수를 호출하여 임무를 수행합니다.
+
+#### 3. 작업 정의 (Job Definitions)
+
+-   **파일:** `src/job-queue/definitions/`
+-   **역할:** '작업 명세서'. `scheduler`가 등록하고 `worker`가 수행할 작업들의 실제 로직이 담겨 있습니다. 예를 들어, `challenge-jobs.js`에는 챌린지 상태를 업데이트하는 함수의 코드가 들어있습니다.
+
+#### 4. 독립적인 Redis 설정
+
+-   **특징:** `scheduler.js`와 `worker.js`는 `src/libs/redis`에 정의된 공용 클라이언트를 참조하지 않습니다. 대신, 각 파일은 `dotenv`를 통해 환경 변수를 직접 읽어와 자신만의 Redis 연결 설정을 생성합니다.
+-   **목적:** `libs`라는 동일한 계층 내에서 모듈 간의 의존성을 없애고, 각 모듈의 독립성을 최대한 보장하기 위함입니다. 이는 코드 중복이라는 단점에도 불구하고, 구조적 명확성과 독립성을 우선시한 설계 결정입니다.
 
 ---
 

@@ -14,12 +14,13 @@ const { db, connectToDatabase } = require('./libs/db');
 const { redisClient, connectToRedis } = require('./libs/redis');
 const mainRouter = require('./routers');
 const passportCookieSet = require('./libs/middlewares/passport-cookie');
-const passportJwtSet = require('./libs/middlewares/passport-jwt');
 const { setupContext } = require('./libs/middlewares/initialize-context');
 const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
+const { setupRepeatableJobs } = require('./libs/bullmq/scheduler');
+const { setupWorker } = require('./libs/bullmq/worker');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -97,6 +98,9 @@ const startServer = async () => {
 
     await _initializeFinancialYears();
 
+    await setupRepeatableJobs();
+    await setupWorker();
+
     const redisStore = new RedisStore({ client: redisClient });
 
     app.use(session({
@@ -113,7 +117,6 @@ const startServer = async () => {
     }));
 
     passportCookieSet.init(passport);
-    passportJwtSet.init(passport);
 
     app.use(passport.initialize());
     app.use(passport.session());
