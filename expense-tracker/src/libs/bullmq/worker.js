@@ -5,7 +5,7 @@ const redisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
 };
-const ALL_JOB_FUNCTIONS = require('../../bullmq/jobs');
+const ALL_JOB_FUNCTIONS = require('../../jobs');
 const { getLogger } = require('../logger');
 
 const logger = getLogger('bullmq/worker.js');

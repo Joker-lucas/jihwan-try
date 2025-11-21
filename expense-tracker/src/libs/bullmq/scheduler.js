@@ -5,7 +5,7 @@ const redisOptions = {
   port: process.env.REDIS_PORT || 6379,
 };
 const { QUEUE_NAMES, JOB_TYPES, JOB_TYPE_TO_QUEUE_MAP } = require('../constants/job-queue');
-const ALL_JOB_FUNCTIONS = require('../../bullmq/jobs');
+const ALL_JOB_FUNCTIONS = require('../../jobs');
 const { getLogger } = require('../logger');
 
 const logger = getLogger('bullmq/scheduler.js');

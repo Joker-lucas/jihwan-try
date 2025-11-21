@@ -19,8 +19,8 @@ const { requestLogger } = require('./libs/middlewares/requset-logger');
 const { addUserContext } = require('./libs/middlewares/add-user-context');
 const { logger } = require('./libs/logger');
 const { errorHandlerMiddleware } = require('./libs/middlewares/error-handler');
-const { setupRepeatableJobs } = require('./libs/queue_systems/scheduler');
-const { setupWorker } = require('./libs/queue_systems/worker');
+const { setupRepeatableJobs } = require('./libs/bullmq/scheduler');
+const { setupWorker } = require('./libs/bullmq/worker');
 
 const app = express();
 const port = process.env.PORT || 3000;

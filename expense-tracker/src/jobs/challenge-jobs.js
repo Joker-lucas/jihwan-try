@@ -1,6 +1,6 @@
-const { JOB_TYPES } = require('../../libs/constants/job-queue');
-const { intervalChecklistStatusUpdateJob } = require('../../services/challenge-checklist');
-const { logger } = require('../../libs/logger');
+const { JOB_TYPES } = require('../libs/constants/job-queue');
+const { intervalChecklistStatusUpdateJob } = require('../services/challenge-checklist');
+const { logger } = require('../libs/logger');
 
 const challengeJobs = {
   [JOB_TYPES.CHALLENGE_CHECK_LIST_STATUS_UPDATE]: {
