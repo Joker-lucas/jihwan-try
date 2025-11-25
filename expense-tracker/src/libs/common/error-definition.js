@@ -29,6 +29,7 @@ const ERROR_CODES = Object.freeze({
   CHALLENGE_NOT_STARTED: 'CHALLENGE_NOT_STARTED',
   CHECKLIST_ALREADY_EXISTS: 'CHECKLIST_ALREADY_EXISTS',
   INVALID_DATE_RANGE: 'INVALID_DATE_RANGE',
+  REPORT_TYPE_NOT_FOUND: 'REPORT_TYPE_NOT_FOUND',
 });
 
 const ERROR_INFO = {
@@ -52,6 +53,7 @@ const ERROR_INFO = {
   [ERROR_CODES.MISSING_REQUIRED_FIELDS]: { statusCode: 400, message: 'Missing required fields.' },
   [ERROR_CODES.INVALID_REQUEST_BODY_FORMAT]: { statusCode: 400, message: 'Request body must be a valid JSON object.' },
   [ERROR_CODES.INVALID_DATE_RANGE]: { statusCode: 400, message: 'Start date must be earlier than end date.' },
+  [ERROR_CODES.REPORT_TYPE_NOT_FOUND]: { statusCode: 500, message: 'Report type configuration not found in the database.' },
 
   [ERROR_CODES.NICKNAME_LENGTH_INVALID]: { statusCode: 400, message: 'Nickname must be between 2 and 15 characters.' },
   [ERROR_CODES.NICKNAME_CONTAINS_SPECIAL_CHARACTERS]: { statusCode: 400, message: 'Nickname cannot contain special characters.' },
