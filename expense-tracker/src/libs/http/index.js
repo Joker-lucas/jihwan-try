@@ -1,6 +1,6 @@
 const axios = require('axios').default;
-
 const { getLogger } = require('../logger');
+const { getContext } = require('../context');
 
 const logger = getLogger('http/index.js');
 
@@ -14,66 +14,112 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    const logDetails = {};
-    if (config.params) {
-      logDetails.params = config.params;
-    }
-    if (config.data) {
-      logDetails.data = config.data;
-    }
+    const newConfig = { ...config };
+    newConfig.traceId = getContext('traceId');
+    newConfig.startTime = new Date().getTime();
 
-    if (Object.keys(logDetails).length > 0) {
-      logger.info(logDetails, `Request: ${config.method} ${config.url}`);
-    } else {
-      logger.info(`Request: ${config.method} ${config.url}`);
-    }
-    return config;
+    logger.info(
+      {
+        traceId: newConfig.traceId,
+        method: newConfig.method.toUpperCase(),
+        url: newConfig.url,
+        params: newConfig.params,
+        data: newConfig.data,
+      },
+      `HTTP Request Sent: ${newConfig.method.toUpperCase()} ${newConfig.url}`,
+    );
+
+    return newConfig;
   },
   (error) => {
-    logger.error('Request Error:', error);
-    throw error;
+    logger.error({ traceId: getContext('traceId'), error }, 'HTTP Request Setup Error');
+    return Promise.reject(error);
   },
 );
 
 instance.interceptors.response.use(
   (response) => {
-    logger.info(`Response: ${response.status} ${response.config.method} ${response.config.url}`);
+    const { config, status, data } = response;
+    const durationInMs = new Date().getTime() - config.startTime;
+
+    logger.info(
+      {
+        traceId: config.traceId,
+        durationInMs,
+        status,
+        method: config.method.toUpperCase(),
+        url: config.url,
+        data,
+      },
+      `HTTP Response Received: ${status} ${config.method.toUpperCase()} ${config.url}`,
+    );
+
     return response;
   },
-  async (error) => {
-    const { config, response } = error;
+  (error) => {
+    const { config, response, code } = error;
+    const traceId = config.traceId || getContext('traceId');
+    const durationInMs = config.startTime ? new Date().getTime() - config.startTime : -1;
+
+    const logContext = {
+      traceId,
+      durationInMs,
+      method: config.method.toUpperCase(),
+      url: config.url,
+    };
 
     if (response) {
-      logger.error(`Response Error: ${response.status} ${config.method.toUpperCase()} ${config.url}`, {
-        error: response.data,
-      });
+      logger.error(
+        { ...logContext, status: response.status, error: response.data },
+        `HTTP Response Error: ${response.status} ${logContext.method} ${logContext.url}`,
+      );
+    } else if (code === 'ECONNABORTED') {
+      logger.error(
+        { ...logContext, code, timeout: config.timeout },
+        `HTTP Request Timeout: ${logContext.method} ${logContext.url}`,
+      );
     } else {
-      logger.error(`Network Error: ${config.method.toUpperCase()} ${config.url}`, {
-        message: error.message,
-      });
+      logger.error(
+        { ...logContext, code, message: error.message },
+        `HTTP Network Error: ${logContext.method} ${logContext.url}`,
+      );
     }
-
-    const shouldRetry = config.method === 'get';
-
-    if (shouldRetry) {
-      config.retryCount = config.retryCount || 0;
-
-      if (config.retryCount < 2) {
-        config.retryCount += 1;
-        logger.info(`Retrying request: ${config.url}, retry count: ${config.retryCount}`);
-
-        await new Promise((resolve) => { setTimeout(resolve, 1000 * config.retryCount); });
-
-        return instance(config);
-      }
-    }
-
-    throw error;
+    return Promise.reject(error);
   },
 );
 
+const get = async (url, config = {}) => {
+  try {
+    return await instance.get(url, config);
+  } catch (error) {
+    const retryCount = config.retryCount || 0;
+    if (retryCount < 2) {
+      const newRetryCount = retryCount + 1;
+      logger.info(
+        {
+          traceId: config.traceId || getContext('traceId'),
+          url,
+          retryCount: newRetryCount,
+          maxRetries: 2,
+        },
+        `Retrying GET request: ${url}`,
+      );
+      await new Promise((resolve) => { setTimeout(resolve, 1000 * newRetryCount); });
+      return get(url, { ...config, retryCount: newRetryCount });
+    }
+    throw error;
+  }
+};
+
+const post = (url, data, config) => instance.post(url, data, config);
+const patch = (url, data, config) => instance.patch(url, data, config);
+const put = (url, data, config) => instance.put(url, data, config);
+const del = (url, config) => instance.delete(url, config);
+
 module.exports = {
-  get: (url, config) => instance.get(url, config),
-  post: (url, data, config) => instance.post(url, data, config),
-  delete: (url, config) => instance.delete(url, config),
+  get,
+  post,
+  patch,
+  put,
+  delete: del,
 };
