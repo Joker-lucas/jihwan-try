@@ -1,8 +1,12 @@
 const axios = require('axios').default;
 const { getLogger } = require('../logger');
-const { getContext } = require('../context');
 
 const logger = getLogger('http/index.js');
+
+const { error, errorDefinition } = require('../common');
+
+const { CustomError } = error;
+const { ERROR_CODES } = errorDefinition;
 
 const instance = axios.create({
   // baseURL: 'https://some-domain.com/api/',
@@ -15,12 +19,10 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     const newConfig = { ...config };
-    newConfig.traceId = getContext('traceId');
     newConfig.startTime = new Date().getTime();
 
     logger.info(
       {
-        traceId: newConfig.traceId,
         method: newConfig.method.toUpperCase(),
         url: newConfig.url,
         params: newConfig.params,
@@ -31,9 +33,10 @@ instance.interceptors.request.use(
 
     return newConfig;
   },
-  (error) => {
-    logger.error({ traceId: getContext('traceId'), error }, 'HTTP Request Setup Error');
-    return Promise.reject(error);
+  (axiosError) => {
+    const customError = new CustomError(ERROR_CODES.HTTP_REQUEST_SETUP_FAILED);
+    customError.details = axiosError;
+    throw customError;
   },
 );
 
@@ -44,7 +47,6 @@ instance.interceptors.response.use(
 
     logger.info(
       {
-        traceId: config.traceId,
         durationInMs,
         status,
         method: config.method.toUpperCase(),
@@ -56,48 +58,40 @@ instance.interceptors.response.use(
 
     return response;
   },
-  (error) => {
-    const { config, response, code } = error;
-    const traceId = config.traceId || getContext('traceId');
+  (axiosError) => {
+    const { config, response, code } = axiosError;
     const durationInMs = config.startTime ? new Date().getTime() - config.startTime : -1;
 
     const logContext = {
-      traceId,
       durationInMs,
       method: config.method.toUpperCase(),
       url: config.url,
     };
 
-    if (response) {
-      logger.error(
-        { ...logContext, status: response.status, error: response.data },
-        `HTTP Response Error: ${response.status} ${logContext.method} ${logContext.url}`,
-      );
+    let customError;
+    if (axiosError.response) {
+      customError = new CustomError(ERROR_CODES.HTTP_RESPONSE_ERROR);
+      customError.details = { ...logContext, status: response.status, error: response.data };
     } else if (code === 'ECONNABORTED') {
-      logger.error(
-        { ...logContext, code, timeout: config.timeout },
-        `HTTP Request Timeout: ${logContext.method} ${logContext.url}`,
-      );
+      customError = new CustomError(ERROR_CODES.HTTP_REQUEST_TIMEOUT);
+      customError.details = { ...logContext, code, timeout: config.timeout };
     } else {
-      logger.error(
-        { ...logContext, code, message: error.message },
-        `HTTP Network Error: ${logContext.method} ${logContext.url}`,
-      );
+      customError = new CustomError(ERROR_CODES.HTTP_NETWORK_ERROR);
+      customError.details = { ...logContext, code, message: axiosError.message };
     }
-    return Promise.reject(error);
+    throw customError;
   },
 );
 
 const get = async (url, config = {}) => {
   try {
     return await instance.get(url, config);
-  } catch (error) {
+  } catch (fetchError) {
     const retryCount = config.retryCount || 0;
     if (retryCount < 2) {
       const newRetryCount = retryCount + 1;
       logger.info(
         {
-          traceId: config.traceId || getContext('traceId'),
           url,
           retryCount: newRetryCount,
           maxRetries: 2,
@@ -107,7 +101,7 @@ const get = async (url, config = {}) => {
       await new Promise((resolve) => { setTimeout(resolve, 1000 * newRetryCount); });
       return get(url, { ...config, retryCount: newRetryCount });
     }
-    throw error;
+    throw fetchError;
   }
 };
 

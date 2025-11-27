@@ -29,6 +29,11 @@ const ERROR_CODES = Object.freeze({
   CHALLENGE_NOT_STARTED: 'CHALLENGE_NOT_STARTED',
   CHECKLIST_ALREADY_EXISTS: 'CHECKLIST_ALREADY_EXISTS',
   INVALID_DATE_RANGE: 'INVALID_DATE_RANGE',
+
+  HTTP_RESPONSE_ERROR: 'HTTP_RESPONSE_ERROR',
+  HTTP_REQUEST_TIMEOUT: 'HTTP_REQUEST_TIMEOUT',
+  HTTP_NETWORK_ERROR: 'HTTP_NETWORK_ERROR',
+  HTTP_REQUEST_SETUP_FAILED: 'HTTP_REQUEST_SETUP_FAILED',
 });
 
 const ERROR_INFO = {
@@ -66,6 +71,12 @@ const ERROR_INFO = {
   [ERROR_CODES.INVALID_CHALLENGE_TITLE]: { statusCode: 400, message: 'Challenge title must be a non-empty string.' },
   [ERROR_CODES.INVALID_REWARD_XP]: { statusCode: 400, message: 'Reward XP must be a non-negative number.' },
   [ERROR_CODES.INVALID_LIMIT_DAY]: { statusCode: 400, message: 'Limit day must be a non-negative integer.' },
+
+  [ERROR_CODES.HTTP_RESPONSE_ERROR]: { statusCode: 500, message: 'An error occurred while communicating with an external service.' },
+  [ERROR_CODES.HTTP_REQUEST_TIMEOUT]: { statusCode: 504, message: 'The request to an external service timed out.' },
+  [ERROR_CODES.HTTP_NETWORK_ERROR]: { statusCode: 503, message: 'Could not connect to an external service.' },
+  [ERROR_CODES.HTTP_REQUEST_SETUP_FAILED]: { statusCode: 500, message: 'An internal error occurred while setting up an external request.' },
+
 };
 
 module.exports = {
