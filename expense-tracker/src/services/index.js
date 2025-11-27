@@ -6,6 +6,7 @@ const expenseService = require('./expense');
 const challengeService = require('./challenge');
 const challengeChecklistService = require('./challenge-checklist');
 const userLogService = require('./user-log');
+const reportService = require('./report');
 
 module.exports = {
   userService,
@@ -16,4 +17,5 @@ module.exports = {
   challengeService,
   challengeChecklistService,
   userLogService,
+  reportService,
 };
