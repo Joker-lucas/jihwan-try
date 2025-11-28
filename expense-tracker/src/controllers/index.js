@@ -8,6 +8,7 @@ const reportController = require('./report');
 const challengeController = require('./challenge');
 const challengeChecklistController = require('./challenge-checklist');
 const userLogController = require('./user-log');
+const weatherController = require('./weather');
 
 module.exports = {
   userController,
@@ -20,4 +21,5 @@ module.exports = {
   challengeController,
   challengeChecklistController,
   userLogController,
+  weatherController,
 };

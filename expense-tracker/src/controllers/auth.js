@@ -1,6 +1,5 @@
 require('dotenv').config();
-const { authService } = require('../services');
-const { userLogService } = require('../services/user-log');
+const { authService, userLogService } = require('../services');
 const { response, error, errorDefinition } = require('../libs/common');
 const { LOG_CODES } = require('../libs/constants/user-log');
 
