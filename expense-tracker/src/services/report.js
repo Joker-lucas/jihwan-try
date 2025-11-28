@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const pLimit = require('p-limit');
 const {
   Report, ReportType, Income, Expense, FinancialYear, User,
 } = require('../libs/db/models');
@@ -9,8 +10,10 @@ const { CustomError } = error;
 const { ERROR_CODES } = errorDefinition;
 
 const _getFinancialYear = async (date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
   const financialYear = await FinancialYear.findOne({
-    where: { startDate: { [Op.lte]: date }, endDate: { [Op.gte]: date } },
+    where: { year, month },
   });
   if (!financialYear) {
     throw new CustomError(ERROR_CODES.RESOURCE_NOT_FOUND);
@@ -19,6 +22,7 @@ const _getFinancialYear = async (date) => {
 };
 
 const _reportTypeCache = new Map();
+
 const _getReportTypeId = async (type) => {
   if (_reportTypeCache.has(type)) { return _reportTypeCache.get(type); }
   const reportType = await ReportType.findOne({ where: { type } });
@@ -29,19 +33,27 @@ const _getReportTypeId = async (type) => {
   return reportType.reportTypeId;
 };
 
-async function generateTotalIncomeReport(date) {
+const _getMonthlyDateRange = (date) => {
+  const targetDate = new Date(date);
+  const year = targetDate.getFullYear();
+  const month = targetDate.getMonth();
+  const startDate = new Date(year, month, 1);
+  const endDate = new Date(year, month + 1, 0);
+
+  return { startDate, endDate };
+};
+
+const generateTotalIncomeReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
-    const totalIncome = await Income.sum('amount', { where: whereClause }) || 0;
+    const totalIncome = await Income.sum('amount', { where: whereClause });
     const reportTypeId = await _getReportTypeId(reportConstants.REPORT_TYPE.MONTHLY_TOTAL_INCOME);
 
     await Report.create({
@@ -50,23 +62,21 @@ async function generateTotalIncomeReport(date) {
       reportTypeId,
       value: String(totalIncome),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
+};
 
-async function generateTotalExpenseReport(date) {
+const generateTotalExpenseReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
-    const totalExpense = await Expense.sum('amount', { where: whereClause }) || 0;
+    const totalExpense = await Expense.sum('amount', { where: whereClause });
     const reportTypeId = await _getReportTypeId(reportConstants.REPORT_TYPE.MONTHLY_TOTAL_EXPENSE);
 
     await Report.create({
@@ -75,28 +85,26 @@ async function generateTotalExpenseReport(date) {
       reportTypeId,
       value: String(totalExpense),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
+};
 
-async function generatePrevMonthIncomeChangeReport(date) {
+const generatePrevMonthIncomeChangeReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
-    const prevStartDate = new Date(year, month - 1, 1);
-    const prevEndDate = new Date(year, month, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
+    const prevStartDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+    const prevEndDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 0);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
     const prevWhereClause = { userId, date: { [Op.gte]: prevStartDate, [Op.lte]: prevEndDate } };
 
-    const totalIncome = await Income.sum('amount', { where: whereClause }) || 0;
-    const prevTotalIncome = await Income.sum('amount', { where: prevWhereClause }) || 0;
+    const totalIncome = await Income.sum('amount', { where: whereClause });
+    const prevTotalIncome = await Income.sum('amount', { where: prevWhereClause });
 
     const change = prevTotalIncome === 0 ? 0 : (
       (totalIncome - prevTotalIncome) / prevTotalIncome) * 100;
@@ -111,28 +119,26 @@ async function generatePrevMonthIncomeChangeReport(date) {
       reportTypeId,
       value: change.toFixed(2),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
+};
 
-async function generatePrevMonthExpenseChangeReport(date) {
+const generatePrevMonthExpenseChangeReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
-    const prevStartDate = new Date(year, month - 1, 1);
-    const prevEndDate = new Date(year, month, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
+    const prevStartDate = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 1);
+    const prevEndDate = new Date(endDate.getFullYear(), endDate.getMonth() - 1, 0);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
     const prevWhereClause = { userId, date: { [Op.gte]: prevStartDate, [Op.lte]: prevEndDate } };
 
-    const totalExpense = await Expense.sum('amount', { where: whereClause }) || 0;
-    const prevTotalExpense = await Expense.sum('amount', { where: prevWhereClause }) || 0;
+    const totalExpense = await Expense.sum('amount', { where: whereClause });
+    const prevTotalExpense = await Expense.sum('amount', { where: prevWhereClause });
 
     const change = prevTotalExpense === 0 ? 0 : (
       (totalExpense - prevTotalExpense) / prevTotalExpense) * 100;
@@ -147,24 +153,22 @@ async function generatePrevMonthExpenseChangeReport(date) {
       reportTypeId,
       value: change.toFixed(2),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
+};
 
-async function generateExpenseRatioByCategoryReport(date) {
+const generateExpenseRatioByCategoryReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
 
-    const totalExpense = await Expense.sum('amount', { where: whereClause }) || 0;
+    const totalExpense = await Expense.sum('amount', { where: whereClause });
     const expenseByCategory = await Expense.findAll({
       attributes: ['category', [Report.sequelize.fn('SUM', Report.sequelize.col('amount')), 'total']],
       where: whereClause,
@@ -188,24 +192,22 @@ async function generateExpenseRatioByCategoryReport(date) {
       reportTypeId,
       value: JSON.stringify(ratioByCategory),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
+};
 
-async function generateIncomeRatioByCategoryReport(date) {
+const generateIncomeRatioByCategoryReport = async (date) => {
   const users = await User.findAll({ attributes: ['userId'] });
-  const tasks = users.map(async (user) => {
+  const limit = pLimit(process.env.REPORT_JOB_CONCURRENCY);
+
+  const tasks = users.map((user) => limit(async () => {
     const { userId } = user;
-    const targetDate = new Date(date);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
+    const { startDate, endDate } = _getMonthlyDateRange(date);
 
     const financialYear = await _getFinancialYear(startDate);
     const whereClause = { userId, date: { [Op.gte]: startDate, [Op.lte]: endDate } };
 
-    const totalIncome = await Income.sum('amount', { where: whereClause }) || 0;
+    const totalIncome = await Income.sum('amount', { where: whereClause });
     const incomeByCategory = await Income.findAll({
       attributes: ['category', [Report.sequelize.fn('SUM', Report.sequelize.col('amount')), 'total']],
       where: whereClause,
@@ -229,11 +231,9 @@ async function generateIncomeRatioByCategoryReport(date) {
       reportTypeId,
       value: JSON.stringify(ratioByCategory),
     });
-  });
+  }));
   await Promise.all(tasks);
-}
-
-// --- Original getReports function remains unchanged ---
+};
 
 const getReports = async (options) => {
   const {
