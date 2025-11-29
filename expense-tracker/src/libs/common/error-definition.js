@@ -33,6 +33,7 @@ const ERROR_CODES = Object.freeze({
   HTTP_REQUEST_TIMEOUT: 'HTTP_REQUEST_TIMEOUT',
   HTTP_NETWORK_ERROR: 'HTTP_NETWORK_ERROR',
   HTTP_REQUEST_SETUP_FAILED: 'HTTP_REQUEST_SETUP_FAILED',
+  WEATHER_API_ERROR: 'WEATHER_API_ERROR',
   REPORT_TYPE_NOT_FOUND: 'REPORT_TYPE_NOT_FOUND',
 });
 
@@ -77,6 +78,7 @@ const ERROR_INFO = {
   [ERROR_CODES.HTTP_REQUEST_TIMEOUT]: { statusCode: 504, message: 'The request to an external service timed out.' },
   [ERROR_CODES.HTTP_NETWORK_ERROR]: { statusCode: 503, message: 'Could not connect to an external service.' },
   [ERROR_CODES.HTTP_REQUEST_SETUP_FAILED]: { statusCode: 500, message: 'An internal error occurred while setting up an external request.' },
+  [ERROR_CODES.WEATHER_API_ERROR]: { statusCode: 500, message: 'An error occurred while fetching weather data.' },
 
 };
 
