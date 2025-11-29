@@ -7,6 +7,6 @@ const {
   isLogin,
 } = require('../libs/middlewares');
 
-router.get('/monthly', isLogin, reportController.getMonthlyReport);
+router.get('/', isLogin, reportController.getReports);
 
 module.exports = router;
