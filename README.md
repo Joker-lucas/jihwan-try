@@ -2,6 +2,11 @@
 
 이곳은 저의 개인 프로젝트 및 학습 결과물을 모아둔 저장소입니다. 다양한 기술 스택을 실험하고 적용하며 성장하는 과정을 기록합니다.
 
+### ✨ Main Tech Stacks
+    ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white)
+    ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+    ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+
 ---
 
 ## 📂 프로젝트 목록
@@ -16,7 +21,7 @@
 ---
 
 ###  express-server
-> Node.js와 Express 프레임워크를 사용하여 기본적인 서버 구조를 구현한 보일러플레이트(boilerplate) 프로젝트입니다.
+> Node.js와 Express 프레임워크를 사용하여 기본적인 서버 구조를 구현한 시드(seed) 프로젝트입니다.
 >
 > **주요 기술**: `Node.js`, `Express`
 >
