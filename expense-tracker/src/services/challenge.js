@@ -1,6 +1,11 @@
+const { redisClient } = require('../libs/redis');
 const { Challenge } = require('../libs/db/models');
 const { CustomError } = require('../libs/common/error');
 const { ERROR_CODES } = require('../libs/common/error-definition');
+const { challengeConstants } = require('../libs/constants');
+const { getLogger } = require('../libs/logger');
+
+const logger = getLogger('services/challenge.js');
 
 const _calculateLimitDay = (startDateStr, expireDateStr) => {
   if (startDateStr && expireDateStr) {
@@ -39,15 +44,39 @@ const createChallenge = async (challengeData) => {
 };
 
 const getChallenges = async ({ limit, page }) => {
-  const offset = (page - 1) * limit;
+  const usePagination = !Number.isNaN(page) && page > 0 && !Number.isNaN(limit) && limit > 0;
 
-  const { count, rows: challenges } = await Challenge.findAndCountAll({
+  const cacheKey = usePagination
+    ? `challenges:page:${page}:limit:${limit}`
+    : 'challenges:all';
+
+  const cachedData = await redisClient.get(cacheKey);
+  if (cachedData) {
+    return JSON.parse(cachedData);
+  }
+
+  const dbQueryOptions = {
     where: { deletedAt: null },
     order: [['challengeId', 'DESC']],
-    limit,
-    offset,
-  });
-  return { totalItems: count, challenges };
+  };
+
+  if (usePagination) {
+    const offset = (page - 1) * limit;
+    dbQueryOptions.limit = limit;
+    dbQueryOptions.offset = offset;
+  }
+
+  const { count, rows: challenges } = await Challenge.findAndCountAll(dbQueryOptions);
+
+  const result = { totalItems: count, challenges };
+
+  const isPrewarmedKey = cacheKey === 'challenges:all' || (usePagination && challengeConstants.CHALLENGE_PREWARM_LIMITS.includes(limit));
+
+  if (isPrewarmedKey) {
+    await redisClient.set(cacheKey, JSON.stringify(result), 'EX', 350);
+  }
+
+  return result;
 };
 
 const getChallengeById = async (challengeId) => {
@@ -58,6 +87,53 @@ const getChallengeById = async (challengeId) => {
     throw new CustomError(ERROR_CODES.CHALLENGE_NOT_FOUND);
   }
   return challenge;
+};
+
+const refreshChallengesCache = async () => {
+  logger.info('챌린지 캐시 갱신 서비스 실행 시작.');
+  const CACHE_TTL_SECONDS = 350;
+
+  try {
+    const cacheKeyAll = 'challenges:all';
+    const { count: totalChallengesCount, rows: challengesAll } = await Challenge.findAndCountAll({
+      where: { deletedAt: null },
+      order: [['challengeId', 'DESC']],
+    });
+    const resultAll = { totalItems: totalChallengesCount, challenges: challengesAll };
+    await redisClient.set(cacheKeyAll, JSON.stringify(resultAll), 'EX', CACHE_TTL_SECONDS);
+    logger.info(`모든 챌린지 캐시 갱신 완료. (총 ${totalChallengesCount}개)`);
+
+    const limitsToCache = challengeConstants.CHALLENGE_PREWARM_LIMITS;
+
+    for (const limit of limitsToCache) {
+      if (totalChallengesCount > 0) {
+        const totalPages = Math.ceil(totalChallengesCount / limit);
+        logger.info(`Limit ${limit}에 대해 ${totalPages}개의 페이지 캐싱 시작.`);
+
+        for (let page = 1; page <= totalPages; page += 1) {
+          const cacheKey = `challenges:page:${page}:limit:${limit}`;
+          const offset = (page - 1) * limit;
+
+          const { count, rows: challenges } = await Challenge.findAndCountAll({
+            where: { deletedAt: null },
+            order: [['challengeId', 'DESC']],
+            limit,
+            offset,
+          });
+          const result = { totalItems: count, challenges };
+          await redisClient.set(cacheKey, JSON.stringify(result), 'EX', CACHE_TTL_SECONDS);
+        }
+        logger.info(`Limit ${limit}에 대한 ${totalPages}개 페이지 캐싱 완료.`);
+      } else {
+        logger.info(`총 챌린지가 없어 limit ${limit}에 대한 페이지 캐싱을 건너뜁니다.`);
+      }
+    }
+
+    return { status: 'success' };
+  } catch (error) {
+    logger.error(`챌린지 캐시 갱신 서비스 실패: ${error.message}`, error);
+    throw error;
+  }
 };
 
 const updateChallenge = async (challengeId, updateData) => {
@@ -107,4 +183,5 @@ module.exports = {
   getChallenges,
   getChallengeById,
   updateChallenge,
+  refreshChallengesCache,
 };
