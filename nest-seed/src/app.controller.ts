@@ -1,21 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { UserService } from './lib/user/user.service';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
   }
 
-  @Get('/users')
-  getUsers() {
-    return this.userService.findAll();
+  @Get('/health/db')
+  async checkDbHealth() {
+    return this.appService.checkDbHealth();
   }
 }
