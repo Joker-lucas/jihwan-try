@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 import { ConfigService } from '../../config/config.service';
-import { User } from './models/user';
+import { ModelList } from './models';
 
 @Injectable()
 export class DbService {
@@ -18,7 +18,7 @@ export class DbService {
       username: dbConfig.username,
       password: dbConfig.password,
       database: dbConfig.database,
-      models: [User],
+      models: ModelList,
       logging: false,
     };
 
@@ -33,6 +33,7 @@ export class DbService {
       throw err;
     }
   }
+
   getSequelize(): Sequelize {
     return this.sequelize;
   }
