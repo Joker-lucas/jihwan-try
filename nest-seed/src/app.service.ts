@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DbService } from './common/db/db.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly dbService: DbService) {}
+  constructor(@Inject('DB_SERVICE') private readonly dbService: DbService) {}
   getHello(): string {
     return 'Hello World!';
   }

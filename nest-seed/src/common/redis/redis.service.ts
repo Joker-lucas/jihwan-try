@@ -10,7 +10,6 @@ export class RedisService {
 
   async init(): Promise<void> {
     const redisConfig = this.configService.getRedisConfig();
-    console.log(redisConfig);
 
     const options: RedisOptions = {
       host: redisConfig.host,

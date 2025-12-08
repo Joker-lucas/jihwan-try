@@ -10,7 +10,6 @@ export class DbService {
 
   async init(): Promise<void> {
     const dbConfig = this.configService.getDbConfig();
-    console.log(dbConfig);
     const options: SequelizeOptions = {
       dialect: 'postgres',
       host: dbConfig.host,
