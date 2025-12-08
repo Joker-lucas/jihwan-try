@@ -44,39 +44,15 @@ const createChallenge = async (challengeData) => {
 };
 
 const getChallenges = async ({ limit, page }) => {
-  const usePagination = !Number.isNaN(page) && page > 0 && !Number.isNaN(limit) && limit > 0;
+  const offset = (page - 1) * limit;
 
-  const cacheKey = usePagination
-    ? `challenges:page:${page}:limit:${limit}`
-    : 'challenges:all';
-
-  const cachedData = await redisClient.get(cacheKey);
-  if (cachedData) {
-    return JSON.parse(cachedData);
-  }
-
-  const dbQueryOptions = {
+  const { count, rows: challenges } = await Challenge.findAndCountAll({
     where: { deletedAt: null },
     order: [['challengeId', 'DESC']],
-  };
-
-  if (usePagination) {
-    const offset = (page - 1) * limit;
-    dbQueryOptions.limit = limit;
-    dbQueryOptions.offset = offset;
-  }
-
-  const { count, rows: challenges } = await Challenge.findAndCountAll(dbQueryOptions);
-
-  const result = { totalItems: count, challenges };
-
-  const isPrewarmedKey = cacheKey === 'challenges:all' || (usePagination && challengeConstants.CHALLENGE_PREWARM_LIMITS.includes(limit));
-
-  if (isPrewarmedKey) {
-    await redisClient.set(cacheKey, JSON.stringify(result), 'EX', 350);
-  }
-
-  return result;
+    limit,
+    offset,
+  });
+  return { totalItems: count, challenges };
 };
 
 const getChallengeById = async (challengeId) => {
