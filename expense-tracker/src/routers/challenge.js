@@ -8,10 +8,11 @@ const {
   validateChallengeRequired,
   filterChallengeBody,
   validateChallengeData,
+  cache,
 } = require('../libs/middlewares');
 
 router.post('/', isLogin, validateChallengeRequired, filterChallengeBody, validateChallengeData, challengeController.createChallenge);
-router.get('/', isLogin, challengeController.getChallenges);
+router.get('/', isLogin, cache, challengeController.getChallenges);
 router.get('/:challengeId', isLogin, challengeController.getChallengeById);
 router.patch('/:challengeId', isLogin, filterChallengeBody, validateChallengeData, challengeController.updateChallenge);
 
