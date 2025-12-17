@@ -1,5 +1,4 @@
-const { challengeService } = require('../services');
-const { userLogService } = require('../services/user-log');
+const { challengeService, userLogService } = require('../services');
 const {
   response, error, authUtils, errorDefinition,
 } = require('../libs/common');
