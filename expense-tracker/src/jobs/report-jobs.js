@@ -53,7 +53,7 @@ const reportGenerationTasks = [
 
 const reportJobs = {
   [JOB_TYPES.GENERATE_MONTHLY_REPORTS]: {
-    repeat: { cron: '0/2 * * * * *' },
+    repeat: { cron: '0 0 0 1 * *' },
     func: async () => {
       logger.info('START - GENERATE_MONTHLY_REPORTS');
       const reportDate = new Date();

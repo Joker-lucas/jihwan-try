@@ -3,6 +3,8 @@ const { Queue } = require('bullmq');
 const redisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
 };
 const { QUEUE_NAMES, JOB_TYPES, JOB_TYPE_TO_QUEUE_MAP } = require('../constants/job-queue');
 const ALL_JOB_FUNCTIONS = require('../../jobs');

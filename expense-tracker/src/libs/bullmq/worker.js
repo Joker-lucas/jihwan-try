@@ -4,6 +4,8 @@ const { QUEUE_NAMES } = require('../constants/job-queue');
 const redisOptions = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
 };
 const ALL_JOB_FUNCTIONS = require('../../jobs');
 const { getLogger } = require('../logger');
