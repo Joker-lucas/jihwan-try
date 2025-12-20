@@ -21,5 +21,16 @@ services:
     ports:
       - "6379:6379"
 
+  expense-tracker:
+    container_name: expense-tracker
+    build:
+      context: expense-tracker
+      dockerfile: dockerFile
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:
