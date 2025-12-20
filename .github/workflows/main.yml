@@ -1,0 +1,27 @@
+name: Scheduled Repo Sync
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: 
+
+jobs:
+  sync_with_upstream:
+    # [중요] 네 계정 아이디일 때는 이 작업을 아예 실행하지 않음
+    # 친구가 Fork하거나 가져가면 그 친구 계정에서는 실행됨
+    if: github.repository_owner != 'Joker-lucas'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Sync Upstream
+        uses: repo-sync/github-sync@v2
+        with:
+          source_repo: "https://github.com/Joker-lucas/jihwan-try.git"
+          source_branch: "main"
+          destination_branch: "main"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
