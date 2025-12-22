@@ -45,4 +45,9 @@ export class DbService {
       throw error;
     }
   }
+
+  async close() {
+    await this.sequelize.close();
+    console.log('Database Connection closed');
+  }
 }

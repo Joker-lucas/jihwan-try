@@ -34,4 +34,9 @@ export class RedisService {
   getClient(): Redis {
     return this.client;
   }
+
+  async close() {
+    await this.client.quit();
+    console.log('\nRedis Connection closed');
+  }
 }
