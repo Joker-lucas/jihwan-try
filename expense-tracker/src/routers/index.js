@@ -26,7 +26,7 @@ router.use('/challenges', challengeRoute);
 router.use('/challenge-checklists', challengeChecklistRoute);
 router.use('/user-logs', userLogRoute);
 router.use('/weather', weatherRoute);
-router.use('/health', healthRoute);
+router.use('/healthcheck', healthRoute);
 
 router.use((req, res) => {
   res.status(404).json({ errorMsg: '페이지를 찾을 수 없습니다.' });
