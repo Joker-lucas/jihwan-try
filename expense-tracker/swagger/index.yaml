@@ -17,8 +17,6 @@ tags:
     description: 수입 관리
   - name: Expenses
     description: 지출 관리
-  - name: Summary
-    description: 요약 정보 API
   - name: TargetSpendings
     description: 목표 지출 관리
   - name: Reports
@@ -29,10 +27,20 @@ tags:
     description: 사용자의 도전과제 참여 현황
   - name: UserLogs
     description: 사용자 활동 로그 (관리자 전용)
-  - name: Admin
-    description: 관리자 기능
+  - name: Weather
+    description: 날씨 정보
+  - name: Health
+    description: 서버 상태 확인
 
 paths:
+  # --- Health ---
+  /api/healthcheck:
+    $ref: './paths/health/health.yaml'
+
+  # --- Weather ---
+  /api/weather:
+    $ref: './paths/weather/weather.yaml'
+
   # --- Auth ---
   /api/auth/sign-up:
     $ref: './paths/auths/sign-up.yaml'
@@ -44,8 +52,6 @@ paths:
   # --- Users ---
   /api/users:
     $ref: './paths/users/users.yaml'
-  /api/users/me:
-    $ref: './paths/users/me.yaml'
   /api/users/{userId}:
     $ref: './paths/users/user-by-id.yaml'
     
@@ -68,8 +74,8 @@ paths:
     $ref: './paths/target-spendings/target-spending-by-id.yaml'
     
   # --- Reports ---
-  /api/reports/monthly:
-    $ref: './paths/reports/monthly.yaml'
+  /api/reports:
+    $ref: './paths/reports/reports.yaml'
 
   # --- Challenges ---
   /api/challenges:
@@ -86,10 +92,6 @@ paths:
   # --- User Logs ---
   /api/user-logs:
     $ref: './paths/user-logs/logs.yaml'
-
-  # --- Summary ---
-  /api/summary/monthly:
-    $ref: './paths/summarys/monthly.yaml'
 
 components:
   schemas:

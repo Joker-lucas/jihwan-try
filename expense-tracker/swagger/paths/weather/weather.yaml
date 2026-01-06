@@ -1,0 +1,88 @@
+get:
+  tags:
+    - Weather
+  summary: 단기예보 조회
+  description: |
+    요청된 날짜와 시간의 단기예보 정보를 조회합니다.
+    - **데이터 기준:** 기상청 단기예보 API는 **전날 밤 23:00 (base_time=2300)에 발표된 예보**를 기준으로 데이터를 제공합니다.
+    - **조회 가능 날짜:** 오늘, 내일, 모레 날씨까지 조회할 수 있습니다. (과거 날짜 조회 불가)
+  parameters:
+    - name: date
+      in: query
+      required: true
+      description: "조회할 날짜 (YYYY-MM-DD)"
+      schema:
+        type: string
+        format: date
+        example: "2026-01-07"
+    - name: time
+      in: query
+      required: true
+      description: "조회할 시간 (HH:MM)"
+      schema:
+        type: string
+        example: "23:00"
+    - name: lat
+      in: query
+      required: true
+      description: "위도"
+      schema:
+        type: number
+        format: float
+        example: 37.5142572
+    - name: lon
+      in: query
+      required: true
+      description: "경도"
+      schema:
+        type: number
+        format: float
+        example: 126.7080569
+  responses:
+    "200":
+      description: 날씨 정보 조회 성공
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: "예보 날짜"
+              time:
+                type: string
+                description: "예보 시간"
+              temperature:
+                type: string
+                description: "1시간 기온"
+              windSpeed:
+                type: string
+                description: "풍속"
+              skyCondition:
+                type: string
+                description: "하늘상태 (맑음, 구름많음, 흐림)"
+              precipitationProbability:
+                type: string
+                description: "강수확률"
+              precipitation:
+                type: string
+                description: "1시간 강수량"
+              humidity:
+                type: string
+                description: "습도"
+          example:
+            date: "2026-01-07"
+            time: "23:00"
+            temperature: "-6°C"
+            windSpeed: "2.4m/s"
+            skyCondition: "맑음"
+            precipitationProbability: "0%"
+            precipitation: "강수없음"
+            humidity: "60%"
+    "400":
+      description: "잘못된 요청 (예: 과거 날짜 조회)"
+    "500":
+      description: "외부 API 오류 또는 서버 내부 오류"
+  security:
+    - cookieAuth: []

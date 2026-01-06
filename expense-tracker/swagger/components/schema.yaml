@@ -40,7 +40,7 @@ schemas:
         type: string
         format: password
 
-  UpdateMyProfileRequest:
+  UpdateUserRequest:
     type: object
     properties:
       nickname:
@@ -52,34 +52,6 @@ schemas:
       birthday:
         type: string
         format: date
-      newPassword:
-        type: string
-        format: password
-        description: "새로운 비밀번호. 변경을 원할 때만 보냄."
-        example: 'newPassword123!'
-      newPasswordConfirm:
-        type: string
-        format: password
-        description: "새로운 비밀번호 확인. newPassword와 함께 보내야 함."
-        example: 'newPassword123!'
-
-  UpdateUserByAdminRequest:
-    type: object
-    properties:
-      nickname:
-        type: string
-      gender:
-        type: string
-        enum: ['male', 'female']
-      birthday:
-        type: string
-        format: date
-      status:
-        type: string
-        enum: ['active', 'inactive', 'blocked']
-      role:
-        type: string
-        enum: ['user', 'admin']
       newPassword:
         type: string
         format: password
@@ -255,6 +227,55 @@ schemas:
         type: integer
         example: 5
 
+  Challenge:
+    type: object
+    properties:
+      challengeId:
+        type: integer
+      title:
+        type: string
+      description:
+        type: string
+        nullable: true
+      rewardXp:
+        type: integer
+      challengeStartDate:
+        type: string
+        format: date
+        nullable: true
+      challengeExpireDate:
+        type: string
+        format: date
+        nullable: true
+      challengeType:
+        type: string
+        enum:
+          - EXPENSE_COUNT_MORE
+          - EXPENSE_COUNT_LESS
+          - INCOME_COUNT_MORE
+          - INCOME_COUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_LESS
+          - EXPENSE_TOTAL_AMOUNT_MORE
+          - INCOME_TOTAL_AMOUNT_LESS
+          - INCOME_TOTAL_AMOUNT_MORE
+        nullable: true
+      targetValue:
+        type: integer
+        nullable: true
+      limitDay:
+        type: integer
+        nullable: true
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      deletedAt:
+        type: [string, 'null']
+        format: date-time
+        nullable: true
+
   ChallengeChecklist:
     type: object
     properties:
@@ -279,6 +300,19 @@ schemas:
         nullable: true
       challenge:
         $ref: '#/schemas/Challenge'
+      createdAt:
+        type: string
+        format: date-time
+        example: '2025-11-10T00:00:00Z'
+      updatedAt:
+        type: string
+        format: date-time
+        example: '2025-11-10T00:00:00Z'
+      deletedAt:
+        type: [string, 'null']
+        format: date-time
+        nullable: true
+        example: null
 
   CreateChallengeChecklistRequest:
     type: object
@@ -297,18 +331,6 @@ schemas:
         items:
           $ref: '#/schemas/ChallengeChecklist'
       totalItems:
-        type: integer
-
-  Challenge:
-    type: object
-    properties:
-      challengeId:
-        type: integer
-      title:
-        type: string
-      description:
-        type: string
-      rewardXp:
         type: integer
 
   UserChallengeStatus:
@@ -358,6 +380,30 @@ schemas:
         type: integer
       exp:
         type: integer
+
+
+
+
+
+  UserUpdatePayload:
+    type: object
+    properties:
+      nickname:
+        type: string
+      contactEmail:
+        type: string
+        format: email
+      profileImageUrl:
+        type: string
+        format: uri
+      gender:
+        type: string
+        enum: ['male', 'female']
+      role:
+        type: string
+        enum: ['user', 'admin']
+
+
 
   UserLog:
     type: object
@@ -450,6 +496,19 @@ schemas:
         enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
       description:
         type: string
+      createdAt:
+        type: string
+        format: date-time
+        example: '2025-08-10T10:00:00Z'
+      updatedAt:
+        type: string
+        format: date-time
+        example: '2025-08-10T10:00:00Z'
+      deletedAt:
+        type: [string, 'null']
+        format: date-time
+        nullable: true
+        example: null
 
   Expense:
     type: object
@@ -468,14 +527,24 @@ schemas:
       category:
         type: string
         enum: ['LIVING_EXPENSES', 'FIXED_EXPENSES', 'LEISURE']
-      paymentMethod:
-        type: string
-        enum: ['BANK_TRANSFER', 'CASH', 'CREDIT_CARD', 'DEBIT_CARD']
       status:
         type: string
         enum: ['APPROVED', 'SCHEDULED', 'REJECTED']
       description:
         type: string
+      createdAt:
+        type: string
+        format: date-time
+        example: '2025-08-11T10:00:00Z'
+      updatedAt:
+        type: string
+        format: date-time
+        example: '2025-08-11T10:00:00Z'
+      deletedAt:
+        type: [string, 'null']
+        format: date-time
+        nullable: true
+        example: null
 
   TargetSpending:
     type: object
@@ -494,93 +563,86 @@ schemas:
       description:
         type: string
         
-  MonthlySummaryResponse:
+  ReportType:
     type: object
     properties:
-      totalIncome:
+      reportTypeId:
         type: integer
-        example: 3066000
-      totalExpense:
-        type: integer
-        example: 2102400
-      totalresult:
-        type: integer
-        description: "해당 월의 순수입 (총수입 - 총지출)"
-        example: 963600
-
-  CategorySummary:
-    type: object
-    properties:
-      category:
+      type:
         type: string
-      totalAmount:
-        type: integer
-
-  PaymentMethodSummary:
-    type: object
-    properties:
-      paymentMethod:
+        enum:
+          - MONTHLY_TOTAL_INCOME
+          - MONTHLY_TOTAL_EXPENSE
+          - PREV_MONTH_EXPENSE_CHANGE
+          - PREV_MONTH_INCOME_CHANGE
+          - EXPENSE_RATIO_BY_CATEGORY
+          - INCOME_RATIO_BY_CATEGORY
+      unit:
         type: string
-      totalAmount:
-        type: integer
-        
-  WeeklySummary:
+        enum:
+          - WON
+          - PERCENT
+          - COUNT
+  Report:
     type: object
     properties:
-      weekNumber:
+      reportId:
         type: integer
-        description: 해당 월의 주차 (1주차, 2주차 등)
-        example: 1
-      amount:
+      userId:
         type: integer
-        description: 해당 주차의 총 금액
-        example: 750000
-
-  MonthlyReportResponse:
+      financialYearId:
+        type: integer
+      reportTypeId:
+        type: integer
+      value:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+      ReportType:
+        $ref: '#/schemas/ReportType'
+  GetReportsResponse:
     type: object
     properties:
-      summary:
-        type: object
-        properties:
-          totalIncome: { type: integer }
-          totalExpense: { type: integer }
-          incomeChangePercentage: { type: number, format: float, description: "전월 대비 수입 증감률" }
-          expenseChangePercentage: { type: number, format: float, description: "전월 대비 지출 증감률" }
-      expenseReport:
-        type: object
-        properties:
-          byCategory:
-            type: array
-            items:
-              $ref: '#/schemas/CategorySummary'  
-          byPaymentMethod:
-            type: array
-            items:
-              $ref: '#/schemas/PaymentMethodSummary' 
-          topExpenses:
-            type: array
-            items:
-              $ref: '#/schemas/Expense'
-      incomeReport:
-        type: object
-        properties:
-          byCategory:
-            type: array
-            items:
-              $ref: '#/schemas/CategorySummary' 
-          topIncomes:
-            type: array
-            items:
-              $ref: '#/schemas/Income'
-
-      weeklyIncomeTrend:
+      reports:
         type: array
-        description: 주차별 수입 금액 트렌드 (선 그래프용)
         items:
-          $ref: '#/schemas/WeeklySummary' 
+          $ref: '#/schemas/Report'
 
-      weeklyExpenseTrend:
-        type: array
-        description: 주차별 지출 금액 트렌드 (선 그래프용)
-        items:
-          $ref: '#/schemas/WeeklySummary'
+  HealthStatusResponse:
+    type: object
+    properties:
+      server:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: ['OK', 'FAIL']
+            example: 'OK'
+          uptime:
+            type: number
+            example: 123.45
+      database:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: ['OK', 'FAIL', 'UNKNOWN']
+            example: 'OK'
+      redis:
+        type: object
+        properties:
+          status:
+            type: string
+            enum: ['OK', 'FAIL', 'UNKNOWN']
+            example: 'OK'
+
+  MessageResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: "성공적으로 삭제되었습니다."
