@@ -16,4 +16,12 @@ export class UserRepository {
   async save(createUserDto: CreateUserDto): Promise<User> {
     return this.userModel.create(createUserDto);
   }
+
+  async findOneByContactEmail(contactEmail: string): Promise<User | null> {
+    return this.userModel.findOne({ where: { contactEmail } });
+  }
+
+  async findOneByUserId(userId: number): Promise<User | null> {
+    return this.userModel.findByPk(userId);
+  }
 }

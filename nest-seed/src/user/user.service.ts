@@ -14,4 +14,12 @@ export class UserService {
   async registerUser(createUserDto: CreateUserDto): Promise<User> {
     return this.userRepository.save(createUserDto);
   }
+
+  async findOneByContactEmail(contactEmail: string): Promise<User | null> {
+    return this.userRepository.findOneByContactEmail(contactEmail);
+  }
+
+  async findOneByUserId(userId: number): Promise<User | null> {
+    return this.userRepository.findOneByUserId(userId);
+  }
 }

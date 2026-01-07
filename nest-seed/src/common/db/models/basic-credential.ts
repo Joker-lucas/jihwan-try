@@ -7,50 +7,47 @@ import {
   AutoIncrement,
   AllowNull,
   Unique,
-  DeletedAt,
-  HasOne,
+  ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import type {
   CreationOptional,
   InferAttributes,
   InferCreationAttributes,
 } from 'sequelize';
-import { BasicCredential } from './basic-credential';
+import { User } from './user';
 
 @Table({
-  tableName: 'Users',
+  tableName: 'BasicCredentials',
   timestamps: true,
-  paranoid: true,
 })
-export class User extends Model<
-  InferAttributes<User>,
-  InferCreationAttributes<User>
+export class BasicCredential extends Model<
+  InferAttributes<BasicCredential>,
+  InferCreationAttributes<BasicCredential>
 > {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
-  declare userId: CreationOptional<number>;
+  declare basicCredentialId: CreationOptional<number>;
 
-  @Unique
   @AllowNull(false)
+  @Unique
   @Column(DataType.STRING)
-  declare contactEmail: string;
+  declare loginEmail: string;
 
   @AllowNull(false)
   @Column(DataType.STRING)
   declare password: string;
 
-  @Unique
+  @ForeignKey(() => User)
   @AllowNull(false)
-  @Column(DataType.STRING)
-  declare nickname: string;
+  @Unique
+  @Column(DataType.INTEGER)
+  declare userId: number;
 
-  @HasOne(() => BasicCredential)
-  declare basicCredential: BasicCredential;
+  @BelongsTo(() => User)
+  declare user: User;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
-
-  @DeletedAt
-  declare deletedAt: CreationOptional<Date | null>;
 }
