@@ -2,25 +2,27 @@ import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../common/db/models/user';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { BasicCredential } from '../common/db/models/basic-credential';
-import { Sequelize } from 'sequelize-typescript';
+import { DbService } from 'src/common/db/db.service';
 
 @Injectable()
 export class AuthRepository {
+  sequelize: any;
   constructor(
     @Inject('USER_MODEL')
     private userModel: typeof User,
     @Inject('BASIC_CREDENTIAL_MODEL')
     private basicCredentialModel: typeof BasicCredential,
-    @Inject('SEQUELIZE')
-    private sequelize: Sequelize,
+    @Inject('DB_SERVICE')
+    private dbService: DbService,
   ) {}
 
   async create(createAuthDto: CreateAuthDto): Promise<User> {
-    const t = await this.sequelize.transaction();
+    const sequelize = this.dbService.getSequelize();
+    const t = await sequelize.transaction();
     try {
       const newUser = await this.userModel.create(
         {
-          nickname: createAuthDto.nickname,
+          name: createAuthDto.name,
           contactEmail: createAuthDto.contactEmail,
         },
         { transaction: t },
@@ -28,7 +30,7 @@ export class AuthRepository {
 
       await this.basicCredentialModel.create(
         {
-          userId: newUser.id,
+          userId: newUser.userId,
           loginEmail: createAuthDto.contactEmail,
           password: createAuthDto.password,
         },

@@ -46,7 +46,7 @@ export class BasicCredential extends Model<
   declare userId: number;
 
   @BelongsTo(() => User)
-  declare user: User;
+  declare user?: User;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;

@@ -36,17 +36,13 @@ export class User extends Model<
   @Column(DataType.STRING)
   declare contactEmail: string;
 
-  @AllowNull(false)
-  @Column(DataType.STRING)
-  declare password: string;
-
   @Unique
   @AllowNull(false)
   @Column(DataType.STRING)
-  declare nickname: string;
+  declare name: string;
 
   @HasOne(() => BasicCredential)
-  declare basicCredential: BasicCredential;
+  declare basicCredential?: BasicCredential;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;

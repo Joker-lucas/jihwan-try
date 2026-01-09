@@ -39,4 +39,9 @@ export class ConfigService {
       port: parseInt(this.config.get<string>('REDIS_PORT') || '6379'),
     };
   }
+
+  getSessionSecret(): string {
+    const sessionSecret = this.config.get<string>('SESSION_SECRET')!;
+    return sessionSecret;
+  }
 }

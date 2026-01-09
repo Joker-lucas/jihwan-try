@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create.auth.dto';
-import { LoginUserDto } from './dto/login.user.dto';
+import { SigninUserDto } from './dto/signin.user.dto';
 import { AuthRepository } from './auth.repository';
 import * as bcrypt from 'bcrypt';
 import { User } from '../common/db/models/user';
@@ -9,7 +9,7 @@ import { User } from '../common/db/models/user';
 export class AuthService {
   constructor(private readonly authRepository: AuthRepository) {}
 
-  async signup(createAuthDto: CreateAuthDto): Promise<User> {
+  async signUp(createAuthDto: CreateAuthDto): Promise<User> {
     const newDto = { ...createAuthDto };
 
     const saltRounds = 10;
@@ -18,7 +18,10 @@ export class AuthService {
     return this.authRepository.create(newDto);
   }
 
-  async validateUser(loginEmail: string, pass: string): Promise<User | null> {
+  private async validateUser(
+    loginEmail: string,
+    pass: string,
+  ): Promise<User | null> {
     const basicCredential =
       await this.authRepository.findByLoginEmail(loginEmail);
 
@@ -35,10 +38,10 @@ export class AuthService {
     return null;
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<User | null> {
+  async signIn(signinUserDto: SigninUserDto): Promise<User | null> {
     const user = await this.validateUser(
-      loginUserDto.contactEmail, // Use contactEmail from DTO as loginEmail
-      loginUserDto.password,
+      signinUserDto.contactEmail,
+      signinUserDto.password,
     );
     if (!user) {
       return null;
@@ -46,7 +49,8 @@ export class AuthService {
     return user;
   }
 
-  async logout(): Promise<void> {
+  async signOut(): Promise<void> {
     console.log('Logout logic placeholder');
+    return Promise.resolve();
   }
 }

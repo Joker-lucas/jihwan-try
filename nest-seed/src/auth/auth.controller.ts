@@ -1,62 +1,73 @@
 import {
   Controller,
   Post,
-  Request,
   Body,
-  Get,
+  Request,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Response } from 'express';
+import type { Response } from 'express';
+
 import { CreateAuthDto } from './dto/create.auth.dto';
-import { LoginUserDto } from './dto/login.user.dto';
+import { SigninUserDto } from './dto/signin.user.dto';
+import { SigninResponseDto, SignoutResponseDto, UserInfo } from './dto/res.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() createAuthDto: CreateAuthDto) {
-    const result = await this.authService.signup(createAuthDto);
-    return { message: 'User registration initiated (skeleton)', result };
+  async signUp(@Body() createAuthDto: CreateAuthDto): Promise<UserInfo> {
+    const result = await this.authService.signUp(createAuthDto);
+    return {
+      contactEmail: result.contactEmail,
+      name: result.name,
+    };
   }
 
   @Post('signin')
-  async login(
-    @Body() loginDto: LoginUserDto,
+  async signIn(
+    @Body() loginDto: SigninUserDto,
     @Request() req: any,
     @Res({ passthrough: true }) res: Response,
-  ) {
-    const user = await this.authService.login(loginDto);
+  ): Promise<SigninResponseDto> {
+    const user = await this.authService.signIn(loginDto);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials (skeleton)');
     }
-
     req.session.userId = user.userId;
+
+    console.log('--- 로그인 시도 중 디버깅 로그 ---');
+    console.log('1. User 객체 확인:', user.userId, user.contactEmail);
+    console.log('2. Request 객체 존재 여부:', !!req);
+    console.log('3. Session 객체 존재 여부:', !!req.session);
+
     return {
       message: 'Login successful (skeleton)!',
-      user: { userId: user.userId, contactEmail: user.contactEmail },
+      user: { contactEmail: user.contactEmail, name: user.name },
     };
   }
 
   @Post('signout')
-  logout(@Request() req: any, @Res({ passthrough: true }) res: Response) {
-    req.session.destroy((err: any) => {
-      if (err) {
-        console.error('Error destroying session (skeleton):', err);
-      }
-      res.clearCookie('connect.sid');
+  async signOut(
+    @Request() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SignoutResponseDto> {
+    await new Promise<void>((resolve, reject) => {
+      req.session.destroy((err: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+      res.clearCookie('sssssssssid');
     });
-    return { message: 'Logout successful (skeleton)!' };
-  }
 
-  @Get('profile')
-  getProfile(@Request() req: any) {
-    if (!req.session || !req.session.userId) {
-      throw new UnauthorizedException('Login required (skeleton).');
-    }
-    return { message: 'Profile info (skeleton)', userId: req.session.userId };
+    return Promise.resolve({
+      message: 'Logout successful (skeleton)!',
+    });
   }
 }

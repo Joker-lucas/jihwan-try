@@ -4,11 +4,12 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from './config/config.module';
 import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
 
 @Module({
-  imports: [UserModule, ConfigModule, CommonModule],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
