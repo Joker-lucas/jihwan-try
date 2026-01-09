@@ -39,11 +39,6 @@ export class AuthController {
     }
     req.session.userId = user.userId;
 
-    console.log('--- 로그인 시도 중 디버깅 로그 ---');
-    console.log('1. User 객체 확인:', user.userId, user.contactEmail);
-    console.log('2. Request 객체 존재 여부:', !!req);
-    console.log('3. Session 객체 존재 여부:', !!req.session);
-
     return {
       message: 'Login successful (skeleton)!',
       user: { contactEmail: user.contactEmail, name: user.name },
