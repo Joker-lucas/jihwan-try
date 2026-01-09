@@ -25,7 +25,6 @@ export class AppModule implements NestModule {
 
   async onModuleInit() {
     await this.dbService.init();
-    await this.redisService.init();
   }
 
   async onModuleDestroy() {
@@ -36,8 +35,8 @@ export class AppModule implements NestModule {
   async beforeApplicationShutdown(signal: string) {
     console.log(`Received signal: ${signal}. Starting graceful shutdown...`);
     try {
-      await this.redisService.close();
       await this.dbService.close();
+      await this.redisService.close();
     } catch (error) {
       console.log('Error during disconnection', error);
     }
