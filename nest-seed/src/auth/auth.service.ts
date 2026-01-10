@@ -18,10 +18,7 @@ export class AuthService {
     return this.authRepository.create(newDto);
   }
 
-  private async validateUser(
-    loginEmail: string,
-    pass: string,
-  ): Promise<User | null> {
+  async validateUser(loginEmail: string, pass: string): Promise<any> {
     const basicCredential =
       await this.authRepository.findByLoginEmail(loginEmail);
 
@@ -32,7 +29,9 @@ export class AuthService {
       );
 
       if (isPasswordMatching) {
-        return basicCredential.user;
+        const userPayload = basicCredential.user;
+
+        return userPayload;
       }
     }
     return null;
@@ -51,6 +50,6 @@ export class AuthService {
 
   async signOut(): Promise<void> {
     console.log('Logout logic placeholder');
-    return Promise.resolve();
+    return;
   }
 }
