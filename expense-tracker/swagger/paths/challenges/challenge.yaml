@@ -16,19 +16,25 @@ get:
           example:
             challenges:
               - challengeId: 1
-                title: "일주일 지출 10회 미만"
-                description: "일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요."
+                title: '일주일 지출 10회 미만'
+                description: '일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.'
                 rewardXp: 100
-                challengeStartDate: "2025-11-10"
-                challengeExpireDate: "2025-11-17"
+                challengeStartDate: '2025-11-10'
+                challengeExpireDate: '2025-11-17'
                 limitDay: 7
+                createdAt: '2025-11-09T10:00:00Z'
+                updatedAt: '2025-11-09T10:00:00Z'
+                deletedAt: null
               - challengeId: 2
-                title: "한달 수입 50만원 이상 달성"
-                description: "부수입, 월급 외 추가 수입으로 50만원 이상을 벌어보세요."
+                title: '한 달 수입 200만원 이상'
+                description: '한 달 동안 수입을 200만원 이상 달성해보세요.'
                 rewardXp: 200
-                challengeStartDate: "2025-11-01"
-                challengeExpireDate: "2025-11-30"
+                challengeStartDate: '2025-11-01'
+                challengeExpireDate: '2025-11-30'
                 limitDay: 30
+                createdAt: '2025-10-31T10:00:00Z'
+                updatedAt: '2025-10-31T10:00:00Z'
+                deletedAt: null
             totalItems: 2
 
 post:
@@ -50,5 +56,16 @@ post:
         application/json:
           schema:
             $ref: '../../components/schema.yaml#/schemas/Challenge'
+          example:
+            challengeId: 1
+            title: '일주일 지출 10회 미만'
+            description: '일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.'
+            rewardXp: 100
+            challengeStartDate: '2025-11-10'
+            challengeExpireDate: '2025-11-17'
+            limitDay: 7
+            createdAt: '2025-11-09T10:00:00Z'
+            updatedAt: '2025-11-09T10:00:00Z'
+            deletedAt: null
     '403':
       description: 권한 없음

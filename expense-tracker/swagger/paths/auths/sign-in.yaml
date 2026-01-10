@@ -16,10 +16,31 @@ post:
           schema:
             type: object
             properties:
-              message:
-                type: string
-                example: "로그인 성공"
+              data:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "로그인 성공"
+                  user:
+                    type: object
+                    properties:
+                      userId:
+                        type: integer
+                        example: 4
+                      nickname:
+                        type: string
+                        example: "가계부사용자1231231"
+                      email:
+                        type: string
+                        format: email
+                        example: "user@examaaaple.com"
+          example:
+            data:
+              message: "로그인 성공"
               user:
-                $ref: '../../components/schema.yaml#/schemas/User'
+                userId: 4
+                nickname: "가계부사용자1231231"
+                email: "user@examaaaple.com"
     '401':
       description: 인증 정보 불일치

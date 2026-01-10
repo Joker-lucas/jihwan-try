@@ -1,16 +1,11 @@
 get:
   tags: [ChallengeChecklists]
-  summary: 챌린지 참여 내역 상세 조회
-  description: 특정 챌린지 참여 내역(체크리스트)의 상세 정보를 조회합니다.
+  summary: 특정 챌린지 체크리스트 조회
+  description: ID로 특정 챌린지 체크리스트를 조회합니다.
   security:
     - cookieAuth: []
   parameters:
-    - name: challengeChecklistId
-      in: path
-      required: true
-      description: 조회할 챌린지 체크리스트의 ID
-      schema:
-        type: integer
+    - $ref: '../../components/parameter.yaml#/parameters/ChallengeChecklistId'
   responses:
     '200':
       description: 조회 성공
@@ -22,19 +17,25 @@ get:
             challengeChecklistId: 1
             userId: 1
             challengeId: 1
-            status: "PENDING"
-            userStartDate: "2025-11-10T00:00:00Z"
-            userExpireDate: "2025-11-17T23:59:59Z"
+            status: 'PENDING'
+            userStartDate: '2025-11-10T00:00:00Z'
+            userExpireDate: '2025-11-17T23:59:59Z'
             completeDate: null
             challenge:
               challengeId: 1
-              title: "일주일 지출 10회 미만"
-              description: "일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요."
+              title: '일주일 지출 10회 미만'
+              description: '일주일 동안 지출 횟수를 10회 미만으로 유지하여 절약 습관을 길러보세요.'
               rewardXp: 100
-              challengeStartDate: "2025-11-10"
-              challengeExpireDate: "2025-11-17"
+              challengeStartDate: '2025-11-10'
+              challengeExpireDate: '2025-11-17'
               limitDay: 7
+              createdAt: '2025-11-09T10:00:00Z'
+              updatedAt: '2025-11-09T10:00:00Z'
+              deletedAt: null
+            createdAt: '2025-11-10T00:00:00Z'
+            updatedAt: '2025-11-10T00:00:00Z'
+            deletedAt: null
     '403':
-      description: 접근 권한 없음
+      description: 권한 없음
     '404':
-      description: 리소스를 찾을 수 없음
+      description: 챌린지 체크리스트를 찾을 수 없음

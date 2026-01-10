@@ -1,11 +1,20 @@
 get:
   tags: [TargetSpendings]
   summary: 월별 목표 지출 조회
+  description: 특정 사용자의 월별 목표 지출을 조회합니다. `year`, `month`, `userId`는 필수 쿼리 파라미터이며, 관리자는 다른 사용자의 ID로 조회할 수 있습니다. 일반 사용자는 자신의 ID를 지정해야 합니다.
   security:
     - cookieAuth: []
   parameters:
+    - name: userId
+      in: query
+      required: true
+      schema:
+        type: integer
+      description: "조회할 사용자의 ID. 본인 목표 지출만 조회할 경우 본인의 userId를, 관리자는 다른 사용자의 userId를 지정할 수 있습니다."
     - $ref: '../../components/parameter.yaml#/parameters/Year'
     - $ref: '../../components/parameter.yaml#/parameters/Month'
+    - $ref: '../../components/parameter.yaml#/parameters/Page'
+    - $ref: '../../components/parameter.yaml#/parameters/Limit'
   responses:
     '200':
       description: 조회 성공

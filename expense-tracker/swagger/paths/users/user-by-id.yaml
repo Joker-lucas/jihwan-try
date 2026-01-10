@@ -12,7 +12,37 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../../components/schema.yaml#/schemas/User'
+            type: object
+            properties:
+              nickname:
+                type: string
+                example: "test_user_1"
+              contactEmail:
+                type: string
+                format: email
+                example: "user1@example.com"
+              profileImageUrl:
+                type: [string, 'null']
+                nullable: true
+                example: null
+              gender:
+                type: string
+                enum: ["male", "female"]
+                example: "female"
+              birthday:
+                type: string
+                format: date
+                example: "1995-05-10"
+              level:
+                type: integer
+                example: 5
+              exp:
+                type: integer
+                example: 750
+              role:
+                type: string
+                enum: ["user", "admin"]
+                example: "user"
           example:
             nickname: "test_user_1"
             contactEmail: "user1@example.com"
@@ -30,7 +60,7 @@ get:
 patch:
   tags: [Users]
   summary: 특정 사용자 정보 수정
-  description: 본인 또는 관리자만 특정 사용자의 정보를 수정할 수 있습니다. role 필드는 관리자만 수정 가능합니다.
+  description: 본인 또는 관리자만 특정 사용자의 정보를 수정할 수 있습니다. `role` 필드는 관리자만 수정 가능합니다.
   security:
     - cookieAuth: []
   parameters:
@@ -39,14 +69,38 @@ patch:
     content:
       application/json:
         schema:
-          $ref: '../../components/schema.yaml#/schemas/UpdateUserByAdminRequest' # This schema allows role changes
+          $ref: '../../components/schema.yaml#/schemas/UpdateUserRequest'
   responses:
     '200':
       description: 수정 성공
       content:
         application/json:
           schema:
-            $ref: '../../components/schema.yaml#/schemas/User'
+            type: object
+            properties:
+              nickname:
+                type: string
+                example: "new_nickname"
+              contactEmail:
+                type: string
+                format: email
+                example: "user1@example.com"
+              profileImageUrl:
+                type: [string, 'null']
+                nullable: true
+                example: null
+              gender:
+                type: string
+                enum: ["male", "female"]
+                example: "female"
+              birthday:
+                type: string
+                format: date
+                example: "1995-05-11"
+              role:
+                type: string
+                enum: ["user", "admin"]
+                example: "user"
           example:
             nickname: "new_nickname"
             contactEmail: "user1@example.com"
@@ -73,10 +127,7 @@ delete:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              message:
-                type: string
+            $ref: '../../components/schema.yaml#/schemas/MessageResponse'
           example:
             message: "성공적으로 삭제되었습니다."
     '403':

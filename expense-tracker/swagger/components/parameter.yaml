@@ -38,15 +38,6 @@ parameters:
     schema:
       type: string
 
-  AdminUserSearch:
-    name: search
-    in: query
-    required: false
-    description: "검색할 사용자의 이메일 또는 닉네임"
-    schema:
-      type: string
-      example: "test@example.com"
-
   IncomeId:
     name: incomeId
     in: path
@@ -81,11 +72,18 @@ parameters:
     required: true
     schema:
       type: integer
-  Role:
-    name: role
+
+  ChallengeChecklistId:
+    name: challengeChecklistId
+    in: path
+    required: true
+    schema:
+      type: integer
+
+  UserIdQuery:
+    name: userId
     in: query
     required: false
-    description: "필터링할 사용자의 역할"
+    description: "조회할 사용자의 ID (관리자 전용)"
     schema:
-      type: string
-      enum: [user, admin]
+      type: integer

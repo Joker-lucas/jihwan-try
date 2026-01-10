@@ -1,0 +1,42 @@
+get:
+  tags: [Reports]
+  summary: 사용자 맞춤형 보고서 조회
+  description: 다양한 조건에 따라 사용자의 수입/지출 보고서를 조회합니다. `reportType`을 통해 보고서 유형을 지정하고, `sortBy`와 `sortOrder`로 정렬 기준을 설정할 수 있습니다.
+  security:
+    - cookieAuth: []
+  parameters:
+    - name: reportType
+      in: query
+      required: true
+      description: "조회할 보고서의 유형"
+      schema:
+        type: string
+        enum:
+          - MONTHLY_TOTAL_INCOME
+          - MONTHLY_TOTAL_EXPENSE
+          - PREV_MONTH_EXPENSE_CHANGE
+          - PREV_MONTH_INCOME_CHANGE
+          - EXPENSE_RATIO_BY_CATEGORY
+          - INCOME_RATIO_BY_CATEGORY
+    - name: sortBy
+      in: query
+      required: false
+      description: "정렬 기준 필드"
+      schema:
+        type: string
+        enum: [date, amount] 
+    - name: sortOrder
+      in: query
+      required: false
+      description: "정렬 순서 (ASC 또는 DESC)"
+      schema:
+        type: string
+        enum: [ASC, DESC]
+        default: DESC
+  responses:
+    '200':
+      description: 보고서 조회 성공
+      content:
+        application/json:
+          schema:
+            $ref: '../../components/schema.yaml#/schemas/GetReportsResponse'
