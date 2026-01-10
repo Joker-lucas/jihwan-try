@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { RedisService } from './common/redis/redis.service';
 import { ConfigService } from './config/config.service';
 import session from 'express-session';
+import passport from 'passport';
 const RedisStore = require('connect-redis')(session);
 
 async function bootstrap() {
@@ -33,6 +34,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   await app.listen(process.env.PORT ?? 3000);
 }

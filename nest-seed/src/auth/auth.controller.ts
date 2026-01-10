@@ -4,15 +4,13 @@ import {
   Body,
   Request,
   Res,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
-
 import { CreateAuthDto } from './dto/create.auth.dto';
-import { SigninUserDto } from './dto/signin.user.dto';
 import { SigninResponseDto, SignoutResponseDto, UserInfo } from './dto/res.dto';
-
+import { LocalAuthGuard } from '../lib/guards/local-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -26,21 +24,16 @@ export class AuthController {
     };
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('signin')
   async signIn(
-    @Body() loginDto: SigninUserDto,
     @Request() req: any,
     @Res({ passthrough: true }) res: Response,
   ): Promise<SigninResponseDto> {
-    const user = await this.authService.signIn(loginDto);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials (skeleton)');
-    }
-    req.session.userId = user.userId;
+    const user = req.user;
 
     return {
-      message: 'Login successful (skeleton)!',
+      message: 'Login successful!',
       user: { contactEmail: user.contactEmail, name: user.name },
     };
   }
@@ -61,8 +54,8 @@ export class AuthController {
       res.clearCookie('sssssssssid');
     });
 
-    return Promise.resolve({
+    return {
       message: 'Logout successful (skeleton)!',
-    });
+    };
   }
 }
