@@ -4,11 +4,12 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from './config/config.module';
 import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
 
 @Module({
-  imports: [UserModule, ConfigModule, CommonModule],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -24,7 +25,6 @@ export class AppModule implements NestModule {
 
   async onModuleInit() {
     await this.dbService.init();
-    await this.redisService.init();
   }
 
   async onModuleDestroy() {
@@ -35,8 +35,8 @@ export class AppModule implements NestModule {
   async beforeApplicationShutdown(signal: string) {
     console.log(`Received signal: ${signal}. Starting graceful shutdown...`);
     try {
-      await this.redisService.close();
       await this.dbService.close();
+      await this.redisService.close();
     } catch (error) {
       console.log('Error during disconnection', error);
     }
