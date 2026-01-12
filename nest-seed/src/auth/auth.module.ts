@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 import { DbModule } from '../common/db/db.module';
-import { PassportAuthModule } from 'src/lib/passport/passport.module';
+import { PassportAuthModule } from '../lib/passport/passport.module';
 
 @Module({
   imports: [DbModule, PassportAuthModule],
