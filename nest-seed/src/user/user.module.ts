@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { DbModule } from 'src/common/db/db.module';
+import { DbModule } from '../common/db/db.module';
 import { UserRepository } from './user.repository';
+import { PassportAuthModule } from '../lib/passport/passport.module';
 
 @Module({
-  imports: [DbModule],
+  imports: [DbModule, PassportAuthModule],
   providers: [UserService, UserRepository],
   controllers: [UserController],
   exports: [UserService],

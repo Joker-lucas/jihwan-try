@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../common/db/models/user';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { BasicCredential } from '../common/db/models/basic-credential';
-import { DbService } from 'src/common/db/db.service';
+import { DbService } from '../common/db/db.service';
 
 @Injectable()
 export class AuthRepository {
