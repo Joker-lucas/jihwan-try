@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { SigninResponseDto, SignoutResponseDto, UserInfo } from './dto/res.dto';
-import { LocalAuthGuard } from '../lib/guards/local-auth.guard';
+import { LocalAuthGuard } from '../lib/passport/guards/local/local-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

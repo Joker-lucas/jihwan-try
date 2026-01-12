@@ -1,5 +1,5 @@
 import { Controller, Get, Request, UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard } from '../lib/guards/authenticated.guard';
+import { AuthenticatedGuard } from '../lib/passport/guards/session/authenticated.guard';
 import { UserService } from './user.service';
 
 @Controller('user')
