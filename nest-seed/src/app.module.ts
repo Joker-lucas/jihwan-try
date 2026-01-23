@@ -7,9 +7,11 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
+import { LoggerModule } from './lib/logger/logger.module';
+import { MyLogger } from './lib/logger/logger.service';
 
 @Module({
-  imports: [ConfigModule, CommonModule, UserModule, AuthModule],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule, LoggerModule],
   controllers: [AppController],
   providers: [AppService],
 })
@@ -19,6 +21,8 @@ export class AppModule implements NestModule {
     private readonly dbService: DbService,
     @Inject('REDIS_SERVICE')
     private readonly redisService: RedisService,
+    @Inject('LOGGER_SERVICE')
+    private readonly myLogger: MyLogger,
   ) {}
 
   configure(consumer: MiddlewareConsumer) {}
