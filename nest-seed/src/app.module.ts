@@ -7,9 +7,10 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
+import { ErrorModule } from './lib/error/error.module';
 
 @Module({
-  imports: [ConfigModule, CommonModule, UserModule, AuthModule],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule, ErrorModule],
   controllers: [AppController],
   providers: [AppService],
 })
