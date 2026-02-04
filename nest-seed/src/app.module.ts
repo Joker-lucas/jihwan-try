@@ -7,21 +7,26 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
-import { ErrorModule } from './lib/error/error.module';
 import { LoggerModule } from './lib/logger/logger.module';
 import { MyLogger } from './lib/logger/logger.service';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ErrorFilter } from './lib/error/error-handler';
+import { LoggerInterceptor } from './lib/logger/interceptors';
 
 @Module({
-  imports: [
-    ConfigModule,
-    CommonModule,
-    UserModule,
-    AuthModule,
-    LoggerModule,
-    ErrorModule,
-  ],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule, LoggerModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: ErrorFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   constructor(
