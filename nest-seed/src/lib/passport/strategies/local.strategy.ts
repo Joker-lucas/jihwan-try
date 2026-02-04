@@ -3,6 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { BasicCredential } from '../../../common/db/models/basic-credential';
 import { User } from '../../../common/db/models/user';
+import { CustomError } from '../../../common/error/error';
+import { ERROR_CODES } from '../../../common/error/error-definition';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -24,7 +26,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     });
 
     if (!credential) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
     }
 
     const isPasswordMatching = await bcrypt.compare(
@@ -33,7 +35,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     );
 
     if (!isPasswordMatching) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
     }
 
     return credential.user;

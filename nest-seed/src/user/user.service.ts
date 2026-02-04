@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from '../common/db/models/user';
+import { CustomError } from '../common/error/error';
+import { ERROR_CODES } from '../common/error/error-definition';
 
 @Injectable()
 export class UserService {
@@ -15,6 +17,12 @@ export class UserService {
   }
 
   async findOneByUserId(userId: number): Promise<User | null> {
-    return this.userRepository.findOneByUserId(userId);
+    const user = await this.userRepository.findOneByUserId(userId);
+
+    if (!user) {
+      throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+    }
+
+    return user;
   }
 }

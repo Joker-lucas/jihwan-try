@@ -7,11 +7,19 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
+import { ErrorModule } from './lib/error/error.module';
 import { LoggerModule } from './lib/logger/logger.module';
 import { MyLogger } from './lib/logger/logger.service';
 
 @Module({
-  imports: [ConfigModule, CommonModule, UserModule, AuthModule, LoggerModule],
+  imports: [
+    ConfigModule,
+    CommonModule,
+    UserModule,
+    AuthModule,
+    LoggerModule,
+    ErrorModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
