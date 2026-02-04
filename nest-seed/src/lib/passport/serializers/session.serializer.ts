@@ -5,7 +5,7 @@ import { MyLogger } from '../../../lib/logger/logger.service';
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
-  constructor(@Inject('LOGGER_SERVICE') private readonly logger: MyLogger) {
+  constructor(private readonly logger: MyLogger) {
     super();
   }
   serializeUser(user: User, done: Function) {

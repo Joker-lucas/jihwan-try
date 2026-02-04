@@ -7,16 +7,13 @@ import { InitContext } from './middlewares/initialize-context';
 @Global()
 @Module({
   providers: [
-    {
-      provide: 'LOGGER_SERVICE',
-      useClass: MyLogger,
-    },
+    MyLogger,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
     },
   ],
-  exports: ['LOGGER_SERVICE'],
+  exports: [MyLogger],
 })
 export class LoggerModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

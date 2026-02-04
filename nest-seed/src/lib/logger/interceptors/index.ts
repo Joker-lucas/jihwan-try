@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Inject,
   NestInterceptor,
   ExecutionContext,
   CallHandler,
@@ -19,7 +18,7 @@ interface RequestWithUser extends Request {
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-  constructor(@Inject('LOGGER_SERVICE') private readonly logger: MyLogger) {}
+  constructor(private readonly logger: MyLogger) {}
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
     const { method, url } = request;

@@ -8,8 +8,8 @@ import { MyLogger } from './lib/logger/logger.service';
 const RedisStore = require('connect-redis')(session);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useLogger(app.get<MyLogger>('LOGGER_SERVICE'));
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(MyLogger));
 
   app.enableShutdownHooks();
   const redisService = app.get<RedisService>('REDIS_SERVICE');

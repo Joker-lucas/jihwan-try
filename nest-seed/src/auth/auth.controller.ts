@@ -18,7 +18,7 @@ import { MyLogger } from 'src/lib/logger/logger.service';
 export class AuthController {
   constructor(
     private authService: AuthService,
-    @Inject('LOGGER_SERVICE') private readonly logger: MyLogger,
+    private readonly logger: MyLogger,
   ) {}
 
   @Post('signup')

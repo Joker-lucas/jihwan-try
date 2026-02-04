@@ -29,8 +29,7 @@ export class AppModule implements NestModule {
     private readonly dbService: DbService,
     @Inject('REDIS_SERVICE')
     private readonly redisService: RedisService,
-    @Inject('LOGGER_SERVICE')
-    private readonly myLogger: MyLogger,
+    private readonly logger: MyLogger,
   ) {}
 
   configure(consumer: MiddlewareConsumer) {}
@@ -45,18 +44,25 @@ export class AppModule implements NestModule {
   }
 
   async beforeApplicationShutdown(signal: string) {
-    console.log(`Received signal: ${signal}. Starting graceful shutdown...`);
+    this.logger.log(
+      `Received signal: ${signal}. Starting graceful shutdown...`,
+      'AppModule',
+    );
     try {
       await this.dbService.close();
       await this.redisService.close();
     } catch (error) {
-      console.log('Error during disconnection', error);
+      this.logger.error(
+        'Error during disconnection',
+        error instanceof Error ? error.stack : String(error),
+        'AppModule',
+      );
     }
   }
 
   onApplicationShutdown() {
-    console.log('Application shutdown complete.');
-    console.log('server terminated');
+    this.logger.log('Application shutdown complete.');
+    this.logger.log('server terminated');
     process.exit(2);
   }
 }
