@@ -21,7 +21,7 @@ const getAllUsers = async (req, res) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
 
-  const { totalItems, users } = await userService.getAllUsers({
+  const { totalCount, users } = await userService.getAllUsers({
     search,
     searchBy,
     page,
@@ -41,7 +41,7 @@ const getAllUsers = async (req, res) => {
 
   successResponse(res, {
     usersPayload,
-    totalItems,
+    totalCount,
   });
 };
 
