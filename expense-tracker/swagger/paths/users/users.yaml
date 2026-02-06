@@ -60,7 +60,7 @@ get:
                       type: string
                       enum: ["user", "admin"]
                       example: "admin"
-              totalItems:
+              totalCount:
                 type: integer
                 example: 2
           example:
@@ -81,6 +81,6 @@ get:
                 level: 5
                 exp: 750
                 role: "user"
-            totalItems: 2
+            totalCount: 2
     '403':
       description: 권한 없음

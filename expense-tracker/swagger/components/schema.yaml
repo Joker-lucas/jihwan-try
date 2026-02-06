@@ -330,7 +330,7 @@ schemas:
         type: array
         items:
           $ref: '#/schemas/ChallengeChecklist'
-      totalItems:
+      totalCount:
         type: integer
 
   UserChallengeStatus:
@@ -449,7 +449,7 @@ schemas:
         type: array
         items:
           $ref: '#/schemas/Challenge'
-      totalItems:
+      totalCount:
         type: integer
         
   UserProfile:
