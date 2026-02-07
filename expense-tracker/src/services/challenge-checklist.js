@@ -106,7 +106,7 @@ const getChallengeChecklists = async (userId, page, limit) => {
     limit,
     offset,
   });
-  return { totalItems: count, checklists };
+  return { totalCount: count, checklists };
 };
 
 const getChallengeChecklistById = async (challengeChecklistId, context) => {

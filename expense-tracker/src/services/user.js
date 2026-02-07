@@ -32,7 +32,7 @@ const getAllUsers = async (search, searchBy, page, limit) => {
   });
 
   return {
-    totalItems: count,
+    totalCount: count,
     users: rows,
   };
 };

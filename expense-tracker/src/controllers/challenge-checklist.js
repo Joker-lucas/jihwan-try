@@ -67,7 +67,7 @@ const getChallengeChecklists = async (req, res) => {
   const page = parseInt(req.query.page || 1, 10);
   const limit = parseInt(req.query.limit || 10, 10);
 
-  const { totalItems, checklists } = await challengeChecklistService.getChallengeChecklists(
+  const { totalCount, checklists } = await challengeChecklistService.getChallengeChecklists(
     targetUserId,
     page,
     limit,
@@ -77,7 +77,7 @@ const getChallengeChecklists = async (req, res) => {
 
   successResponse(res, {
     checklists: checklistsPayload,
-    totalItems,
+    totalCount,
   });
 };
 

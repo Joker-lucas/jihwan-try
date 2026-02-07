@@ -47,7 +47,7 @@ const getChallenges = async ({ limit, page }) => {
     limit,
     offset,
   });
-  return { totalItems: count, challenges };
+  return { totalCount: count, challenges };
 };
 
 const getChallengeById = async (challengeId) => {

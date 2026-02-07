@@ -64,13 +64,13 @@ const getChallenges = async (req, res) => {
   const page = parseInt(req.query.page, 10);
   const limit = parseInt(req.query.limit, 10);
 
-  const { totalItems, challenges } = await challengeService.getChallenges({ limit, page });
+  const { totalCount, challenges } = await challengeService.getChallenges({ limit, page });
 
   const challengesPayload = challenges.map(mapChallengeToPayload);
 
   successResponse(res, {
     challenges: challengesPayload,
-    totalItems,
+    totalCount,
   });
 };
 
