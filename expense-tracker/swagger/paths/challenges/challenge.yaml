@@ -35,7 +35,7 @@ get:
                 createdAt: '2025-10-31T10:00:00Z'
                 updatedAt: '2025-10-31T10:00:00Z'
                 deletedAt: null
-            totalItems: 2
+            totalCount: 2
 
 post:
   tags: [Challenges]

@@ -307,7 +307,7 @@ paths:
                             - user
                             - admin
                           example: admin
-                  totalItems:
+                  totalCount:
                     type: integer
                     example: 2
               example:
@@ -328,7 +328,7 @@ paths:
                     level: 5
                     exp: 750
                     role: user
-                totalItems: 2
+                totalCount: 2
         '403':
           description: 권한 없음
   '/api/users/{userId}':
@@ -1088,7 +1088,7 @@ paths:
                     createdAt: '2025-10-31T10:00:00Z'
                     updatedAt: '2025-10-31T10:00:00Z'
                     deletedAt: null
-                totalItems: 2
+                totalCount: 2
     post:
       tags:
         - Challenges
@@ -1211,7 +1211,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ChallengeChecklist'
-                  totalItems:
+                  totalCount:
                     type: integer
                     example: 2
               example:
@@ -1742,7 +1742,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ChallengeChecklist'
-        totalItems:
+        totalCount:
           type: integer
     UserChallengeStatus:
       type: object
@@ -1862,7 +1862,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Challenge'
-        totalItems:
+        totalCount:
           type: integer
     UserProfile:
       type: object

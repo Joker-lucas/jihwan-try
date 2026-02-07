@@ -5,7 +5,7 @@ info:
   description: 사용자의 수입/지출을 관리하고 분석하는 서비스의 API 명세서.
 
 servers:
-  - url: http://localhost:3000
+  - url: https://incredible-charisma-production.up.railway.app
     description: 개발 서버
 
 tags:
