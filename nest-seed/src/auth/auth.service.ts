@@ -18,7 +18,6 @@ export class AuthService {
   }
 
   async signOut(): Promise<void> {
-    console.log('Logout logic placeholder');
     return;
   }
 }

@@ -1,12 +1,7 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CustomError } from '../../common/error/error';
+import { MyLogger } from '../logger/logger.service';
 import {
   ERROR_CODES,
   ERROR_INFO,
@@ -15,6 +10,7 @@ import {
 
 @Catch()
 export class ErrorFilter implements ExceptionFilter {
+  constructor(private readonly logger: MyLogger) {}
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -29,18 +25,17 @@ export class ErrorFilter implements ExceptionFilter {
       statusCode = errorDetail.statusCode;
       errorCode = exception.errorCode;
       message = errorDetail.message;
-    } 
-    else {
+    } else {
       const defaultError = ERROR_INFO[ERROR_CODES.INTERNAL_SERVER_ERROR];
-      
+
       statusCode = defaultError.statusCode;
       errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR;
-      message = defaultError.message; 
+      message = defaultError.message;
     }
 
-    console.error(
+    this.logger.error(
       `[${errorCode}] ${request.method} ${request.url}`,
-      exception instanceof Error ? exception.stack : exception,
+      exception instanceof Error ? exception.stack : String(exception),
     );
 
     response.status(statusCode).json({

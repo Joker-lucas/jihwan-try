@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Sequelize, SequelizeOptions } from 'sequelize-typescript';
 import { ConfigService } from '../../config/config.service';
 import { ModelList } from './models';
+import { MyLogger } from 'src/lib/logger/logger.service';
 
 @Injectable()
 export class DbService {
   private sequelize: Sequelize;
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: MyLogger,
+  ) {}
 
   async init(): Promise<void> {
     const dbConfig = this.configService.getDbConfig();
@@ -25,10 +29,10 @@ export class DbService {
 
     try {
       await this.sequelize.authenticate();
-      console.log('데이터베이스 연결 성공');
+      this.logger.log('데이터베이스 연결 성공');
     } catch (error) {
       const err = error as Error;
-      console.error('Unable to connect to the database:', err.message);
+      this.logger.error('Unable to connect to the database:', err.message);
       throw err;
     }
   }
@@ -48,6 +52,6 @@ export class DbService {
 
   async close() {
     await this.sequelize.close();
-    console.log('Database Connection closed');
+    this.logger.log('Database Connection closed');
   }
 }

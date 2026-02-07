@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '../../config/config.service';
+import { MyLogger } from 'src/lib/logger/logger.service';
 import Redis, { RedisOptions } from 'ioredis';
 
 @Injectable()
 export class RedisService {
   private client: Redis;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: MyLogger,
+  ) {}
 
   async init(): Promise<void> {
     const redisConfig = this.configService.getRedisConfig();
@@ -20,14 +24,14 @@ export class RedisService {
 
     try {
       this.client.on('error', (err) => {
-        console.error('Redis 연결 중 오류 발생:', err.message);
+        this.logger.error('Redis 연결 중 오류 발생:', err.message);
       });
 
       await this.client.ping();
-      console.log('Redis 연결 성공');
+      this.logger.log('Redis 연결 성공');
     } catch (error) {
       const err = error as Error;
-      console.error('Unable to connect to Redis:', err.message);
+      this.logger.error('Unable to connect to Redis:', err.message);
       throw err;
     }
   }
@@ -37,6 +41,6 @@ export class RedisService {
 
   async close() {
     await this.client.quit();
-    console.log('\nRedis Connection closed');
+    this.logger.log('\nRedis Connection closed');
   }
 }
