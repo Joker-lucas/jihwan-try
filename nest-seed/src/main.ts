@@ -11,8 +11,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(MyLogger));
 
-  app.flushLogs();
-
   app.enableShutdownHooks();
   const redisService = app.get<RedisService>('REDIS_SERVICE');
   await redisService.init();
