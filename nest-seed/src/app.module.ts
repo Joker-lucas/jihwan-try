@@ -7,12 +7,26 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { DbService } from './common/db/db.service';
 import { RedisService } from './common/redis/redis.service';
-import { ErrorModule } from './lib/error/error.module';
+import { LoggerModule } from './lib/logger/logger.module';
+import { MyLogger } from './lib/logger/logger.service';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ErrorFilter } from './lib/error/error-handler';
+import { LoggerInterceptor } from './lib/logger/interceptors';
 
 @Module({
-  imports: [ConfigModule, CommonModule, UserModule, AuthModule, ErrorModule],
+  imports: [ConfigModule, CommonModule, UserModule, AuthModule, LoggerModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: ErrorFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   constructor(
@@ -20,6 +34,7 @@ export class AppModule implements NestModule {
     private readonly dbService: DbService,
     @Inject('REDIS_SERVICE')
     private readonly redisService: RedisService,
+    private readonly logger: MyLogger,
   ) {}
 
   configure(consumer: MiddlewareConsumer) {}
@@ -34,18 +49,25 @@ export class AppModule implements NestModule {
   }
 
   async beforeApplicationShutdown(signal: string) {
-    console.log(`Received signal: ${signal}. Starting graceful shutdown...`);
+    this.logger.log(
+      `Received signal: ${signal}. Starting graceful shutdown...`,
+      'AppModule',
+    );
     try {
       await this.dbService.close();
       await this.redisService.close();
     } catch (error) {
-      console.log('Error during disconnection', error);
+      this.logger.error(
+        'Error during disconnection',
+        error instanceof Error ? error.stack : String(error),
+        'AppModule',
+      );
     }
   }
 
   onApplicationShutdown() {
-    console.log('Application shutdown complete.');
-    console.log('server terminated');
+    this.logger.log('Application shutdown complete.');
+    this.logger.log('server terminated');
     process.exit(2);
   }
 }

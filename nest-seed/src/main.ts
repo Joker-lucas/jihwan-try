@@ -4,10 +4,13 @@ import { RedisService } from './common/redis/redis.service';
 import { ConfigService } from './config/config.service';
 import session from 'express-session';
 import passport from 'passport';
+import { MyLogger } from './lib/logger/logger.service';
 const RedisStore = require('connect-redis')(session);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(MyLogger));
+
   app.enableShutdownHooks();
   const redisService = app.get<RedisService>('REDIS_SERVICE');
   await redisService.init();

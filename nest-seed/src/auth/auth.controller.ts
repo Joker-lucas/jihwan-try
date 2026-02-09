@@ -5,15 +5,21 @@ import {
   Request,
   Res,
   UseGuards,
+  Inject,
+  Injectable,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
 import { CreateAuthDto } from './dto/create.auth.dto';
 import { SigninResponseDto, SignoutResponseDto, UserInfo } from './dto/res.dto';
 import { LocalAuthGuard } from '../lib/passport/guards/local/local-auth.guard';
+import { MyLogger } from 'src/lib/logger/logger.service';
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private readonly logger: MyLogger,
+  ) {}
 
   @Post('signup')
   async signUp(@Body() createAuthDto: CreateAuthDto): Promise<UserInfo> {
@@ -48,6 +54,7 @@ export class AuthController {
         if (err) {
           reject(err);
         } else {
+          this.logger.log(`로그아웃 성공`, 'Auth');
           resolve();
         }
       });
