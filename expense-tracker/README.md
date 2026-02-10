@@ -1,11 +1,13 @@
-# 가계부 서비스 프로젝트
+# 💰 가계부 서비스 프로젝트 (Expense Tracker)
 
-이 프로젝트는 사용자의 수입과 지출을 효율적으로 관리하고 분석할 수 있도록 돕는 웹 서비스입니다.
+이 프로젝트는 사용자의 수입과 지출을 효율적으로 관리하고 소비 데이터를 분석하여 스마트한 자산 관리를 돕는 **RESTful API 백엔드 서비스**입니다.  
+사용자 경험(UX)을 고려한 직관적인 프로세스와 게임 요소를 도입하여 지속적인 사용을 유도하도록 설계되었습니다.
 
-<br>
+---
 
-## 초기설계
+## 🏗 초기 설계 및 기능 명세
 
+프로젝트 개발에 앞서 작성된 기능 명세서입니다. 사용자 흐름과 핵심 기능을 정의하였습니다.
 
 ![기능명세서 1페이지](./docs/images/spec-1.png)
 ![기능명세서 2페이지](./docs/images/spec-2.png)
@@ -14,119 +16,124 @@
 
 <br>
 
-## 주요 기능
+## ✨ 주요 기능 (Key Features)
 
--   **사용자 인증:** 이메일/비밀번호를 이용한 회원가입 및 로그인 (Passport.js, cookie, session)
+### 1. 🔐 사용자 인증 및 보안
+- **회원가입/로그인**: Passport.js를 활용한 로컬 인증 및 세션(Session) 기반 유저 관리.
+- **보안**: Redis를 세션 저장소로 활용하여 확장성 확보 및 보안 강화.
 
--   **수입/지출 관리:** 수입(Income) 및 지출(Expense) 내역 CRUD
+### 2. 💸 수입/지출 내역 관리
+- **CRUD Operations**: 수입과 지출 내역을 손쉽게 생성, 조회, 수정, 삭제할 수 있습니다.
+- **필터링 및 검색**: 날짜, 금액, 카테고리 등 다양한 조건으로 데이터를 조회할 수 있습니다.
 
--   **목표 지출 관리:** 월별/카테고리별 목표 지출(TargetSpending) 설정 및 CRUD
+### 3. 🎯 목표 예산 및 챌린지
+- **목표 설정 (TargetSpending)**: 월별, 카테고리별 지출 목표를 설정하여 계획적인 소비를 유도합니다.
+- **챌린지 모드**: '무지출 챌린지', '커피값 줄이기' 등 미션을 통해 자산 관리의 재미를 더했습니다.
 
--   **데이터 조회:** 연/월 별 수입, 지출, 목표 지출 내역 조회
+### 4. 📊 데이터 분석 및 리포트
+- **통계 제공**: 전월 대비 수입/지출 증감 내역을 분석하여 리포트로 제공합니다.
+- **시각화 데이터**: 소비 패턴을 한눈에 파악할 수 있는 분석 데이터를 API로 제공합니다.
 
--   **데이터 분석:** 전월대비 지출, 수입 증감량, 수입, 지출별 세부 분석
+### 5. 📄 Swagger API 문서화
+- 개발된 모든 API는 Swagger를 통해 명세화되어 있으며, 직접 테스트가 가능합니다.
 
--   **API 문서화:** Swagger(OpenAPI 3.0)를 이용한 API 명세 자동화
+---
 
-## API 명세
+## 📚 API 명세 (Swagger UI)
 
-서버 실행 후, 아래 주소에서 상세한 API 문서를 테스트해볼 수 있습니다.
+서버가 실행 중일 때 아래 링크에서 API 문서를 확인하고 테스트할 수 있습니다.
 
--   **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- **Swagger UI**: [https://incredible-charisma-production.up.railway.app/swagger-build](https://incredible-charisma-production.up.railway.app/swagger-build) (서버 배포 완료. 접속 가능)
+- **Local Host**: `http://localhost:3000/api-docs` (로컬 실행 시)
 
 <br>
 
+## 🎨 와이어프레임 (Design)
 
-##  와이어프레임
+프로젝트의 초기 화면 설계는 Figma를 사용하여 제작되었습니다. 구체적인 UI/UX 흐름은 아래 링크에서 확인 가능합니다.
 
-프로젝트의 초기 화면 설계는 Figma를 사용하여 제작되었습니다. 아래 링크에서 전체 와이어프레임을 확인하실 수 있습니다.
-
--   **[Figma 와이어프레임 바로가기](https://www.figma.com/design/BeAGKHHE1RJ3U83fmQ6t8t/%EC%A0%9C%EB%AA%A9-%EC%97%86%EC%9D%8C?node-id=0-1&t=pzaADH3UY4CcNEcf-1)**
+- **[Figma 와이어프레임 바로가기](https://www.figma.com/design/BeAGKHHE1RJ3U83fmQ6t8t/%EC%A0%9C%EB%AA%A9-%EC%97%86%EC%9D%8C?node-id=0-1&t=pzaADH3UY4CcNEcf-1)**
 
 <br>
 
-## 데이터베이스 구조
+## 🗄 데이터베이스 구조 (ERD)
 
-데이터베이스의 전체 구조는 Draw.io, DBeaver를 사용하여 설계되었습니다.
+DB 설계는 효율적인 데이터 관계를 고려하여 정규화되었습니다. (Draw.io, DBeaver 활용)
 
 ![ERD](./docs/images/database-erd.png) 
 ![ERD2](./docs/images/database-erd2.png)
 
+---
 
-## 기술 스택
-이 프로젝트는 Node.js(Express) 서버와 Docker를 통해 관리되는 데이터베이스(PostgreSQL) 및 메모리 DB(Redis)로 구성됩니다.
+## 🛠 기술 스택 (Tech Stack)
 
--   **백엔드:** Node.js, Express.js
--   **데이터베이스:** PostgreSQL, Sequelize 
-    -   Sequelize ORM을 통해 Node.js 서버와 통신하며, `sequelize-cli`로 마이그레이션을 관리합니다.
--   **인증 및 세션:** **Passport.js**, **express-session**, **Redis**
-    -   세션 데이터는 `docker-compose.yml`을 통해 실행되는 `Redis` 컨테이너에 저장됩니다.
--   **API 문서:** Swagger (OpenAPI 3.0)
-    -   `swagger-cli`를 통해 `swagger/index.yaml` 파일을 `swagger.yaml`로 생성해서 `swagger-ui-express`로 제공합니다.
+이 프로젝트는 안정적인 **Node.js** 환경과 **Docker**를 활용한 컨테이너 기반의 인프라로 구성되어 있습니다.
 
+| Category | Technology | Description |
+|----------|------------|-------------|
+| **Server** | ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=Node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white) | REST API 서버 구현 |
+| **Database** | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) | 관계형 데이터베이스 (RDBMS) |
+| **ORM** | ![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=flat-square&logo=sequelize&logoColor=white) | 객체 관계 매핑 및 마이그레이션 관리 |
+| **Cache & Auth** | ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white) ![Passport](https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=passport&logoColor=white) | 세션 저장소 및 인증 미들웨어 |
+| **Docs** | ![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black) | API 명세 문서 자동화 |
 
-## 프로젝트 구조 
-```text
+<br>
+
+## 📂 프로젝트 구조
+
+```bash
 expense-tracker/
-├── src/                  # 핵심 소스 코드
-│   ├── controllers/      # API 요청/응답 처리
-│   ├── routers/          # 앤드포인트 정의 컨트롤러와 연결
-│   ├── services/         # 핵심 비즈니스 로직
-│   └── libs/             # 전반에 사용되는 공통 모듈
-│         ├── common/     # 공용 함수
-│         ├── config/     # 환경 변수 로드 (.env)
-│         ├── constants   # ENUM 정의
-│         ├── context     # 컨텍스트 관리
-│         ├── db          # Sequelize 모델 정의 및 DB 연결 초기화
-│         ├── logger      # Pino 로거 설정
-│         ├── middlewares # 미들웨어 (인증, 유효성 검사 등)
-│         └──  redis      # Redis 설정 및 연결
-├── docs/images           # README 이미지 파일
-├── server.js             # 서버 메인 파일
-├── sequelizerc           # Sequelize-CLI 경로 설정 파일
-├── README.md             # 프로젝트 개요 및 사용법
-├── package-lock.json     # 정확한 종속성 버전이 기록된 파일로, 일관된 빌드를 보장
-└── package.json          # 프로젝트 종속성 및 스크립트 정의
+├── src/
+│   ├── controllers/      # API 요청 처리 및 응답 반환
+│   ├── routers/          # URL 라우팅 정의
+│   ├── services/         # 비즈니스 로직 구현
+│   └── libs/             # 공통 모듈 및 유틸리티
+│       ├── common/       # 공용 함수
+│       ├── config/       # 환경 변수 로드 (.env)
+│       ├── constants/    # 상수 및 ENUM 정의
+│       ├── context/      # 요청 컨텍스트 관리
+│       ├── db/           # Sequelize 모델 및 DB 연결
+│       ├── logger/       # Pino 로거 설정
+│       ├── middlewares/  # 인증, 유효성 검사 미들웨어
+│       └── redis/        # Redis 클라이언트 설정
+├── docs/                 # 문서 및 이미지 리소스
+├── server.js             # 애플리케이션 진입점
+├── sequelizerc           # Sequelize 설정 파일
+└── package.json          # 의존성 패키지 관리
 ```
 
+---
 
-## 프로젝트 설정 및 실행
+## 🚀 프로젝트 설정 및 실행 (Getting Started)
 
-프로젝트를 로컬 환경에서 실행하기 위한 단계입니다.
+Docker Compose를 활용하여 데이터베이스 환경을 손쉽게 구축할 수 있습니다.
 
 ### 1. 사전 준비 사항
+- **[Node.js](https://nodejs.org/)** (v18+)
+- **Docker Desktop** (PostgreSQL, Redis 실행용)
 
-* ** [Node.js](https://nodejs.org/) (v18 이상 권장)
-* Node.js 서버(Express)를 사용자 컴퓨터에서 직접 실행하기 위해 필요합니다. <br>
-
-* ** [Docker](https://www.docker.com/products/docker-desktop/) 및 Docker Compose
-* `PostgreSQL`과 `Redis`를 컨테이너로 실행하기 위해 필요합니다. (로컬에 별도 설치 불필요)
-
-<br>
-
-| 파일 | 용도 | 설정 항목 (기본값) | <br> 
-| **`docker-compose.yml`** | **Docker 컨테이너**가 사용할 환경 변수 | `POSTGRES_USER: user`/`POSTGRES_PASSWORD: password`<br/>`POSTGRES_DB: mydb` |
-<br>
-
-| **`config/config.json`** | **Node.js 애플리케이션**이 DB에 접속할 정보 | `"username": "user"`/`"password": "password"`<br/>`"database": "mydb"`<br/>`"host": "localhost"` |
-
-만약 DB 정보를 변경하고 싶다면, **반드시 두 파일의 값을 모두** 동일하게 수정한 후 Docker 컨테이너와 Node.js 서버를 재시작해야 합니다.
-<br>
-
-### 2. NPM 패키지 설치
+### 2. 패키지 설치
+```bash
 npm install
+```
 
-### 3. 데이터베이스 마이그레이션
+### 3. 환경 변수 설정
+`config/config.json` 및 `.env` 파일 설정이 필요할 수 있습니다. 로컬 개발 시 기본값(`localhost`)을 그대로 사용할 수 있습니다.
 
-* npx sequelize-cli db:create <br>
-* npx sequelize-cli db:migrate
+### 4. 데이터베이스 생성 및 마이그레이션
+```bash
+# DB 생성
+npx sequelize-cli db:create
 
-### 4. 서버 실행
+# 테이블 생성 (Migration)
+npx sequelize-cli db:migrate
+```
 
-  **서버 실행(npm run api-docs도 서버 실행시 먼저 실행되게 해두었음)** <br>
+### 5. 서버 실행
+```bash
+# 개발 모드 실행 (Nodemon)
+npm run dev
+```
+서버가 정상적으로 실행되면 **`http://localhost:3000`** 에서 접속 가능합니다.
 
-    npm run dev
-
-    서버가 http://localhost:3000에서 정상적으로 실행됩니다.
-
-<br>
+---
